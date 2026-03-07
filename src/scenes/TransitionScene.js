@@ -1,0 +1,31 @@
+/**
+ * TransitionScene.js
+ * After beating level 10: narrative about the demon's son and the empire; transition to levels 11-20.
+ */
+
+class TransitionScene extends Phaser.Scene {
+  constructor() {
+    super({ key: 'Transition' });
+  }
+
+  create() {
+    const w = CONFIG.WIDTH;
+    const h = CONFIG.HEIGHT;
+
+    this.add.text(w / 2, 80, 'The Demon is Defeated', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
+    this.add.text(w / 2, 140, 'The son of the demon takes on the demon empire.', { fontSize: 18, color: '#e5e7eb' }).setOrigin(0.5).setWordWrapWidth(w - 80);
+    this.add.text(w / 2, 180, 'Reach him to defeat him.', { fontSize: 18, color: '#e5e7eb' }).setOrigin(0.5).setWordWrapWidth(w - 80);
+    this.add.text(w / 2, 240, 'Levels 11-20 unlocked. You cannot return to previous levels.', { fontSize: 16, color: '#94a3b8' }).setOrigin(0.5).setWordWrapWidth(w - 80);
+
+    const contBtn = this.add.rectangle(w / 2, h - 80, 180, 48, 0x4ade80);
+    contBtn.setInteractive({ useHandCursor: true });
+    this.add.text(w / 2, h - 80, 'Continue', { fontSize: 20, color: '#fff' }).setOrigin(0.5);
+    contBtn.on('pointerdown', () => {
+      GAME_STATE.act = 2;
+      GAME_STATE.unlockedLevels = ['level11'];
+      if (!GAME_STATE.unlockedClasses) GAME_STATE.unlockedClasses = ['warrior'];
+      if (!GAME_STATE.unlockedClasses.includes('sorceress')) GAME_STATE.unlockedClasses.push('sorceress');
+      this.scene.start('Overworld');
+    });
+  }
+}

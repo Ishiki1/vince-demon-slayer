@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demon Slayer - Vince</title>
+  <style>
+    body { margin: 0; background: #1a1a2e; }
+    canvas { display: block; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div id="phaser-game"></div>
+  <!-- Phaser 3 from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+  <!-- Game config and data (load order matters) -->
+  <script src="src/config.js"></script>
+  <script src="src/data/levels.js"></script>
+  <script src="src/data/skills.js"></script>
+  <script src="src/data/items.js"></script>
+  <script src="src/entities/Hero.js"></script>
+  <script src="src/entities/Enemy.js"></script>
+  <script src="src/systems/durability.js"></script>
+  <script src="src/systems/inventory.js"></script>
+  <script src="src/systems/combat.js"></script>
+  <script src="src/systems/progression.js"></script>
+  <script src="src/systems/loot.js"></script>
+  <script src="src/systems/shop.js"></script>
+  <script src="src/data/events.js"></script>
+  <script src="src/systems/eventEffects.js"></script>
+  <script src="src/ui/XPBar.js"></script>
+  <script src="src/ui/SkillButtons.js"></script>
+  <script src="src/ui/InventoryPanel.js"></script>
+  <script src="src/ui/SceneUi.js"></script>
+  <script src="src/data/sounds.js"></script>
+  <script src="src/systems/audio.js"></script>
+  <script src="src/scenes/BootScene.js"></script>
+  <script src="src/scenes/MenuScene.js"></script> 
+  <script src="src/scenes/ClassSelectScene.js"></script>
+  <script src="src/scenes/ClassOriginScene.js"></script>
+  <script src="src/scenes/RunEndedScene.js"></script>
+  <script src="src/scenes/UnlockSelectScene.js"></script>
+  <script src="src/scenes/OverworldScene.js"></script>
+  <script src="src/scenes/CombatScene.js"></script>
+  <script src="src/scenes/LootScene.js"></script>
+  <script src="src/scenes/EventScene.js"></script>
+  <script src="src/scenes/SkillTreeScene.js"></script>
+  <script src="src/scenes/TransitionScene.js"></script>
+  <script src="src/scenes/TownScene.js"></script>
+  <script src="src/scenes/ShopScene.js"></script>
+  <script src="src/scenes/BlacksmithScene.js"></script>
+  <script src="src/scenes/UpgradeScene.js"></script>
+  <script src="src/scenes/MineScene.js"></script>
+  <script src="src/scenes/InventoryOverworldScene.js"></script>
+  <script src="src/scenes/CharacterSheetScene.js"></script>
+  <script src="src/scenes/SettingsScene.js"></script>
+  <script src="src/main.js"></script>
+  <script src="src/data/unlocks.js"></script>
+  <script src="src/systems/costs.js"></script>
+  <script src="src/systems/saveLoad.js"></script>
+</body>
+</html>

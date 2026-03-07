@@ -1,0 +1,181 @@
+/**
+ * ShopScene.js
+ * First screen: Buy or Sell. Buy: random stock with type, buy with gold. Sell: list inventory, sell at 50% price.
+ */
+
+const SHOP_TYPE_LABELS = {
+  weapon: 'Weapon',
+  armor: 'Armor',
+  accessory: 'Accessory',
+  potion: 'Consumable',
+};
+
+const SHOP_SELL_FILTER_LABELS = ['All', 'Weapons', 'Armor', 'Accessories', 'Consumables'];
+const SHOP_SELL_FILTER_VALUES = ['all', 'weapon', 'armor', 'accessory', 'potion'];
+
+class ShopScene extends Phaser.Scene {
+  constructor() {
+    super({ key: 'Shop' });
+  }
+
+  create() {
+    if (!GAME_STATE.hero) {
+      this.scene.start('Menu');
+      return;
+    }
+    const w = CONFIG.WIDTH;
+    const h = CONFIG.HEIGHT;
+    const hero = GAME_STATE.hero;
+    InventorySystem.ensureAccessorySlots(hero);
+    const shopView = GAME_STATE.shopView || 'choice';
+
+    if (shopView === 'choice') {
+      this.add.text(w / 2, 80, 'Shop', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
+      this.add.text(w / 2, 120, 'Gold: ' + hero.gold, { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
+      const buyBtn = this.add.rectangle(w / 2, h / 2 - 50, 200, 56, 0x4ade80);
+      buyBtn.setInteractive({ useHandCursor: true });
+      this.add.text(w / 2, h / 2 - 50, 'Buy', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
+      buyBtn.on('pointerdown', () => { GAME_STATE.shopView = 'buy'; this.scene.restart(); });
+      const sellBtn = this.add.rectangle(w / 2, h / 2 + 30, 200, 56, 0x0ea5e9);
+      sellBtn.setInteractive({ useHandCursor: true });
+      this.add.text(w / 2, h / 2 + 30, 'Sell', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
+      sellBtn.on('pointerdown', () => { GAME_STATE.shopView = 'sell'; this.scene.restart(); });
+      const fromTown = GAME_STATE.shopFrom === 'town';
+      const backBtn = this.add.rectangle(w / 2, h - 60, 160, 48, 0x475569);
+      backBtn.setInteractive({ useHandCursor: true });
+      this.add.text(w / 2, h - 60, fromTown ? 'Back to Town' : 'Back to Map', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
+      backBtn.on('pointerdown', () => {
+        GAME_STATE.shopView = 'choice';
+        if (fromTown) this.scene.start('Town');
+        else this.scene.start('Overworld');
+      });
+      return;
+    }
+
+    if (shopView === 'buy') {
+      if (!GAME_STATE.shopStock || GAME_STATE.shopStock.length === 0) {
+        GAME_STATE.shopStock = ShopSystem.generateStock(hero);
+      }
+      this.stock = GAME_STATE.shopStock;
+      this.add.text(w / 2, 40, 'Shop — Buy', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
+      this.add.text(w / 2, 72, 'Gold: ' + hero.gold, { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
+      const rerollCost = typeof getFinalGoldCost === 'function' ? getFinalGoldCost(CONFIG.SHOP_REROLL_COST) : CONFIG.SHOP_REROLL_COST;
+      const canReroll = hero.gold >= rerollCost;
+      const rerollBtn = this.add.rectangle(w - 100, 100, 140, 36, canReroll ? 0x78716c : 0x475569);
+      rerollBtn.setInteractive({ useHandCursor: canReroll });
+      this.add.text(w - 100, 100, 'Re-roll (' + rerollCost + 'g)', { fontSize: 13, color: '#fff' }).setOrigin(0.5);
+      if (canReroll) {
+        rerollBtn.on('pointerdown', () => {
+          hero.gold -= rerollCost;
+          GAME_STATE.shopStock = ShopSystem.generateStock(hero);
+          this.scene.restart();
+        });
+      }
+      this.stock.forEach((itemId, i) => {
+        const item = ITEMS[itemId];
+        if (!item) return;
+        const y = 120 + i * 88;
+        const typeLabel = SHOP_TYPE_LABELS[item.type] || item.type;
+        const canBuy = ShopSystem.canBuy(hero, itemId);
+        this.add.text(80, y - 4, item.name + ' (' + item.rarity + ') — ' + typeLabel, { fontSize: 16, color: '#e5e7eb' });
+        const effectLine = getItemEffectLine(item);
+        if (effectLine) this.add.text(80, y + 14, effectLine, { fontSize: 12, color: '#a5b4fc' });
+        const price = ShopSystem.getPrice(itemId);
+        this.add.text(80, y + 32, price + ' gold', { fontSize: 14, color: '#fbbf24' });
+        const buyBtn = this.add.rectangle(w - 120, y + 16, 80, 36, canBuy ? 0x4ade80 : 0x64748b);
+        buyBtn.setInteractive({ useHandCursor: true });
+        this.add.text(w - 120, y + 16, 'Buy', { fontSize: 14, color: '#fff' }).setOrigin(0.5);
+        if (canBuy) {
+          buyBtn.on('pointerdown', () => {
+            ShopSystem.buy(hero, itemId);
+            const idx = GAME_STATE.shopStock.indexOf(itemId);
+            if (idx !== -1) GAME_STATE.shopStock.splice(idx, 1);
+            this.scene.restart();
+          });
+        }
+      });
+      const backToChoice = this.add.rectangle(w / 2, h - 60, 180, 48, 0x475569);
+      backToChoice.setInteractive({ useHandCursor: true });
+      this.add.text(w / 2, h - 60, 'Back to Shop', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
+      backToChoice.on('pointerdown', () => { GAME_STATE.shopView = 'choice'; this.scene.restart(); });
+      return;
+    }
+
+    if (shopView === 'sell') {
+      InventorySystem.ensureSlotBased(hero);
+      const sellFilter = GAME_STATE.shopSellFilter != null ? GAME_STATE.shopSellFilter : 'all';
+      this.add.text(w / 2, 40, 'Shop — Sell', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
+      this.add.text(w / 2, 72, 'Gold: ' + hero.gold, { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
+
+      let sellable = hero.inventory.filter(s => ITEMS[s.itemId] && ShopSystem.getSellPrice(s.itemId) >= 0);
+      if (sellFilter !== 'all') {
+        sellable = sellable.filter(s => ITEMS[s.itemId].type === sellFilter);
+      }
+
+      const nonEquippedNonPotion = hero.inventory.filter(s => {
+        const item = ITEMS[s.itemId];
+        if (!item || item.type === 'potion') return false;
+        const isEquipped = InventorySystem.isSlotEquipped(hero, s.id);
+        return !isEquipped && ShopSystem.getSellPrice(s.itemId) >= 0;
+      });
+      const sellAllY = 72;
+      if (nonEquippedNonPotion.length > 0) {
+        const sellAllBtn = this.add.rectangle(w - 100, sellAllY, 140, 36, 0x0ea5e9);
+        sellAllBtn.setInteractive({ useHandCursor: true });
+        this.add.text(w - 100, sellAllY, 'Sell All (no potions)', { fontSize: 12, color: '#fff' }).setOrigin(0.5);
+        sellAllBtn.on('pointerdown', () => {
+          let total = 0;
+          nonEquippedNonPotion.forEach(slot => {
+            total += ShopSystem.getSellPrice(slot.itemId);
+            InventorySystem.removeSlotById(hero, slot.id);
+          });
+          hero.gold += total;
+          this.scene.restart();
+        });
+      }
+
+      const filterY = 100;
+      const filterBtnStartX = 130;
+      SHOP_SELL_FILTER_LABELS.forEach((label, i) => {
+        const val = SHOP_SELL_FILTER_VALUES[i];
+        const isActive = sellFilter === val;
+        const cx = filterBtnStartX + i * 108;
+        const btn = this.add.rectangle(cx, filterY, 100, 28, isActive ? 0x475569 : 0x334155);
+        btn.setInteractive({ useHandCursor: true });
+        this.add.text(cx, filterY + 14, label, { fontSize: 11, color: isActive ? '#fbbf24' : '#94a3b8' }).setOrigin(0.5);
+        btn.on('pointerdown', () => {
+          GAME_STATE.shopSellFilter = val;
+          this.scene.restart();
+        });
+      });
+
+      const listStartY = filterY + 44;
+      sellable.forEach((slot, i) => {
+        const item = ITEMS[slot.itemId];
+        if (!item) return;
+        const y = listStartY + i * 72;
+        const typeLabel = SHOP_TYPE_LABELS[item.type] || item.type;
+        const sellPrice = ShopSystem.getSellPrice(slot.itemId);
+        const isEquipped = InventorySystem.isSlotEquipped(hero, slot.id);
+        const nameLine = item.name + ' (' + item.rarity + ') — ' + typeLabel + (isEquipped ? ' (Equipped)' : '');
+        this.add.text(80, y - 2, nameLine, { fontSize: 15, color: '#e5e7eb' });
+        this.add.text(80, y + 16, sellPrice + ' gold', { fontSize: 14, color: '#fbbf24' });
+        const sellBtn = this.add.rectangle(w - 100, y + 8, 70, 32, 0x0ea5e9);
+        sellBtn.setInteractive({ useHandCursor: true });
+        this.add.text(w - 100, y + 8, 'Sell', { fontSize: 13, color: '#fff' }).setOrigin(0.5);
+        sellBtn.on('pointerdown', () => {
+          hero.gold += sellPrice;
+          InventorySystem.removeSlotById(hero, slot.id);
+          this.scene.restart();
+        });
+      });
+      if (sellable.length === 0) {
+        this.add.text(w / 2, h / 2 - 40, 'Nothing to sell.', { fontSize: 18, color: '#94a3b8' }).setOrigin(0.5);
+      }
+      const backToChoice = this.add.rectangle(w / 2, h - 60, 180, 48, 0x475569);
+      backToChoice.setInteractive({ useHandCursor: true });
+      this.add.text(w / 2, h - 60, 'Back to Shop', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
+      backToChoice.on('pointerdown', () => { GAME_STATE.shopView = 'choice'; this.scene.restart(); });
+    }
+  }
+}
