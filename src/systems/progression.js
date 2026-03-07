@@ -36,7 +36,9 @@ const ProgressionSystem = {
     if (!hero) return [];
     const points = hero.skillPoints || 0;
     const skillMap = getSkillsForClass(hero);
-    const tierMap = hero.class === 'sorceress' ? SKILL_TREE_BY_TIER_SORCERESS : SKILL_TREE_BY_TIER;
+    const tierMap = typeof getSkillTreeForClass === 'function'
+      ? getSkillTreeForClass(hero.class)
+      : SKILL_TREE_BY_TIER;
     const maxTier = level >= 2 ? Math.min(level, 10) : 0;
     const maxPassiveTier = level === 2 ? 1 : maxTier;
     const pool = [];
@@ -49,7 +51,9 @@ const ProgressionSystem = {
       });
     }
     const unique = [...new Set(pool)];
-    const defaultSkill = hero.class === 'sorceress' ? 'fireball' : 'slash';
+    const defaultSkill = typeof getDefaultSkillIdForClass === 'function'
+      ? getDefaultSkillIdForClass(hero.class)
+      : 'slash';
     const candidates = unique.filter(id => {
       if (id === defaultSkill) return false;
       const cost = typeof getChoiceCost === 'function' ? getChoiceCost(id) : 1;

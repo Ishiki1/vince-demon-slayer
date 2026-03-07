@@ -21,7 +21,45 @@ const INVENTORY_GRID = {
   cellSize: 40,
   cellGap: 6,
   startX: 432,
-  startY: 124,
+  startY: 134,
+};
+
+const INVENTORY_LAYOUT = {
+  slots: {
+    character: { x: 150, y: 118, width: 112, height: 182 },
+    weapon: { x: 279, y: 121, width: 112, height: 78 },
+    armor: { x: 279, y: 216, width: 112, height: 78 },
+    accessory1: { x: 151, y: 311, width: 112, height: 78 },
+    accessory2: { x: 279, y: 311, width: 112, height: 78 },
+  },
+  hero: {
+    xOffset: 10,
+    yOffset: 6,
+    width: 100,
+    height: 152,
+  },
+  equipped: {
+    sizes: {
+      weapon: { width: 48, height: 48 },
+      armor: { width: 48, height: 48 },
+      accessory: { width: 42, height: 42 },
+    },
+    offsets: {
+      weapon: { x: 8, y: 10 },
+      armor: { x: 7, y: 12 },
+      accessory: { x: 6, y: 11 },
+    },
+  },
+  bag: {
+    xOffset: -6,
+    yOffset: 7,
+    iconWidth: 40,
+    iconHeight: 40,
+    durabilityXOffset: 0,
+    durabilityYOffset: 5,
+  },
+  closeButton: { x: 711, y: 520, width: 108, height: 42 },
+  statusText: { x: 88, y: 519 },
 };
 
 class InventoryOverworldScene extends Phaser.Scene {
@@ -61,11 +99,11 @@ class InventoryOverworldScene extends Phaser.Scene {
 
   createWindowFrame() {
     this.slotBounds = {
-      character: { x: 152, y: 126, width: 112, height: 180 },
-      weapon: { x: 279, y: 126, width: 112, height: 78 },
-      armor: { x: 279, y: 218, width: 112, height: 78 },
-      accessory1: { x: 152, y: 310, width: 112, height: 78 },
-      accessory2: { x: 279, y: 310, width: 112, height: 78 },
+      character: { ...INVENTORY_LAYOUT.slots.character },
+      weapon: { ...INVENTORY_LAYOUT.slots.weapon },
+      armor: { ...INVENTORY_LAYOUT.slots.armor },
+      accessory1: { ...INVENTORY_LAYOUT.slots.accessory1 },
+      accessory2: { ...INVENTORY_LAYOUT.slots.accessory2 },
     };
 
     this.gridCells = [];
@@ -78,17 +116,19 @@ class InventoryOverworldScene extends Phaser.Scene {
     }
 
     if (this.usingLayoutImage) {
-      this.createLayoutCover(this.slotBounds.weapon, 8);
-      this.createLayoutCover(this.slotBounds.armor, 8);
-      this.createLayoutCover(this.slotBounds.accessory1, 8);
-      this.createLayoutCover(this.slotBounds.accessory2, 8);
-      this.add.rectangle(150, 518, 122, 24, 0x132031, 0.98);
-      const closeHitArea = this.add.rectangle(710, 520, 92, 34, 0x000000, 0.001).setInteractive({ useHandCursor: true });
+      const closeHitArea = this.add.rectangle(
+        INVENTORY_LAYOUT.closeButton.x,
+        INVENTORY_LAYOUT.closeButton.y,
+        INVENTORY_LAYOUT.closeButton.width,
+        INVENTORY_LAYOUT.closeButton.height,
+        0x000000,
+        0.001
+      ).setInteractive({ useHandCursor: true }).setDepth(30);
       closeHitArea.on('pointerdown', () => this.scene.start('Overworld'));
-      this.statusText = this.add.text(152, 518, '', {
+      this.statusText = this.add.text(INVENTORY_LAYOUT.statusText.x, INVENTORY_LAYOUT.statusText.y, '', {
         fontSize: 13,
         color: '#e5e7eb',
-      }).setOrigin(0, 0.5);
+      }).setOrigin(0, 0.5).setDepth(30);
       return;
     }
 
@@ -162,17 +202,6 @@ class InventoryOverworldScene extends Phaser.Scene {
     this.add.rectangle(x + width / 2, y + height / 2, width - 10, height - 10, INVENTORY_WINDOW.slotFill, 0.98).setStrokeStyle(1, 0x39465a, 0.9);
   }
 
-  createLayoutCover(bounds, inset) {
-    this.add.rectangle(
-      bounds.x + bounds.width / 2,
-      bounds.y + bounds.height / 2 + 2,
-      bounds.width - inset,
-      bounds.height - inset,
-      INVENTORY_WINDOW.slotFill,
-      0.98
-    );
-  }
-
   clearDynamic() {
     this.dynamicEls.forEach((el) => {
       if (el && typeof el.destroy === 'function') el.destroy();
@@ -194,8 +223,12 @@ class InventoryOverworldScene extends Phaser.Scene {
   renderCharacterPreview() {
     const bounds = this.slotBounds.character;
     if (this.textures.exists('hero_sheet')) {
-      const portrait = this.add.sprite(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2 + 6, 'hero_sheet', 0)
-        .setDisplaySize(104, 150);
+      const portrait = this.add.sprite(
+        bounds.x + bounds.width / 2 + INVENTORY_LAYOUT.hero.xOffset,
+        bounds.y + bounds.height / 2 + INVENTORY_LAYOUT.hero.yOffset,
+        'hero_sheet',
+        0
+      ).setDisplaySize(INVENTORY_LAYOUT.hero.width, INVENTORY_LAYOUT.hero.height);
       this.dynamicEls.push(portrait);
     } else {
       const fallback = this.add.text(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2, this.hero.name, {
@@ -211,10 +244,14 @@ class InventoryOverworldScene extends Phaser.Scene {
     const slot = this.hero.inventory.find((entry) => entry.id === slotId);
     const item = slot && ITEMS[slot.itemId];
     if (!slot || !item) return;
-    const icon = this.createItemIcon(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2 + 6, slot, {
-      width: Math.min(bounds.width - 24, 56),
-      height: Math.min(bounds.height - 20, 56),
-    });
+    const equippedSize = INVENTORY_LAYOUT.equipped.sizes[type] || INVENTORY_LAYOUT.equipped.sizes.accessory;
+    const equippedOffset = INVENTORY_LAYOUT.equipped.offsets[type] || INVENTORY_LAYOUT.equipped.offsets.accessory;
+    const icon = this.createItemIcon(
+      bounds.x + bounds.width / 2 + equippedOffset.x,
+      bounds.y + bounds.height / 2 + equippedOffset.y,
+      slot,
+      equippedSize
+    );
     const hitArea = this.add.rectangle(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2, bounds.width - 10, bounds.height - 10, 0x000000, 0.001)
       .setInteractive({ useHandCursor: true });
     hitArea.on('pointerdown', () => {
@@ -248,10 +285,13 @@ class InventoryOverworldScene extends Phaser.Scene {
       if (!slot) return;
       const item = ITEMS[slot.itemId];
       if (!item) return;
-      const centerX = cellData.x + INVENTORY_GRID.cellSize / 2;
-      const centerY = cellData.y + INVENTORY_GRID.cellSize / 2;
-      const icon = this.createItemIcon(centerX, centerY, slot, { width: 30, height: 30 });
-      const hitArea = this.add.rectangle(centerX, centerY, INVENTORY_GRID.cellSize, INVENTORY_GRID.cellSize, 0x000000, 0.001)
+      const centerX = cellData.x + INVENTORY_GRID.cellSize / 2 + INVENTORY_LAYOUT.bag.xOffset;
+      const centerY = cellData.y + INVENTORY_GRID.cellSize / 2 + INVENTORY_LAYOUT.bag.yOffset;
+      const icon = this.createItemIcon(centerX, centerY, slot, {
+        width: INVENTORY_LAYOUT.bag.iconWidth,
+        height: INVENTORY_LAYOUT.bag.iconHeight,
+      });
+      const hitArea = this.add.rectangle(cellData.x + INVENTORY_GRID.cellSize / 2, cellData.y + INVENTORY_GRID.cellSize / 2, INVENTORY_GRID.cellSize, INVENTORY_GRID.cellSize, 0x000000, 0.001)
         .setInteractive({ useHandCursor: true });
       hitArea.on('pointerdown', () => this.onBagItemClick(slot, item));
       attachHoverScaleTooltip(hitArea, icon, {
@@ -263,20 +303,21 @@ class InventoryOverworldScene extends Phaser.Scene {
         onHoverChanged: (hovered) => this.setInventoryUniqueHoverState(icon, item, hovered),
       });
       this.dynamicEls.push(hitArea);
-      this.renderDurability(slot, cellData.x + INVENTORY_GRID.cellSize - 2, cellData.y + INVENTORY_GRID.cellSize - 4);
+      this.renderDurability(
+        slot,
+        cellData.x + INVENTORY_GRID.cellSize - 2 + INVENTORY_LAYOUT.bag.durabilityXOffset,
+        cellData.y + INVENTORY_GRID.cellSize - 4 + INVENTORY_LAYOUT.bag.durabilityYOffset
+      );
     });
   }
 
   createItemIcon(x, y, slot, size) {
     const item = slot && ITEMS[slot.itemId];
-    const borderColor = this.getRarityColor(item && item.rarity);
-    const border = this.add.rectangle(x, y, size.width + 8, size.height + 8, 0x000000, 0).setStrokeStyle(2, borderColor, 0.95);
-    this.dynamicEls.push(border);
     let icon = null;
     if (item && item.assetKey && this.textures.exists(item.assetKey)) {
       icon = this.add.sprite(x, y, item.assetKey).setDisplaySize(size.width, size.height);
     } else {
-      const fallbackBg = this.add.rectangle(x, y, size.width, size.height, 0x334155).setStrokeStyle(2, borderColor, 0.95);
+      const fallbackBg = this.add.rectangle(x, y, size.width, size.height, 0x334155, 0.82);
       const fallbackText = this.add.text(x, y, item ? item.name.charAt(0) : '?', { fontSize: 14, color: '#f8fafc' }).setOrigin(0.5);
       this.dynamicEls.push(fallbackBg, fallbackText);
       return fallbackBg;
@@ -286,23 +327,16 @@ class InventoryOverworldScene extends Phaser.Scene {
   }
 
   getInventoryUniqueHoverKeys(item) {
-    if (!item || item.rarity !== 'unique' || !item.assetKey) return null;
-    const hoverSheetKey = item.hoverSheetKey || `${item.assetKey}-hover-sheet`;
-    const hoverAnimKey = item.hoverAnimKey || `${item.assetKey}-hover`;
-    if (!this.textures.exists(hoverSheetKey) || !this.anims.exists(hoverAnimKey)) return null;
-    return { hoverSheetKey, hoverAnimKey };
+    return typeof getResolvedItemHoverKeys === 'function'
+      ? getResolvedItemHoverKeys(this, item, { uniqueOnly: true })
+      : null;
   }
 
   setInventoryUniqueHoverState(icon, item, hovered) {
-    const hoverKeys = this.getInventoryUniqueHoverKeys(item);
-    if (!hoverKeys || !icon || typeof icon.setTexture !== 'function') return;
-    if (hovered) {
-      icon.setTexture(hoverKeys.hoverSheetKey, 0);
-      if (typeof icon.play === 'function') icon.play(hoverKeys.hoverAnimKey);
+    if (typeof setItemHoverTextureState === 'function') {
+      setItemHoverTextureState(this, icon, item, hovered, { uniqueOnly: true });
       return;
     }
-    if (typeof icon.stop === 'function') icon.stop();
-    icon.setTexture(item.assetKey);
   }
 
   renderDurability(slot, x, y) {

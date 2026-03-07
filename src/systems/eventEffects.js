@@ -58,7 +58,10 @@ const EventEffects = {
   },
 
   applyWitch(hero) {
-    const lockable = hero.skills.filter(id => id !== 'slash' && id !== 'fireball');
+    const defaultSkillId = typeof getDefaultSkillIdForClass === 'function'
+      ? getDefaultSkillIdForClass(hero.class)
+      : 'slash';
+    const lockable = hero.skills.filter(id => id !== defaultSkillId);
     if (lockable.length) {
       hero.lockedSkillId = lockable[Math.floor(Math.random() * lockable.length)];
       const skillMap = getSkillsForClass(hero) || {};

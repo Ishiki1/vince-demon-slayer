@@ -3,17 +3,6 @@
  * Origin story narrative after choosing a class. Continue creates hero and starts Overworld.
  */
 
-const CLASS_ORIGIN_TEXT = {
-  warrior: {
-    title: 'Warrior',
-    body: 'His daughter was kidnapped by the evil demon lord. He must rescue her.',
-  },
-  sorceress: {
-    title: 'Sorceress',
-    body: 'She will ensure no one else suffers as she did. She will defeat the demons once and for all!',
-  },
-};
-
 class ClassOriginScene extends Phaser.Scene {
   constructor() {
     super({ key: 'ClassOrigin' });
@@ -23,9 +12,11 @@ class ClassOriginScene extends Phaser.Scene {
     const w = CONFIG.WIDTH;
     const h = CONFIG.HEIGHT;
     const data = this.scene.settings.data || {};
-    const classId = data.classId || 'warrior';
+    const classId = data.classId || DEFAULT_CLASS_ID;
 
-    const origin = CLASS_ORIGIN_TEXT[classId] || CLASS_ORIGIN_TEXT.warrior;
+    const origin = typeof getClassOrigin === 'function'
+      ? getClassOrigin(classId)
+      : { title: 'Warrior', body: '' };
     this.add.text(w / 2, 80, origin.title, { fontSize: 32, color: '#fbbf24' }).setOrigin(0.5);
     this.add.text(w / 2, 160, origin.body, { fontSize: 18, color: '#e5e7eb' }).setOrigin(0.5).setWordWrapWidth(w - 80);
 

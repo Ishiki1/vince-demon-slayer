@@ -54,7 +54,9 @@ const GAME_STATE = {
   enteredLevelIds: [],
   completedLevelIds: [],
   points: 0,
-  unlockedClasses: ['warrior'],
+  unlockedClasses: typeof normalizeUnlockedClassIds === 'function'
+    ? normalizeUnlockedClassIds()
+    : ['warrior'],
   pendingLevelUpSkill: null,
   pendingLevelUp: false,
   pendingLootItemId: null,

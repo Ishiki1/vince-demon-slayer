@@ -4,6 +4,127 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.5 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Finalize inventory hotspot and item placement
+
+### Fixed
+- **Inventory close button:** The painted `Close` plaque in the overworld inventory now has a larger invisible hotspot aligned to the art so the screen can be exited reliably again.
+- **Bottom-left artifact:** Removed the last dark status-strip rectangle that was still visible in the lower-left corner of the inventory background.
+
+### Changed
+- **Bag item presentation:** General inventory item icons are now much larger and shifted left/down so they sit more naturally inside the painted bag slots.
+- **Equipment slot placement:** Weapon, armor, and accessory icons now sit lower and slightly more to the right so they better match the updated paper-doll wells.
+
+### Technical
+- [src/scenes/InventoryOverworldScene.js](src/scenes/InventoryOverworldScene.js): Removes the leftover lower-left status rectangle, expands the invisible `Close` hit area, and retunes bag/equipped icon offsets and sizes for the cleaned inventory background.
+
+---
+
+## Version 3.2.4 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Clean inventory layout overlays and alignment
+
+### Changed
+- **Inventory presentation:** The overworld inventory now renders directly on the cleaned `Inventory.png` art without the extra dark slot-cover boxes that previously sat on top of the weapon, armor, and accessory wells.
+- **Item icon framing:** Equipped items and bag items no longer draw the extra square rarity border in the overworld inventory, so the background artwork itself provides the slot framing.
+- **Layout alignment:** The hero portrait, equipped items, and bag-item icon sizes and offsets were retuned so they sit more cleanly inside the updated inventory artwork.
+
+### Technical
+- [src/scenes/InventoryOverworldScene.js](src/scenes/InventoryOverworldScene.js): Removes the layout cover rectangles, drops the item-border rectangle pass, and centralizes the hero/equipped/bag placement tuning used by the inventory layout image path.
+- [spritework.md](spritework.md): Updates the inventory-layout note so it reflects the new direct-on-art rendering approach instead of the old masking workaround.
+
+---
+
+## Version 3.2.3 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Hide blacksmith hotspots and lower alignment
+
+### Fixed
+- **Blacksmith menu hotspots:** The clickable plaque areas on the blacksmith landing screen are now fully invisible to the player instead of showing a visible hover box.
+- **Plaque hit-area alignment:** The blacksmith landing hotspots were moved slightly lower and tightened vertically so they better match the painted background buttons.
+
+### Technical
+- [src/scenes/BlacksmithScene.js](src/scenes/BlacksmithScene.js): Removes the landing-menu hover overlay and retunes the plaque hotspot coordinates so the invisible hit areas line up more closely with the `blacksmith.png` artwork.
+
+---
+
+## Version 3.2.2 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Add blacksmith landing background menu
+
+### Changed
+- **Blacksmith entry screen:** Visiting the blacksmith now opens a dedicated landing menu that uses the approved `blacksmith.png` artwork instead of dropping straight into the repair list.
+- **Button alignment and routing:** The painted `Craft Items`, `Upgrade Items`, `Repair Items`, and `Back to Town` plaques now have real interactive hotspots aligned to their on-art button sizes and positions.
+- **Blacksmith return flow:** Repair, craft, and upgrade detail views now return to the blacksmith landing menu so the new background screen acts as the hub.
+
+### Technical
+- [assets/ui/blacksmith.png](assets/ui/blacksmith.png), [src/scenes/BootScene.js](src/scenes/BootScene.js): Wires the blacksmith landing background into the scene preload list with a dedicated UI texture key.
+- [src/scenes/BlacksmithScene.js](src/scenes/BlacksmithScene.js): Adds the new default menu mode, overlays plaque-sized interactive hit areas on the background art, and preserves the existing repair/craft detail flows behind the new landing screen.
+- [src/scenes/UpgradeScene.js](src/scenes/UpgradeScene.js), [spritework.md](spritework.md): Makes `Back to Blacksmith` explicitly return to the landing menu and documents the new UI background asset.
+
+---
+
+## Version 3.2.1 – 2026-03-07
+
+**Date:** 2026-03-07  
+**Timestamp:** Activate first Sorceress unique item batch
+
+### Changed
+- **Sorceress fire-set visuals:** `Pyre Staff`, `Phoenix Robe`, and `Cinder Orb` now use their own approved Sorceress unique item art instead of placeholder icon containers.
+- **Shared item surfaces:** The first Sorceress bespoke icons now flow through the same manifest-driven preload, loot hover, inventory, shop, blacksmith, upgrade, and merchant rendering path already used by Warrior uniques.
+
+### Technical
+- [assets/items/unique-pyre-staff.png](assets/items/unique-pyre-staff.png), [assets/items/unique-phoenix-robe.png](assets/items/unique-phoenix-robe.png), [assets/items/unique-cinder-orb.png](assets/items/unique-cinder-orb.png): Adds cleaned approved Sorceress fire unique icons using the repo-native cleanup pipeline.
+- [assets/items/unique-pyre-staff-hover-pulse_256x256_sheet.png](assets/items/unique-pyre-staff-hover-pulse_256x256_sheet.png), [assets/items/unique-phoenix-robe-hover-pulse_256x256_sheet.png](assets/items/unique-phoenix-robe-hover-pulse_256x256_sheet.png), [assets/items/unique-cinder-orb-hover-pulse_256x256_sheet.png](assets/items/unique-cinder-orb-hover-pulse_256x256_sheet.png): Adds dedicated hover pulse sheets for the first Sorceress bespoke item batch.
+- [src/data/itemVisuals.js](src/data/itemVisuals.js), [spritework.md](spritework.md): Promotes the fire unique Sorceress manifest entries from placeholder-only mode to real preloaded visuals and documents the new asset keys.
+
+---
+
+## Version 3.1.53 – 2026-03-07
+
+**Date:** 2026-03-07  
+**Timestamp:** Wire approved final unique accessory icons
+
+### Changed
+- **Unique Warrior accessory art:** `Ice Shard`, `Spark Ring`, and `Dew Pendant` now use their own approved Vince-side item icons instead of falling back to the generic legendary amulet and ring art.
+- **Inventory and vendor visuals:** The final unique Warrior accessory art now appears in inventory, shop, blacksmith, upgrade, and merchant surfaces because those items now resolve to dedicated accessory texture keys everywhere shared item icon rendering reads `assetKey`.
+- **Loot hover coverage:** The same three approved accessory icons now use dedicated pulsing golden hover sheets in the loot scene, and they automatically participate in the inventory's unique-only golden hover path.
+
+### Technical
+- [assets/items/ice-shard.png](assets/items/ice-shard.png), [assets/items/spark-ring.png](assets/items/spark-ring.png), [assets/items/dew-pendant.png](assets/items/dew-pendant.png): Adds cleaned approved unique Warrior accessory icons.
+- [assets/items/ice-shard-hover-pulse_256x256_sheet.png](assets/items/ice-shard-hover-pulse_256x256_sheet.png), [assets/items/spark-ring-hover-pulse_256x256_sheet.png](assets/items/spark-ring-hover-pulse_256x256_sheet.png), [assets/items/dew-pendant-hover-pulse_256x256_sheet.png](assets/items/dew-pendant-hover-pulse_256x256_sheet.png): Adds dedicated hover pulse sheets for the final approved unique Warrior accessory icons.
+- [src/data/items.js](src/data/items.js), [src/scenes/BootScene.js](src/scenes/BootScene.js), [spritework.md](spritework.md): Wires the final unique Warrior accessory texture keys into data, preload, hover animation registration, and sprite documentation.
+
+---
+
+## Version 3.2.0 – 2026-03-07
+
+**Date:** 2026-03-07  
+**Timestamp:** Scale class and item asset pipeline
+
+### Added
+- **Class registry:** Class metadata now lives in a shared registry, including names, base stats, growth, starting skills, unlock rules, origin text, and combat idle visual mappings.
+- **Item visual manifest:** Item icon paths, hover sheets, preload rules, and placeholder-only future entries now live in one manifest instead of being split between item data and manual `BootScene` lists.
+- **Repo-native asset tooling:** Vince now ships its own icon cleanup, hover-sheet generation, approved-proof processing, and item-pipeline validation scripts via `package.json` commands.
+
+### Changed
+- **Selector-driven item routing:** Loot, shop, crafting, and merchant pools now come from item metadata such as `allowedClasses`, `recipeMaterial`, `setId`, and eligibility flags instead of Warrior-vs-Sorceress arrays.
+- **Unified hover and icon rendering:** Shared item surfaces now resolve hover behavior and icon fallbacks from one path, and missing Sorceress textures intentionally render placeholder icons instead of silently disappearing.
+- **Sorceress pilot coverage:** Sorceress item definitions now flow through the same selector, manifest, preload, fallback, and browser-verification path used for Vince items, which makes future class migrations much cheaper.
+
+### Technical
+- [src/data/classes.js](src/data/classes.js), [src/entities/Hero.js](src/entities/Hero.js), [src/scenes/ClassSelectScene.js](src/scenes/ClassSelectScene.js), [src/scenes/ClassOriginScene.js](src/scenes/ClassOriginScene.js), [src/scenes/TransitionScene.js](src/scenes/TransitionScene.js), [src/data/skills.js](src/data/skills.js), [src/systems/progression.js](src/systems/progression.js), [src/systems/saveLoad.js](src/systems/saveLoad.js), [src/scenes/CombatScene.js](src/scenes/CombatScene.js): Moves class behavior behind a shared registry and removes direct Warrior/Sorceress branching from hero creation, class UI, progression defaults, unlock handling, save defaults, and set-idle lookup.
+- [src/data/itemVisuals.js](src/data/itemVisuals.js), [src/data/items.js](src/data/items.js), [src/systems/loot.js](src/systems/loot.js), [src/systems/shop.js](src/systems/shop.js), [src/scenes/EventScene.js](src/scenes/EventScene.js), [src/scenes/BlacksmithScene.js](src/scenes/BlacksmithScene.js): Makes item metadata the source of truth for selectors, crafting recipes, merchant pools, and visual linkage.
+- [src/scenes/BootScene.js](src/scenes/BootScene.js), [src/ui/SceneUi.js](src/ui/SceneUi.js), [src/scenes/InventoryOverworldScene.js](src/scenes/InventoryOverworldScene.js), [src/scenes/LootScene.js](src/scenes/LootScene.js): Replaces manual preload and per-scene hover wiring with manifest-driven loops plus shared item-hover helpers and placeholder icon rendering.
+- [scripts/remove-background.mjs](scripts/remove-background.mjs), [scripts/generate-hover-sheet.mjs](scripts/generate-hover-sheet.mjs), [scripts/finalize-icon.mjs](scripts/finalize-icon.mjs), [scripts/process-approved-item.mjs](scripts/process-approved-item.mjs), [scripts/validate-item-pipeline.mjs](scripts/validate-item-pipeline.mjs), [package.json](package.json): Vendors the asset pipeline into the repo, adds `pngjs`, and exposes cleanup, hover, process-approved, and validation commands.
+
+---
+
 ## Version 3.1.52 – 2026-03-07
 
 **Date:** 2026-03-07  

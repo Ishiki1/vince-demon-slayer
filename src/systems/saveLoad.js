@@ -85,7 +85,9 @@ function loadGame() {
     GAME_STATE.enteredLevelIds = Array.isArray(payload.enteredLevelIds) ? payload.enteredLevelIds : [];
     GAME_STATE.completedLevelIds = Array.isArray(payload.completedLevelIds) ? payload.completedLevelIds : [];
     GAME_STATE.points = typeof payload.points === 'number' ? payload.points : 0;
-    GAME_STATE.unlockedClasses = Array.isArray(payload.unlockedClasses) ? payload.unlockedClasses : ['warrior'];
+    GAME_STATE.unlockedClasses = typeof normalizeUnlockedClassIds === 'function'
+      ? normalizeUnlockedClassIds(payload.unlockedClasses)
+      : (Array.isArray(payload.unlockedClasses) ? payload.unlockedClasses : ['warrior']);
     GAME_STATE.runUnlocks = Array.isArray(payload.runUnlocks) ? payload.runUnlocks : [];
     GAME_STATE.pendingDay10Reaper = payload.pendingDay10Reaper === true;
     GAME_STATE.day10ReaperResolved = payload.day10ReaperResolved === true;

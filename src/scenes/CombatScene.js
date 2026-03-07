@@ -41,7 +41,7 @@ class CombatScene extends Phaser.Scene {
 
   getHeroIdleVisual() {
     const hero = this.hero;
-    if (hero && hero.class !== 'sorceress' && typeof getUniqueElement === 'function') {
+    if (hero && typeof getUniqueElement === 'function' && typeof getClassCombatIdleVisual === 'function') {
       const weaponSlot = hero.weapon != null ? hero.inventory.find(s => s.id === hero.weapon) : null;
       const armorSlot = hero.armor != null ? hero.inventory.find(s => s.id === hero.armor) : null;
       const weaponElement = weaponSlot ? getUniqueElement(weaponSlot.itemId) : null;
@@ -54,16 +54,9 @@ class CombatScene extends Phaser.Scene {
         && accessorySlots.some((slot) => getUniqueElement(slot.itemId) === weaponElement)
         ? weaponElement
         : null;
-      const setIdleVisuals = {
-        'fire-stone': { sheetKey: 'hero_fire_set_idle_sheet', animKey: 'hero_fire_set_idle' },
-        'ice-stone': { sheetKey: 'hero_ice_set_idle_sheet', animKey: 'hero_ice_set_idle' },
-        'lightning-stone': { sheetKey: 'hero_lightning_set_idle_sheet', animKey: 'hero_lightning_set_idle' },
-        'water-stone': { sheetKey: 'hero_water_set_idle_sheet', animKey: 'hero_water_set_idle' },
-        'wind-stone': { sheetKey: 'hero_wind_set_idle_sheet', animKey: 'hero_wind_set_idle' },
-      };
-      const setIdleVisual = fullSetElement ? setIdleVisuals[fullSetElement] : null;
-      if (setIdleVisual && this.textures.exists(setIdleVisual.sheetKey) && this.anims.exists(setIdleVisual.animKey)) {
-        return setIdleVisual;
+      const classVisual = getClassCombatIdleVisual(hero.class, fullSetElement);
+      if (classVisual && this.textures.exists(classVisual.sheetKey) && this.anims.exists(classVisual.animKey)) {
+        return classVisual;
       }
     }
     return { sheetKey: 'hero_sheet', animKey: 'hero_idle' };
@@ -192,7 +185,7 @@ class CombatScene extends Phaser.Scene {
         this.playCurrentHeroIdle();
       }
     });
-    this.add.text(150, h / 2 - heroH / 2 - 24, 'Vince', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
+    this.add.text(150, h / 2 - heroH / 2 - 24, this.hero.name || 'Hero', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
 
     const enemyW = CONFIG.ENEMY_SPRITE_WIDTH;
     const enemyH = CONFIG.ENEMY_SPRITE_HEIGHT;

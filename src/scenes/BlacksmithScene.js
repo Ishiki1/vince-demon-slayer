@@ -3,6 +3,13 @@
  * List damaged equipment (durability < max); repair for a price (by rarity). Craft mode: uniques for 350g + 1 material. Back to Town.
  */
 
+const BLACKSMITH_MENU_BUTTONS = [
+  { label: 'Craft Items', action: 'craft', x: 402, y: 88, width: 278, height: 78 },
+  { label: 'Upgrade Items', action: 'upgrade', x: 402, y: 217, width: 278, height: 78 },
+  { label: 'Repair Items', action: 'repair', x: 402, y: 347, width: 278, height: 78 },
+  { label: 'Back to Town', action: 'town', x: 402, y: 478, width: 278, height: 78 },
+];
+
 class BlacksmithScene extends Phaser.Scene {
   constructor() {
     super({ key: 'Blacksmith' });
@@ -18,29 +25,17 @@ class BlacksmithScene extends Phaser.Scene {
     const hero = GAME_STATE.hero;
     InventorySystem.ensureSlotBased(hero);
     InventorySystem.ensureAccessorySlots(hero);
-    const mode = (data && data.mode === 'craft') ? 'craft' : 'repair';
+    const requestedMode = data && typeof data.mode === 'string' ? data.mode : 'menu';
+    const mode = (requestedMode === 'repair' || requestedMode === 'craft') ? requestedMode : 'menu';
+
+    if (mode === 'menu') {
+      this.buildLandingMenu(w, h, hero);
+      return;
+    }
 
     this.add.text(w / 2, 40, 'Blacksmith', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
     this.add.text(w / 2, 72, 'Gold: ' + hero.gold, { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
-
-    const repairBtn = this.add.rectangle(w / 2 - 140, 100, 90, 36, mode === 'repair' ? 0x64748b : 0x475569);
-    repairBtn.setInteractive({ useHandCursor: true });
-    this.add.text(w / 2 - 140, 100, 'Repair', { fontSize: 14, color: '#fff' }).setOrigin(0.5);
-    repairBtn.on('pointerdown', () => {
-      if (mode !== 'repair') this.scene.restart({});
-    });
-
-    const craftBtn = this.add.rectangle(w / 2, 100, 90, 36, mode === 'craft' ? 0x64748b : 0x475569);
-    craftBtn.setInteractive({ useHandCursor: true });
-    this.add.text(w / 2, 100, 'Craft', { fontSize: 14, color: '#fff' }).setOrigin(0.5);
-    craftBtn.on('pointerdown', () => {
-      if (mode !== 'craft') this.scene.restart({ mode: 'craft' });
-    });
-
-    const upgradeBtn = this.add.rectangle(w / 2 + 140, 100, 90, 36, 0x475569);
-    upgradeBtn.setInteractive({ useHandCursor: true });
-    this.add.text(w / 2 + 140, 100, 'Upgrade', { fontSize: 14, color: '#fff' }).setOrigin(0.5);
-    upgradeBtn.on('pointerdown', () => this.scene.start('Upgrade'));
+    this.createModeTabs(w, mode);
 
     if (mode === 'repair') {
       this.buildRepairContent(w, h, hero);
@@ -49,10 +44,65 @@ class BlacksmithScene extends Phaser.Scene {
       this.buildCraftContent(w, h, hero);
     }
 
-    const backBtn = this.add.rectangle(w / 2, h - 60, 160, 48, 0x475569);
-    backBtn.setInteractive({ useHandCursor: true });
-    this.add.text(w / 2, h - 60, 'Back to Town', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
-    backBtn.on('pointerdown', () => this.scene.start('Town'));
+    createButton(this, w / 2, h - 60, 190, 48, 'Back to Blacksmith', {
+      bgColor: 0x475569,
+      fontSize: 16,
+    }, () => this.scene.restart({ mode: 'menu' }));
+  }
+
+  buildLandingMenu(w, h, hero) {
+    if (this.textures.exists('blacksmith-ui-background')) {
+      this.add.image(w / 2, h / 2, 'blacksmith-ui-background').setDisplaySize(w, h);
+      BLACKSMITH_MENU_BUTTONS.forEach((button) => this.createLandingHotspot(button));
+      return;
+    }
+
+    this.add.rectangle(w / 2, h / 2, w, h, 0x0f172a);
+    this.add.text(w / 2, 44, 'Blacksmith', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
+    this.add.text(w / 2, 78, 'Gold: ' + hero.gold, { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
+    BLACKSMITH_MENU_BUTTONS.forEach((button) => {
+      createButton(this, button.x, button.y, button.width, button.height, button.label, {
+        bgColor: 0x475569,
+        fontSize: 18,
+      }, () => this.handleLandingAction(button.action));
+    });
+  }
+
+  createLandingHotspot(button) {
+    const hitArea = this.add.rectangle(button.x, button.y, button.width, button.height, 0x000000, 0.001);
+    hitArea.setInteractive({ useHandCursor: true });
+    hitArea.on('pointerdown', () => this.handleLandingAction(button.action));
+  }
+
+  handleLandingAction(action) {
+    if (action === 'repair' || action === 'craft') {
+      this.scene.restart({ mode: action });
+      return;
+    }
+    if (action === 'upgrade') {
+      this.scene.start('Upgrade');
+      return;
+    }
+    this.scene.start('Town');
+  }
+
+  createModeTabs(w, mode) {
+    createButton(this, w / 2 - 140, 100, 90, 36, 'Repair', {
+      bgColor: mode === 'repair' ? 0x64748b : 0x475569,
+      fontSize: 14,
+    }, () => {
+      if (mode !== 'repair') this.scene.restart({ mode: 'repair' });
+    });
+    createButton(this, w / 2, 100, 90, 36, 'Craft', {
+      bgColor: mode === 'craft' ? 0x64748b : 0x475569,
+      fontSize: 14,
+    }, () => {
+      if (mode !== 'craft') this.scene.restart({ mode: 'craft' });
+    });
+    createButton(this, w / 2 + 140, 100, 90, 36, 'Upgrade', {
+      bgColor: 0x475569,
+      fontSize: 14,
+    }, () => this.scene.start('Upgrade'));
   }
 
   buildRepairContent(w, h, hero) {
@@ -100,7 +150,7 @@ class BlacksmithScene extends Phaser.Scene {
           repairBtn.on('pointerdown', () => {
             hero.gold -= cost;
             slot.durability = slot.maxDurability;
-            this.scene.restart();
+            this.scene.restart({ mode: 'repair' });
           });
         }
       });

@@ -8,6 +8,17 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 
 - **Engine:** Phaser 3. Sprites use **spritesheets** (one image with a grid of frames), not single images, so animations play frame-by-frame.
 - **Hero assets** live in `assets/hero/`. Display size in combat is set in `config.js`, not by the image size.
+- **Item assets** are now driven by `src/data/itemVisuals.js`. `BootScene.js` preloads item art and hover sheets by looping the manifest instead of maintaining a hand-edited item list.
+- **Item definitions** in `src/data/items.js` now point at `visualId` entries, so selectors, hover keys, and future Sorceress or class-specific visuals all resolve from the same source of truth.
+- **Blacksmith landing menu** now uses `assets/ui/blacksmith.png` as a static background, with live clickable hotspots aligned to the painted plaque buttons.
+
+## Repo Item Pipeline
+
+- Clean an approved proof into a square transparent icon with `npm run asset:clean -- --input <proof> --output assets/items/<name>.png --projectRoot C:\GameCraft\Vince`.
+- Generate a hover sheet with `npm run asset:hover -- --input assets/items/<name>.png --output assets/items/<name>-hover-pulse_256x256_sheet.png`.
+- Do both at once and emit a manifest-friendly summary with `npm run asset:process-approved -- --proof <proof> --textureKey <name> --visualId <name> --projectRoot C:\GameCraft\Vince`.
+- Validate the item registry, visual manifest, files on disk, and preload assumptions with `npm run validate:item-pipeline`.
+- Placeholder-only entries are allowed in the manifest by setting `preload: false`. This is how Sorceress items are now piloted before bespoke art exists.
 
 ---
 
@@ -36,6 +47,7 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 | Bat idle | `assets/goons/bat_idle_512x512_sheet.png` | `bat_idle_sheet` |
 | Bat attack | `assets/goons/bat_attack_512x512_sheet.png` | `bat_attack_sheet` |
 | Overworld scene background | `assets/ui/overworld.png` | `overworld-ui-background` |
+| Blacksmith landing background | `assets/ui/blacksmith.png` | `blacksmith-ui-background` |
 | Overworld animated background sheet (currently not wired) | `assets/overworld/overworldmap_background_sheet.png` | not wired |
 | Town overworld icon | `assets/overworld/town-overworld.png` | `town-overworld` |
 | Level 1 overworld icon | `assets/overworld/level1-overworld.png` | `level1-overworld` |
@@ -63,13 +75,16 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 | Rare ring item icon | `assets/items/rare-ring.png` | `rare-ring` |
 | Rare amulet item icon | `assets/items/rare-amulet.png` | `rare-amulet` |
 | Legendary weapon item icon | `assets/items/legendary-sword.png` | `legendary-sword` |
+| Pyre Staff item icon | `assets/items/unique-pyre-staff.png` | `unique-pyre-staff` |
 | Cursed Demon Blade item icon | `assets/items/cursed-demon-blade.png` | `cursed-demon-blade` |
 | Ember Cleaver item icon | `assets/items/ember-cleaver.png` | `ember-cleaver` |
 | Frostbite item icon | `assets/items/frostbite.png` | `frostbite` |
 | Stormbreaker item icon | `assets/items/stormbreaker.png` | `stormbreaker` |
 | Tide Blade item icon | `assets/items/tide-blade.png` | `tide-blade` |
 | Gale Edge item icon | `assets/items/gale-edge.png` | `gale-edge` |
+| Ice Shard item icon | `assets/items/ice-shard.png` | `ice-shard` |
 | Legendary armor item icon | `assets/items/legendary-armor.png` | `legendary-armor` |
+| Phoenix Robe item icon | `assets/items/unique-phoenix-robe.png` | `unique-phoenix-robe` |
 | Shadow Veil item icon | `assets/items/shadow-veil.png` | `shadow-veil` |
 | Inferno Plate item icon | `assets/items/inferno-plate.png` | `inferno-plate` |
 | Storm Guard item icon | `assets/items/storm-guard.png` | `storm-guard` |
@@ -77,7 +92,10 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 | Volt Mail item icon | `assets/items/volt-mail.png` | `volt-mail` |
 | Wave Guard item icon | `assets/items/wave-guard.png` | `wave-guard` |
 | Legendary ring item icon | `assets/items/legendary-ring.png` | `legendary-ring` |
+| Cinder Orb item icon | `assets/items/unique-cinder-orb.png` | `unique-cinder-orb` |
+| Spark Ring item icon | `assets/items/spark-ring.png` | `spark-ring` |
 | Legendary amulet item icon | `assets/items/legendary-amulet.png` | `legendary-amulet` |
+| Dew Pendant item icon | `assets/items/dew-pendant.png` | `dew-pendant` |
 | Phantom Cloak item icon | `assets/items/phantom-cloak.png` | `phantom-cloak` |
 | Flame Pendant item icon | `assets/items/flame-pendant.png` | `flame-pendant` |
 | Wind Band item icon | `assets/items/wind-band.png` | `wind-band` |
@@ -89,13 +107,16 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 | Rare ring hover outline | `assets/items/rare-ring-hover-pulse_256x256_sheet.png` | `rare-ring-hover-sheet` |
 | Rare amulet hover outline | `assets/items/rare-amulet-hover-pulse_256x256_sheet.png` | `rare-amulet-hover-sheet` |
 | Legendary weapon hover outline | `assets/items/legendary-sword-hover-pulse_256x256_sheet.png` | `legendary-sword-hover-sheet` |
+| Pyre Staff hover outline | `assets/items/unique-pyre-staff-hover-pulse_256x256_sheet.png` | `unique-pyre-staff-hover-sheet` |
 | Cursed Demon Blade hover outline | `assets/items/cursed-demon-blade-hover-pulse_256x256_sheet.png` | `cursed-demon-blade-hover-sheet` |
 | Ember Cleaver hover outline | `assets/items/ember-cleaver-hover-pulse_256x256_sheet.png` | `ember-cleaver-hover-sheet` |
 | Frostbite hover outline | `assets/items/frostbite-hover-pulse_256x256_sheet.png` | `frostbite-hover-sheet` |
 | Stormbreaker hover outline | `assets/items/stormbreaker-hover-pulse_256x256_sheet.png` | `stormbreaker-hover-sheet` |
 | Tide Blade hover outline | `assets/items/tide-blade-hover-pulse_256x256_sheet.png` | `tide-blade-hover-sheet` |
 | Gale Edge hover outline | `assets/items/gale-edge-hover-pulse_256x256_sheet.png` | `gale-edge-hover-sheet` |
+| Ice Shard hover outline | `assets/items/ice-shard-hover-pulse_256x256_sheet.png` | `ice-shard-hover-sheet` |
 | Legendary armor hover outline | `assets/items/legendary-armor-hover-pulse_256x256_sheet.png` | `legendary-armor-hover-sheet` |
+| Phoenix Robe hover outline | `assets/items/unique-phoenix-robe-hover-pulse_256x256_sheet.png` | `unique-phoenix-robe-hover-sheet` |
 | Shadow Veil hover outline | `assets/items/shadow-veil-hover-pulse_256x256_sheet.png` | `shadow-veil-hover-sheet` |
 | Inferno Plate hover outline | `assets/items/inferno-plate-hover-pulse_256x256_sheet.png` | `inferno-plate-hover-sheet` |
 | Storm Guard hover outline | `assets/items/storm-guard-hover-pulse_256x256_sheet.png` | `storm-guard-hover-sheet` |
@@ -103,7 +124,10 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 | Volt Mail hover outline | `assets/items/volt-mail-hover-pulse_256x256_sheet.png` | `volt-mail-hover-sheet` |
 | Wave Guard hover outline | `assets/items/wave-guard-hover-pulse_256x256_sheet.png` | `wave-guard-hover-sheet` |
 | Legendary ring hover outline | `assets/items/legendary-ring-hover-pulse_256x256_sheet.png` | `legendary-ring-hover-sheet` |
+| Cinder Orb hover outline | `assets/items/unique-cinder-orb-hover-pulse_256x256_sheet.png` | `unique-cinder-orb-hover-sheet` |
+| Spark Ring hover outline | `assets/items/spark-ring-hover-pulse_256x256_sheet.png` | `spark-ring-hover-sheet` |
 | Legendary amulet hover outline | `assets/items/legendary-amulet-hover-pulse_256x256_sheet.png` | `legendary-amulet-hover-sheet` |
+| Dew Pendant hover outline | `assets/items/dew-pendant-hover-pulse_256x256_sheet.png` | `dew-pendant-hover-sheet` |
 | Phantom Cloak hover outline | `assets/items/phantom-cloak-hover-pulse_256x256_sheet.png` | `phantom-cloak-hover-sheet` |
 | Flame Pendant hover outline | `assets/items/flame-pendant-hover-pulse_256x256_sheet.png` | `flame-pendant-hover-sheet` |
 | Wind Band hover outline | `assets/items/wind-band-hover-pulse_256x256_sheet.png` | `wind-band-hover-sheet` |
@@ -131,7 +155,7 @@ Use **spritesheets** for any multi-frame animation. Do **not** use `load.image()
 
 For single-frame item icons like the `Avoid Death Potion`, use `load.image()` instead.
 
-Sorceress / Isabella item icons are intentionally not wired to these shared Vince-side item texture keys right now. Add dedicated Sorceress item art later instead of reusing the warrior/shared icon families.
+Most Sorceress / Isabella item visuals still live in `src/data/itemVisuals.js` as `preload: false` placeholder entries until bespoke art exists. The first approved bespoke batch, `unique-pyre-staff`, `unique-phoenix-robe`, and `unique-cinder-orb`, is now wired as real preloaded item art with dedicated hover sheets. Shared item UI surfaces still fall back to placeholder icon containers for the remaining placeholder-only entries instead of silently rendering nothing.
 
 The overworld location icons listed above are now preloaded and used by `OverworldScene.js` for town plus Act 1 destinations. Any destination without a matching icon texture, such as the current Act 2 levels, still falls back to the rectangle-node UI.
 
@@ -139,7 +163,7 @@ The overworld scene now uses `assets/ui/overworld.png` as its static map backgro
 
 The top and bottom overworld utility controls now use dedicated UI icon sprites with hover tooltips instead of rectangle buttons with always-visible text labels.
 
-The overworld inventory scene now uses `assets/ui/Inventory.png` as its frame/layout reference, with the legacy placeholder weapon/armor/accessory art masked in-scene so approved Vince item icons can be layered over the exact paper-doll layout.
+The overworld inventory scene now uses `assets/ui/Inventory.png` as its frame/layout reference directly. Item icons and the hero preview are aligned to the painted paper-doll and bag wells without the old dark masking rectangles or extra item-border overlays.
 
 ---
 
@@ -208,7 +232,7 @@ this.load.spritesheet('hero_slash_sheet', 'assets/hero/vince-regular-attack1.png
 - The older static Rusty Sword hover outline file remains at `common-sword-hover_256x256_sheet.png` if you want to compare the pulse test against the original non-pulsing version.
 - Potion loot icons now follow the same pattern with matching hover sheets and animated gold-outline keys derived from their base texture key.
 - Material loot icons now follow the same pattern with dedicated stone icons plus pulsing gold hover sheets derived from their base texture keys.
-- Newly approved bespoke loot items such as `Cursed Demon Blade`, `Shadow Veil`, `Phantom Cloak`, `Ember Cleaver`, `Inferno Plate`, `Flame Pendant`, `Gale Edge`, `Storm Guard`, `Wind Band`, `Frostbite`, `Glacier Plate`, `Stormbreaker`, `Tide Blade`, `Volt Mail`, and `Wave Guard` follow the same derived hover-key pattern with their own dedicated pulse sheets instead of falling back to the generic legendary hover families.
+- Newly approved bespoke loot items such as `Cursed Demon Blade`, `Shadow Veil`, `Phantom Cloak`, `Ember Cleaver`, `Inferno Plate`, `Flame Pendant`, `Gale Edge`, `Storm Guard`, `Wind Band`, `Frostbite`, `Glacier Plate`, `Stormbreaker`, `Tide Blade`, `Volt Mail`, `Wave Guard`, `Ice Shard`, `Spark Ring`, and `Dew Pendant` follow the same derived hover-key pattern with their own dedicated pulse sheets instead of falling back to the generic legendary hover families.
 - **For skills that play an animation then run logic:** Use `playHeroAnimThen(sheetKey, animKey, callback)` instead of manually setting texture, playing, and wiring `animationcomplete`. The callback (e.g. `() => this.endPlayerTurn()` or the AoE/effect runner) runs after the animation finishes. Many skill branches now use `playHeroAnimThen` and `endPlayerTurn()`.
 - **Manual approach (when needed):** To play an animation yourself: `this.heroSprite.stop()`, `this.heroSprite.setTexture('hero_<name>_sheet')`, `this.heroSprite.play('hero_<name>')`. When a one-shot finishes, Phaser fires `animationcomplete`; the scene still uses this for cases like idle reset. For one-shots driven by `playHeroAnimThen`, no per-skill `animationcomplete` branch is needed.
 - Trigger the animation only when the skill is used (e.g. in `applySingleTargetSkill()` or the appropriate branch in `useSkill()`), and check `this.anims.exists('hero_<name>')` when relevant.

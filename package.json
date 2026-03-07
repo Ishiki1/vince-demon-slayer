@@ -4,7 +4,11 @@
   "description": "Demon Slayer - Roguelike dungeon crawler with Vince the Warrior",
   "scripts": {
     "dev": "npx serve -l 3000",
-    "start": "npx serve -l 3000"
+    "start": "npx serve -l 3000",
+    "asset:clean": "node scripts/finalize-icon.mjs",
+    "asset:hover": "node scripts/generate-hover-sheet.mjs",
+    "asset:process-approved": "node scripts/process-approved-item.mjs",
+    "validate:item-pipeline": "node scripts/validate-item-pipeline.mjs"
   },
   "keywords": [
     "phaser",
@@ -14,6 +18,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "playwright": "^1.58.2"
+    "playwright": "^1.58.2",
+    "pngjs": "^7.0.0"
   }
 }

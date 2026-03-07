@@ -20,7 +20,7 @@ class UnlockSelectScene extends Phaser.Scene {
     const w = CONFIG.WIDTH;
     const h = CONFIG.HEIGHT;
     const data = this.scene.settings.data || {};
-    const classId = data.classId || 'warrior';
+    const classId = data.classId || DEFAULT_CLASS_ID;
     const totalPoints = typeof getTotalPoints === 'function' ? getTotalPoints() : 0;
 
     this.classId = classId;

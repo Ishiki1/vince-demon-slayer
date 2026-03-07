@@ -5,8 +5,9 @@
 
 const ShopSystem = {
   generateStock(hero) {
-    const gearPool = hero && hero.class === 'sorceress' ? [...SHOP_POOL_INT] : [...SHOP_POOL_STRENGTH];
-    const pool = gearPool.concat(SHOP_POOL_SHARED);
+    const pool = typeof getShopPool === 'function'
+      ? getShopPool({ classId: hero && hero.class })
+      : [];
     const count = Math.min(CONFIG.SHOP_MAX_ITEMS, pool.length);
     const stock = [];
     for (let i = 0; i < count; i++) {

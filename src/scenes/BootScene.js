@@ -131,6 +131,7 @@ class BootScene extends Phaser.Scene {
     this.load.image('inventory-icon', 'assets/ui/inventory-icon.png');
     this.load.image('character-sheet-icon', 'assets/ui/character-sheet-icon.png');
     this.load.image('inventory-ui-layout', 'assets/ui/Inventory.png');
+    this.load.image('blacksmith-ui-background', 'assets/ui/blacksmith.png');
     this.load.image('overworld-ui-background', 'assets/ui/overworld.png');
     [
       'button-slash',
@@ -160,181 +161,16 @@ class BootScene extends Phaser.Scene {
     ].forEach((key) => {
       this.load.image(key, `assets/ui/skills/${key}.png`);
     });
-    this.load.image('common-sword', 'assets/items/common-sword.png');
-    this.load.image('common-armor', 'assets/items/common-armor.png');
-    this.load.image('common-ring', 'assets/items/common-ring.png');
-    this.load.image('common-amulet', 'assets/items/common-amulet.png');
-    this.load.image('rare-sword', 'assets/items/rare-sword.png');
-    this.load.image('rare-armor', 'assets/items/rare-armor.png');
-    this.load.image('rare-ring', 'assets/items/rare-ring.png');
-    this.load.image('rare-amulet', 'assets/items/rare-amulet.png');
-    this.load.image('legendary-sword', 'assets/items/legendary-sword.png');
-    this.load.image('legendary-armor', 'assets/items/legendary-armor.png');
-    this.load.image('legendary-ring', 'assets/items/legendary-ring.png');
-    this.load.image('legendary-amulet', 'assets/items/legendary-amulet.png');
-    this.load.image('cursed-demon-blade', 'assets/items/cursed-demon-blade.png');
-    this.load.image('shadow-veil', 'assets/items/shadow-veil.png');
-    this.load.image('phantom-cloak', 'assets/items/phantom-cloak.png');
-    this.load.image('ember-cleaver', 'assets/items/ember-cleaver.png');
-    this.load.image('inferno-plate', 'assets/items/inferno-plate.png');
-    this.load.image('flame-pendant', 'assets/items/flame-pendant.png');
-    this.load.image('gale-edge', 'assets/items/gale-edge.png');
-    this.load.image('storm-guard', 'assets/items/storm-guard.png');
-    this.load.image('wind-band', 'assets/items/wind-band.png');
-    this.load.image('frostbite', 'assets/items/frostbite.png');
-    this.load.image('stormbreaker', 'assets/items/stormbreaker.png');
-    this.load.image('tide-blade', 'assets/items/tide-blade.png');
-    this.load.image('glacier-plate', 'assets/items/glacier-plate.png');
-    this.load.image('volt-mail', 'assets/items/volt-mail.png');
-    this.load.image('wave-guard', 'assets/items/wave-guard.png');
-    this.load.image('fire-stone', 'assets/items/fire-stone.png');
-    this.load.image('wind-stone', 'assets/items/wind-stone.png');
-    this.load.image('ice-stone', 'assets/items/ice-stone.png');
-    this.load.image('lightning-stone', 'assets/items/lightning-stone.png');
-    this.load.image('water-stone', 'assets/items/water-stone.png');
-    this.load.spritesheet('common-armor-hover-sheet', 'assets/items/common-armor-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
+    const itemVisuals = typeof getPreloadItemVisuals === 'function' ? getPreloadItemVisuals() : [];
+    itemVisuals.forEach((visual) => {
+      this.load.image(visual.textureKey, visual.basePath);
+      if (visual.hover) {
+        this.load.spritesheet(visual.hover.sheetKey, visual.hover.path, {
+          frameWidth: visual.hover.frameWidth,
+          frameHeight: visual.hover.frameHeight,
+        });
+      }
     });
-    this.load.spritesheet('common-ring-hover-sheet', 'assets/items/common-ring-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('common-amulet-hover-sheet', 'assets/items/common-amulet-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('rare-sword-hover-sheet', 'assets/items/rare-sword-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('rare-armor-hover-sheet', 'assets/items/rare-armor-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('rare-ring-hover-sheet', 'assets/items/rare-ring-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('rare-amulet-hover-sheet', 'assets/items/rare-amulet-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('legendary-sword-hover-sheet', 'assets/items/legendary-sword-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('cursed-demon-blade-hover-sheet', 'assets/items/cursed-demon-blade-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('ember-cleaver-hover-sheet', 'assets/items/ember-cleaver-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('frostbite-hover-sheet', 'assets/items/frostbite-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('stormbreaker-hover-sheet', 'assets/items/stormbreaker-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('tide-blade-hover-sheet', 'assets/items/tide-blade-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('legendary-armor-hover-sheet', 'assets/items/legendary-armor-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('shadow-veil-hover-sheet', 'assets/items/shadow-veil-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('inferno-plate-hover-sheet', 'assets/items/inferno-plate-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('storm-guard-hover-sheet', 'assets/items/storm-guard-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('glacier-plate-hover-sheet', 'assets/items/glacier-plate-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('volt-mail-hover-sheet', 'assets/items/volt-mail-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('wave-guard-hover-sheet', 'assets/items/wave-guard-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('legendary-ring-hover-sheet', 'assets/items/legendary-ring-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('legendary-amulet-hover-sheet', 'assets/items/legendary-amulet-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('phantom-cloak-hover-sheet', 'assets/items/phantom-cloak-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('flame-pendant-hover-sheet', 'assets/items/flame-pendant-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('gale-edge-hover-sheet', 'assets/items/gale-edge-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('wind-band-hover-sheet', 'assets/items/wind-band-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('common-sword-hover-sheet', 'assets/items/common-sword-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('health-potion-hover-sheet', 'assets/items/health-potion-hover_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('mana-potion-hover-sheet', 'assets/items/mana-potion-hover_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('avoid-death-potion-hover-sheet', 'assets/items/avoid-death-potion-hover_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('fire-stone-hover-sheet', 'assets/items/fire-stone-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('wind-stone-hover-sheet', 'assets/items/wind-stone-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('ice-stone-hover-sheet', 'assets/items/ice-stone-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('lightning-stone-hover-sheet', 'assets/items/lightning-stone-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('water-stone-hover-sheet', 'assets/items/water-stone-hover-pulse_256x256_sheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.image('health-potion', 'assets/items/health-potion.png');
-    this.load.image('mana-potion', 'assets/items/mana-potion.png');
-    this.load.image('avoid-death-potion', 'assets/items/avoid-death-potion.png');
 
     const soundEntries = typeof getAllSoundEntries === 'function' ? getAllSoundEntries() : [];
     soundEntries.forEach((e) => this.load.audio(e.key, e.path));
@@ -613,41 +449,15 @@ class BootScene extends Phaser.Scene {
         });
       }
     }
-    this.registerFullCycleHoverIconAnim('common-sword-hover-sheet', 'common-sword-hover', 16);
-    this.registerFullCycleHoverIconAnim('common-armor-hover-sheet', 'common-armor-hover', 16);
-    this.registerFullCycleHoverIconAnim('common-ring-hover-sheet', 'common-ring-hover', 16);
-    this.registerFullCycleHoverIconAnim('common-amulet-hover-sheet', 'common-amulet-hover', 16);
-    this.registerFullCycleHoverIconAnim('rare-sword-hover-sheet', 'rare-sword-hover', 16);
-    this.registerFullCycleHoverIconAnim('rare-armor-hover-sheet', 'rare-armor-hover', 16);
-    this.registerFullCycleHoverIconAnim('rare-ring-hover-sheet', 'rare-ring-hover', 16);
-    this.registerFullCycleHoverIconAnim('rare-amulet-hover-sheet', 'rare-amulet-hover', 16);
-    this.registerFullCycleHoverIconAnim('legendary-sword-hover-sheet', 'legendary-sword-hover', 16);
-    this.registerFullCycleHoverIconAnim('cursed-demon-blade-hover-sheet', 'cursed-demon-blade-hover', 16);
-    this.registerFullCycleHoverIconAnim('ember-cleaver-hover-sheet', 'ember-cleaver-hover', 16);
-    this.registerFullCycleHoverIconAnim('frostbite-hover-sheet', 'frostbite-hover', 16);
-    this.registerFullCycleHoverIconAnim('stormbreaker-hover-sheet', 'stormbreaker-hover', 16);
-    this.registerFullCycleHoverIconAnim('tide-blade-hover-sheet', 'tide-blade-hover', 16);
-    this.registerFullCycleHoverIconAnim('gale-edge-hover-sheet', 'gale-edge-hover', 16);
-    this.registerFullCycleHoverIconAnim('legendary-armor-hover-sheet', 'legendary-armor-hover', 16);
-    this.registerFullCycleHoverIconAnim('shadow-veil-hover-sheet', 'shadow-veil-hover', 16);
-    this.registerFullCycleHoverIconAnim('inferno-plate-hover-sheet', 'inferno-plate-hover', 16);
-    this.registerFullCycleHoverIconAnim('storm-guard-hover-sheet', 'storm-guard-hover', 16);
-    this.registerFullCycleHoverIconAnim('glacier-plate-hover-sheet', 'glacier-plate-hover', 16);
-    this.registerFullCycleHoverIconAnim('volt-mail-hover-sheet', 'volt-mail-hover', 16);
-    this.registerFullCycleHoverIconAnim('wave-guard-hover-sheet', 'wave-guard-hover', 16);
-    this.registerFullCycleHoverIconAnim('legendary-ring-hover-sheet', 'legendary-ring-hover', 16);
-    this.registerFullCycleHoverIconAnim('legendary-amulet-hover-sheet', 'legendary-amulet-hover', 16);
-    this.registerFullCycleHoverIconAnim('phantom-cloak-hover-sheet', 'phantom-cloak-hover', 16);
-    this.registerFullCycleHoverIconAnim('flame-pendant-hover-sheet', 'flame-pendant-hover', 16);
-    this.registerFullCycleHoverIconAnim('wind-band-hover-sheet', 'wind-band-hover', 16);
-    this.registerFullCycleHoverIconAnim('fire-stone-hover-sheet', 'fire-stone-hover', 16);
-    this.registerFullCycleHoverIconAnim('wind-stone-hover-sheet', 'wind-stone-hover', 16);
-    this.registerFullCycleHoverIconAnim('ice-stone-hover-sheet', 'ice-stone-hover', 16);
-    this.registerFullCycleHoverIconAnim('lightning-stone-hover-sheet', 'lightning-stone-hover', 16);
-    this.registerFullCycleHoverIconAnim('water-stone-hover-sheet', 'water-stone-hover', 16);
-    this.registerHoverIconAnim('health-potion-hover-sheet', 'health-potion-hover');
-    this.registerHoverIconAnim('mana-potion-hover-sheet', 'mana-potion-hover');
-    this.registerHoverIconAnim('avoid-death-potion-hover-sheet', 'avoid-death-potion-hover');
+    const itemVisuals = typeof getPreloadItemVisuals === 'function' ? getPreloadItemVisuals() : [];
+    itemVisuals.forEach((visual) => {
+      if (!visual.hover) return;
+      if (visual.hover.style === 'pingPong') {
+        this.registerHoverIconAnim(visual.hover.sheetKey, visual.hover.animKey);
+        return;
+      }
+      this.registerFullCycleHoverIconAnim(visual.hover.sheetKey, visual.hover.animKey, visual.hover.frameRate || 16);
+    });
     if (typeof applyAnimationSettings === 'function') applyAnimationSettings(this);
 
     this.scene.start('Menu');

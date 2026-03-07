@@ -72,9 +72,9 @@ class UpgradeScene extends Phaser.Scene {
       });
     }
 
-    const backBtn = this.add.rectangle(w / 2, h - 60, 160, 48, 0x475569);
-    backBtn.setInteractive({ useHandCursor: true });
-    this.add.text(w / 2, h - 60, 'Back to Blacksmith', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
-    backBtn.on('pointerdown', () => this.scene.start('Blacksmith'));
+    createButton(this, w / 2, h - 60, 190, 48, 'Back to Blacksmith', {
+      bgColor: 0x475569,
+      fontSize: 16,
+    }, () => this.scene.start('Blacksmith', { mode: 'menu' }));
   }
 }

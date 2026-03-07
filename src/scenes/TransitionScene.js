@@ -23,8 +23,9 @@ class TransitionScene extends Phaser.Scene {
     contBtn.on('pointerdown', () => {
       GAME_STATE.act = 2;
       GAME_STATE.unlockedLevels = ['level11'];
-      if (!GAME_STATE.unlockedClasses) GAME_STATE.unlockedClasses = ['warrior'];
-      if (!GAME_STATE.unlockedClasses.includes('sorceress')) GAME_STATE.unlockedClasses.push('sorceress');
+      GAME_STATE.unlockedClasses = typeof unlockClassesForAct === 'function'
+        ? unlockClassesForAct(GAME_STATE.unlockedClasses, 2)
+        : ['warrior', 'sorceress'];
       this.scene.start('Overworld');
     });
   }

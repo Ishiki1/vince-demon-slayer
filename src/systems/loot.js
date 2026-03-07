@@ -42,10 +42,9 @@ const LootSystem = {
     const runUnlocks = (typeof GAME_STATE !== 'undefined' && GAME_STATE && GAME_STATE.runUnlocks) ? GAME_STATE.runUnlocks : [];
     const luckPercent = Array.isArray(runUnlocks) && runUnlocks.includes('lucky') ? 5 : 0;
     const rarity = LootSystem.rollRarity(isBoss, luckPercent);
-    const isInt = heroClass === 'sorceress';
-    const gearMap = isInt ? ITEMS_BY_TYPE_RARITY_INT : ITEMS_BY_TYPE_RARITY_STRENGTH;
-    const sharedMap = ITEMS_BY_TYPE_RARITY_SHARED;
-    const pool = (gearMap[type] || sharedMap[type]) && (gearMap[type] || sharedMap[type])[rarity];
+    const pool = typeof getLootPool === 'function'
+      ? getLootPool({ classId: heroClass, type, rarity })
+      : [];
     if (!pool || pool.length === 0) return null;
     return pool[Math.floor(Math.random() * pool.length)];
   },

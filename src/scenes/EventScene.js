@@ -106,7 +106,9 @@ class EventScene extends Phaser.Scene {
     this.add.text(w / 2, 40, ev.title, { fontSize: 24, color: '#fbbf24' }).setOrigin(0.5);
     this.add.text(w / 2, 75, ev.body, { fontSize: 14, color: '#e5e7eb' }).setOrigin(0.5).setWordWrapWidth(w - 80);
 
-    const pool = LEGENDARY_MERCHANT_POOL.filter(id => ITEMS[id]);
+    const pool = typeof getLegendaryMerchantPool === 'function'
+      ? getLegendaryMerchantPool({ classId: this.hero && this.hero.class }).filter((id) => ITEMS[id])
+      : LEGENDARY_MERCHANT_POOL.filter((id) => ITEMS[id]);
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
     const itemIds = shuffled.slice(0, 3);
     this.merchantItems = itemIds.map(itemId => ({ itemId, price: ShopSystem.getPrice(itemId), bought: false }));

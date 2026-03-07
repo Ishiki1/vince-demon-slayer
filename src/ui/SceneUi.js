@@ -64,6 +64,57 @@ function attachHoverSpriteAnimation(sprite, options) {
   return sprite;
 }
 
+function getResolvedItemHoverKeys(scene, item, options) {
+  if (!scene || !item) return null;
+  if (options && options.uniqueOnly && item.rarity !== 'unique') return null;
+  const hoverSheetKey = item.hoverSheetKey || (item.assetKey ? `${item.assetKey}-hover-sheet` : null);
+  const hoverAnimKey = item.hoverAnimKey || (item.assetKey ? `${item.assetKey}-hover` : null);
+  if (!hoverSheetKey || !hoverAnimKey) return null;
+  if (!scene.textures.exists(hoverSheetKey) || !scene.anims.exists(hoverAnimKey)) return null;
+  return { hoverSheetKey, hoverAnimKey };
+}
+
+function setItemHoverTextureState(scene, icon, item, hovered, options) {
+  const hoverKeys = getResolvedItemHoverKeys(scene, item, options);
+  if (!hoverKeys || !icon || typeof icon.setTexture !== 'function') return;
+  const baseTextureKey = item.assetKey || (icon.texture ? icon.texture.key : null);
+  const baseFrame = icon.frame ? icon.frame.name : undefined;
+  if (hovered) {
+    icon.setTexture(hoverKeys.hoverSheetKey, 0);
+    if (typeof icon.play === 'function') icon.play(hoverKeys.hoverAnimKey);
+    return;
+  }
+  if (typeof icon.stop === 'function') icon.stop();
+  if (baseTextureKey) icon.setTexture(baseTextureKey, baseFrame);
+}
+
+function attachHoverSpriteAnimationToItem(sprite, item, options) {
+  if (!sprite || !sprite.scene) return sprite;
+  const hoverKeys = getResolvedItemHoverKeys(sprite.scene, item, options);
+  if (!hoverKeys) return sprite;
+  return attachHoverSpriteAnimation(sprite, {
+    hoverSheetKey: hoverKeys.hoverSheetKey,
+    hoverAnimKey: hoverKeys.hoverAnimKey,
+    useHandCursor: options && options.useHandCursor,
+  });
+}
+
+function createFallbackItemIcon(scene, item, x, y, options) {
+  const width = (options && options.width) || 32;
+  const height = (options && options.height) || width;
+  const fallbackLabel = (item && item.visual && item.visual.placeholderLabel)
+    || (item && item.name ? item.name.replace(/[^A-Za-z]/g, '').slice(0, 2).toUpperCase() : '?');
+  const bg = scene.add.rectangle(0, 0, width, height, 0x334155).setStrokeStyle(2, 0x64748b, 0.9);
+  const label = scene.add.text(0, 0, fallbackLabel || '?', {
+    fontSize: Math.max(10, Math.floor(Math.min(width, height) * 0.35)),
+    color: '#e5e7eb',
+    fontFamily: 'Arial',
+  }).setOrigin(0.5);
+  const container = scene.add.container(x, y, [bg, label]);
+  container.setSize(width, height);
+  return container;
+}
+
 /**
  * Create a small item icon sprite if the item's texture exists.
  * Reuses the standard hover-sheet behavior when available.
@@ -75,16 +126,16 @@ function attachHoverSpriteAnimation(sprite, options) {
  * @returns {Phaser.GameObjects.Sprite|null}
  */
 function createItemIconSprite(scene, item, x, y, options) {
-  if (!scene || !item || !item.assetKey || !scene.textures.exists(item.assetKey)) return null;
+  if (!scene || !item) return null;
   const width = (options && options.width) || 32;
   const height = (options && options.height) || width;
-  const icon = scene.add.sprite(x, y, item.assetKey).setDisplaySize(width, height);
+  const hasTexture = !!(item.assetKey && scene.textures.exists(item.assetKey));
+  const icon = hasTexture
+    ? scene.add.sprite(x, y, item.assetKey).setDisplaySize(width, height)
+    : createFallbackItemIcon(scene, item, x, y, { width, height });
   const shouldHover = !options || options.hover !== false;
-  if (shouldHover && typeof attachHoverSpriteAnimation === 'function') {
-    attachHoverSpriteAnimation(icon, {
-      hoverSheetKey: item.hoverSheetKey,
-      hoverAnimKey: item.hoverAnimKey,
-    });
+  if (hasTexture && shouldHover && typeof attachHoverSpriteAnimationToItem === 'function') {
+    attachHoverSpriteAnimationToItem(icon, item, options);
   }
   return icon;
 }

@@ -31,15 +31,7 @@ class LootScene extends Phaser.Scene {
 
     if (itemId && ITEMS[itemId]) {
       const item = ITEMS[itemId];
-      if (item.assetKey && this.textures.exists(item.assetKey)) {
-        const icon = this.add.sprite(w / 2, h / 2 - 120, item.assetKey).setDisplaySize(96, 96);
-        if (typeof attachHoverSpriteAnimation === 'function') {
-          attachHoverSpriteAnimation(icon, {
-            hoverSheetKey: item.hoverSheetKey,
-            hoverAnimKey: item.hoverAnimKey,
-          });
-        }
-      }
+      createItemIconSprite(this, item, w / 2, h / 2 - 120, { width: 96, height: 96 });
       this.add.text(w / 2, h / 2 - 50, item.name, { fontSize: 24, color: '#e5e7eb' }).setOrigin(0.5);
       this.add.text(w / 2, h / 2 - 20, `(${item.rarity})`, { fontSize: 18, color: '#94a3b8' }).setOrigin(0.5);
       const effectLine = getItemEffectLine(item);

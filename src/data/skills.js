@@ -247,6 +247,11 @@ const PASSIVES = {
   s_t10: { id: 's_t10', name: 'Mystic Dodge', effect: { stat: 'evasion', value: 0.15 }, skillTier: 10, cost: 1 },
 };
 
+const SKILLS_BY_CLASS = {
+  warrior: WARRIOR_SKILLS,
+  sorceress: SORCERESS_SKILLS,
+};
+
 /** Get skill cost (1 or 2 for ultimate). */
 function getSkillCost(skillId) {
   const skill = WARRIOR_SKILLS[skillId] || SORCERESS_SKILLS[skillId];
@@ -266,9 +271,26 @@ function getChoiceCost(choiceId) {
   return 1;
 }
 
+function getSkillCatalogIdForClass(classId) {
+  const classDef = typeof getClassDef === 'function' ? getClassDef(classId) : null;
+  return (classDef && classDef.skillCatalogId) || classId || 'warrior';
+}
+
 /** Skill map for the hero's class. */
-function getSkillsForClass(hero) {
-  return hero && hero.class === 'sorceress' ? SORCERESS_SKILLS : WARRIOR_SKILLS;
+function getSkillsForClass(heroOrClassId) {
+  const classId = typeof heroOrClassId === 'string'
+    ? heroOrClassId
+    : (heroOrClassId && heroOrClassId.class);
+  const catalogId = getSkillCatalogIdForClass(classId);
+  return SKILLS_BY_CLASS[catalogId] || WARRIOR_SKILLS;
+}
+
+function getDefaultSkillIdForClass(classId) {
+  const classDef = typeof getClassDef === 'function' ? getClassDef(classId) : null;
+  if (classDef && Array.isArray(classDef.startingSkills) && classDef.startingSkills.length > 0) {
+    return classDef.startingSkills[0];
+  }
+  return 'slash';
 }
 
 /** Get a single skill by id for the given hero. */
@@ -313,6 +335,28 @@ const SKILL_TREE_BY_TIER_SORCERESS = {
 
 const LEVEL_UP_SKILL_CHOICES = ['heavyStrike', 'whirlwind', 'execute'];
 const LEVEL_UP_SKILL_CHOICES_SORCERESS = ['scorch', 'inferno', 'arcaneHeal'];
+
+const SKILL_TREES_BY_CLASS = {
+  warrior: SKILL_TREE_BY_TIER,
+  sorceress: SKILL_TREE_BY_TIER_SORCERESS,
+};
+
+const LEVEL_UP_SKILL_CHOICES_BY_CLASS = {
+  warrior: LEVEL_UP_SKILL_CHOICES,
+  sorceress: LEVEL_UP_SKILL_CHOICES_SORCERESS,
+};
+
+function getSkillTreeForClass(classId) {
+  const classDef = typeof getClassDef === 'function' ? getClassDef(classId) : null;
+  const treeId = (classDef && classDef.skillTreeId) || classId || 'warrior';
+  return SKILL_TREES_BY_CLASS[treeId] || SKILL_TREE_BY_TIER;
+}
+
+function getLevelUpSkillChoicesForClass(classId) {
+  const classDef = typeof getClassDef === 'function' ? getClassDef(classId) : null;
+  const treeId = (classDef && classDef.skillTreeId) || classId || 'warrior';
+  return LEVEL_UP_SKILL_CHOICES_BY_CLASS[treeId] || LEVEL_UP_SKILL_CHOICES;
+}
 
 /** Tooltip text for skill tree: active skill (damage, mana, single/AoE, heal/buff). */
 function getSkillChoiceTooltip(choiceId, hero) {
