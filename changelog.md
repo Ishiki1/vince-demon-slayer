@@ -4,6 +4,19 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.1.52 – 2026-03-07
+
+**Date:** 2026-03-07  
+**Timestamp:** Add Cloud agent starter skill runbook
+
+### Added
+- **Cloud agent starter skill:** Added a minimal Cloud-skill playbook focused on immediate setup, no-auth expectations, optional app startup, state/flag mocking equivalents, and command-first test workflows by codebase area.
+
+### Technical
+- [.cursor/skills/cloud-agent-starter/SKILL.md](.cursor/skills/cloud-agent-starter/SKILL.md): New starter skill with practical Cloud execution and maintenance instructions.
+
+---
+
 ## Version 3.1.51 – 2026-03-07
 
 **Date:** 2026-03-07  
