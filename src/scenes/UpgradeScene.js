@@ -44,6 +44,7 @@ class UpgradeScene extends Phaser.Scene {
         const canUpgrade = !isUpgraded && hero.gold >= upgradeCost && hasMaterial;
 
         const y = startY + i * 72;
+        createItemIconSprite(this, item, 44, y + 14, { width: 34, height: 34 });
         this.add.text(80, y - 2, item.name + ' (' + (typeLabels[item.type] || item.type) + ')', { fontSize: 15, color: '#e5e7eb' });
         if (isUpgraded) {
           this.add.text(80, y + 16, 'Upgraded', { fontSize: 14, color: '#4ade80' });

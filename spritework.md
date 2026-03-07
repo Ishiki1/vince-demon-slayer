@@ -66,12 +66,16 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 | Cursed Demon Blade item icon | `assets/items/cursed-demon-blade.png` | `cursed-demon-blade` |
 | Ember Cleaver item icon | `assets/items/ember-cleaver.png` | `ember-cleaver` |
 | Frostbite item icon | `assets/items/frostbite.png` | `frostbite` |
+| Stormbreaker item icon | `assets/items/stormbreaker.png` | `stormbreaker` |
+| Tide Blade item icon | `assets/items/tide-blade.png` | `tide-blade` |
 | Gale Edge item icon | `assets/items/gale-edge.png` | `gale-edge` |
 | Legendary armor item icon | `assets/items/legendary-armor.png` | `legendary-armor` |
 | Shadow Veil item icon | `assets/items/shadow-veil.png` | `shadow-veil` |
 | Inferno Plate item icon | `assets/items/inferno-plate.png` | `inferno-plate` |
 | Storm Guard item icon | `assets/items/storm-guard.png` | `storm-guard` |
 | Glacier Plate item icon | `assets/items/glacier-plate.png` | `glacier-plate` |
+| Volt Mail item icon | `assets/items/volt-mail.png` | `volt-mail` |
+| Wave Guard item icon | `assets/items/wave-guard.png` | `wave-guard` |
 | Legendary ring item icon | `assets/items/legendary-ring.png` | `legendary-ring` |
 | Legendary amulet item icon | `assets/items/legendary-amulet.png` | `legendary-amulet` |
 | Phantom Cloak item icon | `assets/items/phantom-cloak.png` | `phantom-cloak` |
@@ -88,12 +92,16 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 | Cursed Demon Blade hover outline | `assets/items/cursed-demon-blade-hover-pulse_256x256_sheet.png` | `cursed-demon-blade-hover-sheet` |
 | Ember Cleaver hover outline | `assets/items/ember-cleaver-hover-pulse_256x256_sheet.png` | `ember-cleaver-hover-sheet` |
 | Frostbite hover outline | `assets/items/frostbite-hover-pulse_256x256_sheet.png` | `frostbite-hover-sheet` |
+| Stormbreaker hover outline | `assets/items/stormbreaker-hover-pulse_256x256_sheet.png` | `stormbreaker-hover-sheet` |
+| Tide Blade hover outline | `assets/items/tide-blade-hover-pulse_256x256_sheet.png` | `tide-blade-hover-sheet` |
 | Gale Edge hover outline | `assets/items/gale-edge-hover-pulse_256x256_sheet.png` | `gale-edge-hover-sheet` |
 | Legendary armor hover outline | `assets/items/legendary-armor-hover-pulse_256x256_sheet.png` | `legendary-armor-hover-sheet` |
 | Shadow Veil hover outline | `assets/items/shadow-veil-hover-pulse_256x256_sheet.png` | `shadow-veil-hover-sheet` |
 | Inferno Plate hover outline | `assets/items/inferno-plate-hover-pulse_256x256_sheet.png` | `inferno-plate-hover-sheet` |
 | Storm Guard hover outline | `assets/items/storm-guard-hover-pulse_256x256_sheet.png` | `storm-guard-hover-sheet` |
 | Glacier Plate hover outline | `assets/items/glacier-plate-hover-pulse_256x256_sheet.png` | `glacier-plate-hover-sheet` |
+| Volt Mail hover outline | `assets/items/volt-mail-hover-pulse_256x256_sheet.png` | `volt-mail-hover-sheet` |
+| Wave Guard hover outline | `assets/items/wave-guard-hover-pulse_256x256_sheet.png` | `wave-guard-hover-sheet` |
 | Legendary ring hover outline | `assets/items/legendary-ring-hover-pulse_256x256_sheet.png` | `legendary-ring-hover-sheet` |
 | Legendary amulet hover outline | `assets/items/legendary-amulet-hover-pulse_256x256_sheet.png` | `legendary-amulet-hover-sheet` |
 | Phantom Cloak hover outline | `assets/items/phantom-cloak-hover-pulse_256x256_sheet.png` | `phantom-cloak-hover-sheet` |
@@ -200,7 +208,7 @@ this.load.spritesheet('hero_slash_sheet', 'assets/hero/vince-regular-attack1.png
 - The older static Rusty Sword hover outline file remains at `common-sword-hover_256x256_sheet.png` if you want to compare the pulse test against the original non-pulsing version.
 - Potion loot icons now follow the same pattern with matching hover sheets and animated gold-outline keys derived from their base texture key.
 - Material loot icons now follow the same pattern with dedicated stone icons plus pulsing gold hover sheets derived from their base texture keys.
-- Newly approved bespoke loot items such as `Cursed Demon Blade`, `Shadow Veil`, `Phantom Cloak`, `Ember Cleaver`, `Inferno Plate`, `Flame Pendant`, `Gale Edge`, `Storm Guard`, `Wind Band`, `Frostbite`, and `Glacier Plate` follow the same derived hover-key pattern with their own dedicated pulse sheets instead of falling back to the generic legendary hover families.
+- Newly approved bespoke loot items such as `Cursed Demon Blade`, `Shadow Veil`, `Phantom Cloak`, `Ember Cleaver`, `Inferno Plate`, `Flame Pendant`, `Gale Edge`, `Storm Guard`, `Wind Band`, `Frostbite`, `Glacier Plate`, `Stormbreaker`, `Tide Blade`, `Volt Mail`, and `Wave Guard` follow the same derived hover-key pattern with their own dedicated pulse sheets instead of falling back to the generic legendary hover families.
 - **For skills that play an animation then run logic:** Use `playHeroAnimThen(sheetKey, animKey, callback)` instead of manually setting texture, playing, and wiring `animationcomplete`. The callback (e.g. `() => this.endPlayerTurn()` or the AoE/effect runner) runs after the animation finishes. Many skill branches now use `playHeroAnimThen` and `endPlayerTurn()`.
 - **Manual approach (when needed):** To play an animation yourself: `this.heroSprite.stop()`, `this.heroSprite.setTexture('hero_<name>_sheet')`, `this.heroSprite.play('hero_<name>')`. When a one-shot finishes, Phaser fires `animationcomplete`; the scene still uses this for cases like idle reset. For one-shots driven by `playHeroAnimThen`, no per-skill `animationcomplete` branch is needed.
 - Trigger the animation only when the skill is used (e.g. in `applySingleTargetSkill()` or the appropriate branch in `useSkill()`), and check `this.anims.exists('hero_<name>')` when relevant.

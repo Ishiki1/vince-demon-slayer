@@ -7,13 +7,17 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 ## Version 3.1.52 – 2026-03-07
 
 **Date:** 2026-03-07  
-**Timestamp:** Add Cloud agent starter skill runbook
+**Timestamp:** Wire approved lightning and water unique item icons
 
-### Added
-- **Cloud agent starter skill:** Added a minimal Cloud-skill playbook focused on immediate setup, no-auth expectations, optional app startup, state/flag mocking equivalents, and command-first test workflows by codebase area.
+### Changed
+- **Unique Warrior item art:** `Stormbreaker`, `Tide Blade`, `Volt Mail`, and `Wave Guard` now use their own approved Vince-side item icons instead of falling back to the generic legendary sword and armor art.
+- **Inventory and vendor visuals:** The approved lightning and water unique weapon and armor art now appears in the correct inventory, shop, blacksmith, upgrade, and merchant surfaces because those scenes now render item icons from `assetKey` instead of text-only rows where relevant.
+- **Loot hover coverage:** The same four approved unique icons now use dedicated pulsing golden hover sheets in the loot scene, and they automatically participate in the inventory's unique-only golden hover path.
 
 ### Technical
-- [.cursor/skills/cloud-agent-starter/SKILL.md](.cursor/skills/cloud-agent-starter/SKILL.md): New starter skill with practical Cloud execution and maintenance instructions.
+- [assets/items/stormbreaker.png](assets/items/stormbreaker.png), [assets/items/tide-blade.png](assets/items/tide-blade.png), [assets/items/volt-mail.png](assets/items/volt-mail.png), [assets/items/wave-guard.png](assets/items/wave-guard.png): Adds cleaned approved unique Warrior item icons.
+- [assets/items/stormbreaker-hover-pulse_256x256_sheet.png](assets/items/stormbreaker-hover-pulse_256x256_sheet.png), [assets/items/tide-blade-hover-pulse_256x256_sheet.png](assets/items/tide-blade-hover-pulse_256x256_sheet.png), [assets/items/volt-mail-hover-pulse_256x256_sheet.png](assets/items/volt-mail-hover-pulse_256x256_sheet.png), [assets/items/wave-guard-hover-pulse_256x256_sheet.png](assets/items/wave-guard-hover-pulse_256x256_sheet.png): Adds dedicated hover pulse sheets for the newly approved lightning and water unique Warrior items.
+- [src/data/items.js](src/data/items.js), [src/scenes/BootScene.js](src/scenes/BootScene.js), [src/scenes/ShopScene.js](src/scenes/ShopScene.js), [src/scenes/BlacksmithScene.js](src/scenes/BlacksmithScene.js), [src/scenes/UpgradeScene.js](src/scenes/UpgradeScene.js), [src/scenes/EventScene.js](src/scenes/EventScene.js), [src/ui/SceneUi.js](src/ui/SceneUi.js), [spritework.md](spritework.md): Wires the new unique item texture keys into preload, hover animation registration, shared vendor/item icon rendering, and sprite documentation.
 
 ---
 

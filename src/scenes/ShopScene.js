@@ -77,6 +77,7 @@ class ShopScene extends Phaser.Scene {
         const y = 120 + i * 88;
         const typeLabel = SHOP_TYPE_LABELS[item.type] || item.type;
         const canBuy = ShopSystem.canBuy(hero, itemId);
+        createItemIconSprite(this, item, 44, y + 12, { width: 36, height: 36 });
         this.add.text(80, y - 4, item.name + ' (' + item.rarity + ') — ' + typeLabel, { fontSize: 16, color: '#e5e7eb' });
         const effectLine = getItemEffectLine(item);
         if (effectLine) this.add.text(80, y + 14, effectLine, { fontSize: 12, color: '#a5b4fc' });
@@ -158,6 +159,7 @@ class ShopScene extends Phaser.Scene {
         const sellPrice = ShopSystem.getSellPrice(slot.itemId);
         const isEquipped = InventorySystem.isSlotEquipped(hero, slot.id);
         const nameLine = item.name + ' (' + item.rarity + ') — ' + typeLabel + (isEquipped ? ' (Equipped)' : '');
+        createItemIconSprite(this, item, 44, y + 10, { width: 34, height: 34 });
         this.add.text(80, y - 2, nameLine, { fontSize: 15, color: '#e5e7eb' });
         this.add.text(80, y + 16, sellPrice + ' gold', { fontSize: 14, color: '#fbbf24' });
         const sellBtn = this.add.rectangle(w - 100, y + 8, 70, 32, 0x0ea5e9);

@@ -87,6 +87,7 @@ class BlacksmithScene extends Phaser.Scene {
         if (!item) return;
         const y = 150 + i * 70;
         const slotLabel = slotType ? ' (' + slotType + ')' : '';
+        createItemIconSprite(this, item, 44, y + 10, { width: 34, height: 34 });
         this.add.text(80, y - 2, item.name + slotLabel, { fontSize: 16, color: '#e5e7eb' });
         this.add.text(80, y + 14, 'Durability: ' + slot.durability + ' / ' + slot.maxDurability, { fontSize: 12, color: '#94a3b8' });
         const cost = ShopSystem.getRepairPrice(slot.itemId);
@@ -173,9 +174,10 @@ class BlacksmithScene extends Phaser.Scene {
         if (scene.craftTooltipGraphic) { scene.craftTooltipGraphic.destroy(); scene.craftTooltipGraphic = null; }
       });
 
-      const nameTxt = this.add.text(16, y - 8, item.name, { fontSize: 14, color: '#e5e7eb' }).setOrigin(0, 0.5);
-      const costTxt = this.add.text(16, y + 8, costStr, { fontSize: 12, color: '#fbbf24' }).setOrigin(0, 0.5);
-      container.add([nameTxt, costTxt]);
+      const icon = createItemIconSprite(this, item, 28, y, { width: 24, height: 24 });
+      const nameTxt = this.add.text(48, y - 8, item.name, { fontSize: 14, color: '#e5e7eb' }).setOrigin(0, 0.5);
+      const costTxt = this.add.text(48, y + 8, costStr, { fontSize: 12, color: '#fbbf24' }).setOrigin(0, 0.5);
+      container.add(icon ? [icon, nameTxt, costTxt] : [nameTxt, costTxt]);
 
       const craftBtn = this.add.rectangle(w - 90, y, 70, 28, canCraft ? 0x4ade80 : 0x64748b);
       craftBtn.setInteractive({ useHandCursor: true });

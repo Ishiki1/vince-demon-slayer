@@ -182,7 +182,11 @@ class BootScene extends Phaser.Scene {
     this.load.image('storm-guard', 'assets/items/storm-guard.png');
     this.load.image('wind-band', 'assets/items/wind-band.png');
     this.load.image('frostbite', 'assets/items/frostbite.png');
+    this.load.image('stormbreaker', 'assets/items/stormbreaker.png');
+    this.load.image('tide-blade', 'assets/items/tide-blade.png');
     this.load.image('glacier-plate', 'assets/items/glacier-plate.png');
+    this.load.image('volt-mail', 'assets/items/volt-mail.png');
+    this.load.image('wave-guard', 'assets/items/wave-guard.png');
     this.load.image('fire-stone', 'assets/items/fire-stone.png');
     this.load.image('wind-stone', 'assets/items/wind-stone.png');
     this.load.image('ice-stone', 'assets/items/ice-stone.png');
@@ -232,6 +236,14 @@ class BootScene extends Phaser.Scene {
       frameWidth: 256,
       frameHeight: 256,
     });
+    this.load.spritesheet('stormbreaker-hover-sheet', 'assets/items/stormbreaker-hover-pulse_256x256_sheet.png', {
+      frameWidth: 256,
+      frameHeight: 256,
+    });
+    this.load.spritesheet('tide-blade-hover-sheet', 'assets/items/tide-blade-hover-pulse_256x256_sheet.png', {
+      frameWidth: 256,
+      frameHeight: 256,
+    });
     this.load.spritesheet('legendary-armor-hover-sheet', 'assets/items/legendary-armor-hover-pulse_256x256_sheet.png', {
       frameWidth: 256,
       frameHeight: 256,
@@ -249,6 +261,14 @@ class BootScene extends Phaser.Scene {
       frameHeight: 256,
     });
     this.load.spritesheet('glacier-plate-hover-sheet', 'assets/items/glacier-plate-hover-pulse_256x256_sheet.png', {
+      frameWidth: 256,
+      frameHeight: 256,
+    });
+    this.load.spritesheet('volt-mail-hover-sheet', 'assets/items/volt-mail-hover-pulse_256x256_sheet.png', {
+      frameWidth: 256,
+      frameHeight: 256,
+    });
+    this.load.spritesheet('wave-guard-hover-sheet', 'assets/items/wave-guard-hover-pulse_256x256_sheet.png', {
       frameWidth: 256,
       frameHeight: 256,
     });
@@ -605,12 +625,16 @@ class BootScene extends Phaser.Scene {
     this.registerFullCycleHoverIconAnim('cursed-demon-blade-hover-sheet', 'cursed-demon-blade-hover', 16);
     this.registerFullCycleHoverIconAnim('ember-cleaver-hover-sheet', 'ember-cleaver-hover', 16);
     this.registerFullCycleHoverIconAnim('frostbite-hover-sheet', 'frostbite-hover', 16);
+    this.registerFullCycleHoverIconAnim('stormbreaker-hover-sheet', 'stormbreaker-hover', 16);
+    this.registerFullCycleHoverIconAnim('tide-blade-hover-sheet', 'tide-blade-hover', 16);
     this.registerFullCycleHoverIconAnim('gale-edge-hover-sheet', 'gale-edge-hover', 16);
     this.registerFullCycleHoverIconAnim('legendary-armor-hover-sheet', 'legendary-armor-hover', 16);
     this.registerFullCycleHoverIconAnim('shadow-veil-hover-sheet', 'shadow-veil-hover', 16);
     this.registerFullCycleHoverIconAnim('inferno-plate-hover-sheet', 'inferno-plate-hover', 16);
     this.registerFullCycleHoverIconAnim('storm-guard-hover-sheet', 'storm-guard-hover', 16);
     this.registerFullCycleHoverIconAnim('glacier-plate-hover-sheet', 'glacier-plate-hover', 16);
+    this.registerFullCycleHoverIconAnim('volt-mail-hover-sheet', 'volt-mail-hover', 16);
+    this.registerFullCycleHoverIconAnim('wave-guard-hover-sheet', 'wave-guard-hover', 16);
     this.registerFullCycleHoverIconAnim('legendary-ring-hover-sheet', 'legendary-ring-hover', 16);
     this.registerFullCycleHoverIconAnim('legendary-amulet-hover-sheet', 'legendary-amulet-hover', 16);
     this.registerFullCycleHoverIconAnim('phantom-cloak-hover-sheet', 'phantom-cloak-hover', 16);

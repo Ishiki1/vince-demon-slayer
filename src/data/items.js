@@ -53,14 +53,14 @@ const ITEMS = {
   'unique-ember-cleaver': { id: 'unique-ember-cleaver', name: 'Ember Cleaver', type: 'weapon', rarity: 'unique', strength: 11, health: 3, statClass: 'strength', assetKey: 'ember-cleaver' },
   'unique-gale-edge': { id: 'unique-gale-edge', name: 'Gale Edge', type: 'weapon', rarity: 'unique', strength: 11, evasion: 0.06, statClass: 'strength', assetKey: 'gale-edge' },
   'unique-frostbite': { id: 'unique-frostbite', name: 'Frostbite', type: 'weapon', rarity: 'unique', strength: 11, defense: 3, statClass: 'strength', assetKey: 'frostbite' },
-  'unique-stormbreaker': { id: 'unique-stormbreaker', name: 'Stormbreaker', type: 'weapon', rarity: 'unique', strength: 13, statClass: 'strength', assetKey: 'legendary-sword' },
-  'unique-tide-blade': { id: 'unique-tide-blade', name: 'Tide Blade', type: 'weapon', rarity: 'unique', strength: 11, mana: 4, statClass: 'strength', assetKey: 'legendary-sword' },
+  'unique-stormbreaker': { id: 'unique-stormbreaker', name: 'Stormbreaker', type: 'weapon', rarity: 'unique', strength: 13, statClass: 'strength', assetKey: 'stormbreaker' },
+  'unique-tide-blade': { id: 'unique-tide-blade', name: 'Tide Blade', type: 'weapon', rarity: 'unique', strength: 11, mana: 4, statClass: 'strength', assetKey: 'tide-blade' },
   // Unique armor (Warrior)
   'unique-inferno-plate': { id: 'unique-inferno-plate', name: 'Inferno Plate', type: 'armor', rarity: 'unique', defense: 8, strength: 3, statClass: 'strength', assetKey: 'inferno-plate' },
   'unique-storm-guard': { id: 'unique-storm-guard', name: 'Storm Guard', type: 'armor', rarity: 'unique', defense: 6, evasion: 0.16, statClass: 'strength', assetKey: 'storm-guard' },
   'unique-glacier-plate': { id: 'unique-glacier-plate', name: 'Glacier Plate', type: 'armor', rarity: 'unique', defense: 9, health: 3, statClass: 'strength', assetKey: 'glacier-plate' },
-  'unique-volt-mail': { id: 'unique-volt-mail', name: 'Volt Mail', type: 'armor', rarity: 'unique', defense: 7, strength: 3, statClass: 'strength', assetKey: 'legendary-armor' },
-  'unique-wave-guard': { id: 'unique-wave-guard', name: 'Wave Guard', type: 'armor', rarity: 'unique', defense: 7, health: 6, statClass: 'strength', assetKey: 'legendary-armor' },
+  'unique-volt-mail': { id: 'unique-volt-mail', name: 'Volt Mail', type: 'armor', rarity: 'unique', defense: 7, strength: 3, statClass: 'strength', assetKey: 'volt-mail' },
+  'unique-wave-guard': { id: 'unique-wave-guard', name: 'Wave Guard', type: 'armor', rarity: 'unique', defense: 7, health: 6, statClass: 'strength', assetKey: 'wave-guard' },
   // Unique accessories (Warrior)
   'unique-flame-pendant': { id: 'unique-flame-pendant', name: 'Flame Pendant', type: 'accessory', rarity: 'unique', strength: 5, health: 7, statClass: 'strength', assetKey: 'flame-pendant' },
   'unique-wind-band': { id: 'unique-wind-band', name: 'Wind Band', type: 'accessory', rarity: 'unique', strength: 4, evasion: 0.11, statClass: 'strength', assetKey: 'wind-band' },

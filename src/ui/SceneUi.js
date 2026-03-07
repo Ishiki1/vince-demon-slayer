@@ -65,6 +65,31 @@ function attachHoverSpriteAnimation(sprite, options) {
 }
 
 /**
+ * Create a small item icon sprite if the item's texture exists.
+ * Reuses the standard hover-sheet behavior when available.
+ * @param {Phaser.Scene} scene
+ * @param {object} item
+ * @param {number} x
+ * @param {number} y
+ * @param {{ width?: number, height?: number, hover?: boolean }} options
+ * @returns {Phaser.GameObjects.Sprite|null}
+ */
+function createItemIconSprite(scene, item, x, y, options) {
+  if (!scene || !item || !item.assetKey || !scene.textures.exists(item.assetKey)) return null;
+  const width = (options && options.width) || 32;
+  const height = (options && options.height) || width;
+  const icon = scene.add.sprite(x, y, item.assetKey).setDisplaySize(width, height);
+  const shouldHover = !options || options.hover !== false;
+  if (shouldHover && typeof attachHoverSpriteAnimation === 'function') {
+    attachHoverSpriteAnimation(icon, {
+      hoverSheetKey: item.hoverSheetKey,
+      hoverAnimKey: item.hoverAnimKey,
+    });
+  }
+  return icon;
+}
+
+/**
  * Attach slight hover growth plus a simple shared tooltip to an icon-style control.
  * @param {Phaser.GameObjects.GameObject} hitArea
  * @param {Phaser.GameObjects.Image|Phaser.GameObjects.Sprite} icon

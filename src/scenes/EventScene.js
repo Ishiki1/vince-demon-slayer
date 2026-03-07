@@ -118,6 +118,7 @@ class EventScene extends Phaser.Scene {
       const item = ITEMS[row.itemId];
       if (!item) return;
       const y = 150 + i * 70;
+      createItemIconSprite(this, item, 56, y + 14, { width: 34, height: 34 });
       this.add.text(100, y - 4, item.name + ' (' + item.rarity + ')', { fontSize: 16, color: '#e5e7eb' });
       const effectLine = getItemEffectLine(item);
       if (effectLine) this.add.text(100, y + 12, effectLine, { fontSize: 12, color: '#94a3b8' });
