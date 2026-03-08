@@ -28,10 +28,9 @@ class ShopScene extends Phaser.Scene {
     const hero = GAME_STATE.hero;
     InventorySystem.ensureAccessorySlots(hero);
     const shopView = GAME_STATE.shopView || 'choice';
+    this.drawSceneFrame(hero, shopView);
 
     if (shopView === 'choice') {
-      this.add.text(w / 2, 80, 'Shop', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
-      this.add.text(w / 2, 120, 'Gold: ' + hero.gold, { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
       const buyBtn = this.add.rectangle(w / 2, h / 2 - 50, 200, 56, 0x4ade80);
       buyBtn.setInteractive({ useHandCursor: true });
       this.add.text(w / 2, h / 2 - 50, 'Buy', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
@@ -40,15 +39,6 @@ class ShopScene extends Phaser.Scene {
       sellBtn.setInteractive({ useHandCursor: true });
       this.add.text(w / 2, h / 2 + 30, 'Sell', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
       sellBtn.on('pointerdown', () => { GAME_STATE.shopView = 'sell'; this.scene.restart(); });
-      const fromTown = GAME_STATE.shopFrom === 'town';
-      const backBtn = this.add.rectangle(w / 2, h - 60, 160, 48, 0x475569);
-      backBtn.setInteractive({ useHandCursor: true });
-      this.add.text(w / 2, h - 60, fromTown ? 'Back to Town' : 'Back to Map', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
-      backBtn.on('pointerdown', () => {
-        GAME_STATE.shopView = 'choice';
-        if (fromTown) this.scene.start('Town');
-        else this.scene.start('Overworld');
-      });
       return;
     }
 
@@ -57,8 +47,6 @@ class ShopScene extends Phaser.Scene {
         GAME_STATE.shopStock = ShopSystem.generateStock(hero);
       }
       this.stock = GAME_STATE.shopStock;
-      this.add.text(w / 2, 40, 'Shop — Buy', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
-      this.add.text(w / 2, 72, 'Gold: ' + hero.gold, { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
       const rerollCost = typeof getFinalGoldCost === 'function' ? getFinalGoldCost(CONFIG.SHOP_REROLL_COST) : CONFIG.SHOP_REROLL_COST;
       const canReroll = hero.gold >= rerollCost;
       const rerollBtn = this.add.rectangle(w - 100, 100, 140, 36, canReroll ? 0x78716c : 0x475569);
@@ -105,8 +93,6 @@ class ShopScene extends Phaser.Scene {
     if (shopView === 'sell') {
       InventorySystem.ensureSlotBased(hero);
       const sellFilter = GAME_STATE.shopSellFilter != null ? GAME_STATE.shopSellFilter : 'all';
-      this.add.text(w / 2, 40, 'Shop — Sell', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
-      this.add.text(w / 2, 72, 'Gold: ' + hero.gold, { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
 
       let sellable = hero.inventory.filter(s => ITEMS[s.itemId] && ShopSystem.getSellPrice(s.itemId) >= 0);
       if (sellFilter !== 'all') {
@@ -179,5 +165,26 @@ class ShopScene extends Phaser.Scene {
       this.add.text(w / 2, h - 60, 'Back to Shop', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
       backToChoice.on('pointerdown', () => { GAME_STATE.shopView = 'choice'; this.scene.restart(); });
     }
+  }
+
+  drawSceneFrame(hero, shopView) {
+    const hasArt = !!addSceneBackground(this, 'shop-ui-background');
+    if (!hasArt) {
+      this.add.rectangle(CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2, CONFIG.WIDTH, CONFIG.HEIGHT, 0x0f172a);
+    }
+    const title = shopView === 'buy' ? 'Shop — Buy' : (shopView === 'sell' ? 'Shop — Sell' : 'Shop');
+    this.add.text(20, 32, title, {
+      fontSize: 28,
+      color: '#fbbf24',
+      stroke: '#0f172a',
+      strokeThickness: 5,
+    }).setOrigin(0, 0.5);
+    this.add.text(20, 62, 'Gold: ' + hero.gold, {
+      fontSize: 18,
+      color: '#fbbf24',
+      stroke: '#0f172a',
+      strokeThickness: 4,
+    }).setOrigin(0, 0.5);
+    createTownNavRow(this, { currentSection: 'shop' });
   }
 }

@@ -94,6 +94,13 @@ for (let n = 11; n <= 20; n++) {
 
 const LEVELS = [...LEVELS_ACT1, ...LEVELS_ACT2];
 
+function getLevelBackgroundTextureKey(levelId) {
+  if (typeof levelId !== 'string') return null;
+  const match = /^level(10|[1-9])$/.exec(levelId);
+  if (!match) return null;
+  return `level${match[1]}-ui-background`;
+}
+
 /** Reaper enemy: scales with hero level, very high HP and damage. */
 function createReaper(heroLevel) {
   const scale = 4 + heroLevel * 2;
@@ -106,5 +113,13 @@ function createReaper(heroLevel) {
     hp,
     damage,
     isBoss: true,
+    turnsTaken: 0,
+    skills: [
+      {
+        id: 'buff-removal-skill',
+        everyTurns: 3,
+        firstUseTurn: 3,
+      },
+    ],
   };
 }

@@ -19,14 +19,12 @@ class UpgradeScene extends Phaser.Scene {
     const h = CONFIG.HEIGHT;
     const hero = GAME_STATE.hero;
     InventorySystem.ensureSlotBased(hero);
+    this.drawSceneFrame(hero);
 
     const uniqueSlots = hero.inventory.filter(s => {
       const item = ITEMS[s.itemId];
       return item && item.rarity === 'unique' && (item.type === 'weapon' || item.type === 'armor' || item.type === 'accessory');
     });
-
-    this.add.text(w / 2, 40, 'Upgrade Unique', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
-    this.add.text(w / 2, 72, 'Gold: ' + hero.gold, { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
 
     if (uniqueSlots.length === 0) {
       this.add.text(w / 2, h / 2 - 40, 'You can only upgrade Unique Items. Craft one first!', { fontSize: 16, color: '#e5e7eb' }).setOrigin(0.5).setWordWrapWidth(w - 80);
@@ -76,5 +74,25 @@ class UpgradeScene extends Phaser.Scene {
       bgColor: 0x475569,
       fontSize: 16,
     }, () => this.scene.start('Blacksmith', { mode: 'menu' }));
+  }
+
+  drawSceneFrame(hero) {
+    const hasArt = !!addSceneBackground(this, 'blacksmith-ui-background');
+    if (!hasArt) {
+      this.add.rectangle(CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2, CONFIG.WIDTH, CONFIG.HEIGHT, 0x0f172a);
+    }
+    this.add.text(20, 32, 'Upgrade Unique', {
+      fontSize: 28,
+      color: '#fbbf24',
+      stroke: '#0f172a',
+      strokeThickness: 5,
+    }).setOrigin(0, 0.5);
+    this.add.text(20, 62, 'Gold: ' + hero.gold, {
+      fontSize: 18,
+      color: '#fbbf24',
+      stroke: '#0f172a',
+      strokeThickness: 4,
+    }).setOrigin(0, 0.5);
+    createTownNavRow(this, { currentSection: 'blacksmith' });
   }
 }

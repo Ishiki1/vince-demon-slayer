@@ -77,3 +77,9 @@ function setRunUnlockSelection(arr) {
     localStorage.setItem(RUN_SELECTION_KEY, JSON.stringify(sanitized));
   } catch (_) {}
 }
+
+function clearRunUnlockSelection() {
+  try {
+    localStorage.removeItem(RUN_SELECTION_KEY);
+  } catch (_) {}
+}

@@ -26,9 +26,8 @@ class MineScene extends Phaser.Scene {
     const canMine = freeMineAvailable || hero.gold >= rentPrice;
     const costLabel = freeMineAvailable ? 'Free this week' : (rentPrice + ' gold');
     const buttonLabel = freeMineAvailable ? 'Mine for free' : `Rent pickaxe (${rentPrice}g)`;
+    this.drawSceneFrame(hero);
 
-    this.add.text(w / 2, 80, 'Mine', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
-    this.goldText = this.add.text(w / 2, 120, 'Gold: ' + hero.gold, { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
     this.add.text(w / 2, 160, 'Rent a pickaxe to mine for a random crafting material.', { fontSize: 14, color: '#e5e7eb' }).setOrigin(0.5);
     this.add.text(w / 2, 185, 'Cost: ' + costLabel, { fontSize: 16, color: freeMineAvailable ? '#86efac' : '#94a3b8' }).setOrigin(0.5);
 
@@ -52,30 +51,28 @@ class MineScene extends Phaser.Scene {
         }
         const item = ITEMS[materialId];
         const materialName = item ? item.name : materialId;
-        this.showMineResultPopup(materialName);
+        this.showMineResultPopup(item || { name: materialName });
       });
     } else {
       this.mineMessageText.setText('Not enough gold.');
     }
-
-    const backBtn = this.add.rectangle(w / 2, h - 80, 160, 48, 0x475569);
-    backBtn.setInteractive({ useHandCursor: true });
-    this.add.text(w / 2, h - 80, 'Back to Town', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
-    backBtn.on('pointerdown', () => this.scene.start('Town'));
   }
 
-  showMineResultPopup(materialName) {
+  showMineResultPopup(item) {
     const w = CONFIG.WIDTH;
     const h = CONFIG.HEIGHT;
+    const materialName = item && item.name ? item.name : 'Unknown material';
 
     const overlay = this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.7).setInteractive();
-    const panel = this.add.rectangle(w / 2, h / 2, 320, 160, 0x1e293b);
-    const title = this.add.text(w / 2, h / 2 - 45, 'You found:', { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
-    const result = this.add.text(w / 2, h / 2 - 5, materialName + '!', { fontSize: 22, color: '#e5e7eb' }).setOrigin(0.5);
-    const okBtn = this.add.rectangle(w / 2, h / 2 + 45, 100, 36, 0x475569).setInteractive({ useHandCursor: true });
-    const okText = this.add.text(w / 2, h / 2 + 45, 'OK', { fontSize: 14, color: '#fff' }).setOrigin(0.5);
+    const panel = this.add.rectangle(w / 2, h / 2, 340, 250, 0x1e293b);
+    const title = this.add.text(w / 2, h / 2 - 88, 'You found:', { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
+    const icon = createItemIconSprite(this, item, w / 2, h / 2 - 18, { width: 96, height: 96, hover: false });
+    const result = this.add.text(w / 2, h / 2 + 58, materialName + '!', { fontSize: 22, color: '#e5e7eb' }).setOrigin(0.5);
+    const okBtn = this.add.rectangle(w / 2, h / 2 + 95, 100, 36, 0x475569).setInteractive({ useHandCursor: true });
+    const okText = this.add.text(w / 2, h / 2 + 95, 'OK', { fontSize: 14, color: '#fff' }).setOrigin(0.5);
 
     const popupParts = [overlay, panel, title, result, okBtn, okText];
+    if (icon) popupParts.push(icon);
     const close = () => {
       popupParts.forEach(obj => obj.destroy());
       this.scene.restart();
@@ -83,5 +80,25 @@ class MineScene extends Phaser.Scene {
 
     okBtn.on('pointerdown', close);
     overlay.on('pointerdown', close);
+  }
+
+  drawSceneFrame(hero) {
+    const hasArt = !!addSceneBackground(this, 'mine-ui-background');
+    if (!hasArt) {
+      this.add.rectangle(CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2, CONFIG.WIDTH, CONFIG.HEIGHT, 0x0f172a);
+    }
+    this.add.text(20, 32, 'Mine', {
+      fontSize: 28,
+      color: '#fbbf24',
+      stroke: '#0f172a',
+      strokeThickness: 5,
+    }).setOrigin(0, 0.5);
+    this.goldText = this.add.text(20, 62, 'Gold: ' + hero.gold, {
+      fontSize: 18,
+      color: '#fbbf24',
+      stroke: '#0f172a',
+      strokeThickness: 4,
+    }).setOrigin(0, 0.5);
+    createTownNavRow(this, { currentSection: 'mine' });
   }
 }

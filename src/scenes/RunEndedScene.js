@@ -8,6 +8,20 @@ class RunEndedScene extends Phaser.Scene {
     super({ key: 'RunEnded' });
   }
 
+  startNewRunFlow() {
+    const unlocked = typeof normalizeUnlockedClassIds === 'function'
+      ? normalizeUnlockedClassIds(GAME_STATE.unlockedClasses)
+      : (GAME_STATE.unlockedClasses || ['warrior']);
+    const singleUnlockedClassId = typeof getSingleUnlockedClassId === 'function'
+      ? getSingleUnlockedClassId(unlocked)
+      : null;
+    if (singleUnlockedClassId) {
+      this.scene.start('UnlockSelect', { classId: singleUnlockedClassId });
+      return;
+    }
+    this.scene.start('ClassSelect');
+  }
+
   create() {
     const w = CONFIG.WIDTH;
     const h = CONFIG.HEIGHT;
@@ -25,7 +39,7 @@ class RunEndedScene extends Phaser.Scene {
     btn.on('pointerdown', () => {
       if (typeof playGameMusicLoop === 'function') playGameMusicLoop(this);
       resetRun();
-      this.scene.start('ClassSelect');
+      this.startNewRunFlow();
     });
   }
 }

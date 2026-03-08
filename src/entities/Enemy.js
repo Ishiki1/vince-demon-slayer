@@ -13,5 +13,7 @@ function createEnemy(levelIndex, isBoss) {
     damage: stats.damage,
     isBoss: !!isBoss,
     goonType: stats.goonType || null,
+    turnsTaken: 0,
+    skills: [],
   };
 }

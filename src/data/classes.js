@@ -116,6 +116,11 @@ function isClassUnlocked(classId, unlockedClassIds) {
   return normalizeUnlockedClassIds(unlockedClassIds).includes(classId);
 }
 
+function getSingleUnlockedClassId(unlockedClassIds) {
+  const unlocked = getClassSelectEntries(unlockedClassIds).filter((entry) => entry.available);
+  return unlocked.length === 1 ? unlocked[0].id : null;
+}
+
 function getClassSelectEntries(unlockedClassIds) {
   const unlocked = normalizeUnlockedClassIds(unlockedClassIds);
   return getClassIds().map((classId) => {

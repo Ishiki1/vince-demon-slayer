@@ -233,7 +233,8 @@ function createHero(classId) {
       ev += passiveEv + (this.getArmorEvasion ? this.getArmorEvasion() : 0) + (this.getAccessoryEvasion ? this.getAccessoryEvasion() : 0);
       const setBonus = (this.getUniqueSetBonus && this.getUniqueSetBonus()) || {};
       ev += setBonus.evasion || 0;
-      return Math.min(0.95, Math.max(0, ev));
+      const maxEvasion = CONFIG.HERO_MAX_EVASION != null ? CONFIG.HERO_MAX_EVASION : 0.9;
+      return Math.min(maxEvasion, Math.max(0, ev));
     },
 
     getStrength() {

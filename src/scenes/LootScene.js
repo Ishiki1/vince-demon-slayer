@@ -23,6 +23,16 @@ class LootScene extends Phaser.Scene {
     const hero = GAME_STATE.hero;
     const itemId = GAME_STATE.pendingLootItemId;
     const goldEarned = GAME_STATE.goldEarned || 0;
+    const levelBackgroundKey = typeof getLevelBackgroundTextureKey === 'function'
+      ? getLevelBackgroundTextureKey(GAME_STATE.currentLevelId)
+      : null;
+
+    if (levelBackgroundKey && typeof addSceneBackground === 'function' && this.textures.exists(levelBackgroundKey)) {
+      addSceneBackground(this, levelBackgroundKey, { width: w, height: h, depth: -30 });
+      this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.32).setDepth(-25);
+    } else {
+      this.add.rectangle(w / 2, h / 2, w, h, 0x1a1a2e).setDepth(-30);
+    }
 
     this.add.text(w / 2, 60, 'Loot', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
     if (goldEarned > 0) {

@@ -14,6 +14,13 @@ class ClassSelectScene extends Phaser.Scene {
     const unlocked = typeof normalizeUnlockedClassIds === 'function'
       ? normalizeUnlockedClassIds(GAME_STATE.unlockedClasses)
       : (GAME_STATE.unlockedClasses || ['warrior']);
+    const singleUnlockedClassId = typeof getSingleUnlockedClassId === 'function'
+      ? getSingleUnlockedClassId(unlocked)
+      : null;
+    if (singleUnlockedClassId) {
+      this.scene.start('UnlockSelect', { classId: singleUnlockedClassId });
+      return;
+    }
     const classes = typeof getClassSelectEntries === 'function'
       ? getClassSelectEntries(unlocked)
       : [{ id: 'warrior', name: 'Warrior', available: true, unlockLabel: 'Select' }];

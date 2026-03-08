@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <pattern id="minorGrid" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1f2937" stroke-width="1"/>
+    </pattern>
+    <style>
+      .title { font: 700 18px Arial, sans-serif; fill: #f8fafc; }
+      .subtitle { font: 12px Arial, sans-serif; fill: #cbd5e1; }
+      .legend { font: 12px Arial, sans-serif; fill: #e2e8f0; }
+      .label { font: 12px Arial, sans-serif; fill: #e5e7eb; }
+      .small { font: 10px Arial, sans-serif; fill: #94a3b8; }
+      .cellNum { font: 11px Arial, sans-serif; fill: #dcfce7; text-anchor: middle; dominant-baseline: middle; }
+      .axis { font: 10px Arial, sans-serif; fill: #64748b; }
+      .content-bounds { fill: rgba(148, 163, 184, 0.05); stroke: #64748b; stroke-width: 1.5; stroke-dasharray: 8 6; }
+      .slot { fill: rgba(96, 165, 250, 0.12); stroke: #60a5fa; stroke-width: 2; }
+      .equipped { fill: rgba(250, 204, 21, 0.18); stroke: #facc15; stroke-width: 2; }
+      .gridCell { fill: rgba(34, 197, 94, 0.12); stroke: #22c55e; stroke-width: 1.5; }
+      .closeArea { fill: rgba(249, 115, 22, 0.18); stroke: #f97316; stroke-width: 2; }
+      .statusMark { stroke: #f472b6; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="600" fill="#0b1220"/>
+  <rect x="0" y="0" width="800" height="600" fill="url(#minorGrid)"/>
+
+  <text x="16" y="28" class="title">Inventory Layout Guide</text>
+  <text x="16" y="46" class="subtitle">Live inventory placement from `InventoryOverworldScene.js` on an 800x600 canvas.</text>
+
+  <g>
+    <text x="8" y="14" class="axis">0</text>
+    <text x="98" y="14" class="axis">100</text>
+    <text x="198" y="14" class="axis">200</text>
+    <text x="298" y="14" class="axis">300</text>
+    <text x="398" y="14" class="axis">400</text>
+    <text x="498" y="14" class="axis">500</text>
+    <text x="598" y="14" class="axis">600</text>
+    <text x="698" y="14" class="axis">700</text>
+    <text x="2" y="102" class="axis">100</text>
+    <text x="2" y="202" class="axis">200</text>
+    <text x="2" y="302" class="axis">300</text>
+    <text x="2" y="402" class="axis">400</text>
+    <text x="2" y="502" class="axis">500</text>
+  </g>
+
+  <g>
+    <rect x="458" y="18" width="326" height="74" rx="10" fill="rgba(15, 23, 42, 0.78)" stroke="#334155" stroke-width="1.5"/>
+    <rect x="474" y="32" width="16" height="16" class="slot"/>
+    <text x="500" y="44" class="legend">Blue = slot bounds from code</text>
+    <rect x="474" y="56" width="16" height="16" class="equipped"/>
+    <text x="500" y="68" class="legend">Gold = actual item or portrait footprint</text>
+    <rect x="646" y="32" width="16" height="16" class="gridCell"/>
+    <text x="672" y="44" class="legend">Green = bag cell bounds</text>
+    <rect x="646" y="56" width="16" height="16" class="closeArea"/>
+    <text x="672" y="68" class="legend">Orange = close hotspot</text>
+  </g>
+
+  <rect x="118" y="54" width="564" height="462" rx="8" class="content-bounds"/>
+  <text x="126" y="72" class="small">Content bounds: x=118 y=54 w=564 h=462</text>
+
+  <g id="equipment-slots">
+    <rect x="150" y="118" width="112" height="182" class="slot"/>
+    <text x="156" y="112" class="label">Character slot 150,118 112x182</text>
+    <rect x="166" y="139" width="100" height="152" class="equipped"/>
+    <text x="172" y="156" class="small">Hero portrait 166,139 100x152</text>
+
+    <rect x="279" y="121" width="112" height="78" class="slot"/>
+    <text x="285" y="115" class="label">Weapon slot 279,121 112x78</text>
+    <rect x="319" y="146" width="48" height="48" class="equipped"/>
+    <text x="321" y="142" class="small">48x48</text>
+
+    <rect x="279" y="216" width="112" height="78" class="slot"/>
+    <text x="285" y="210" class="label">Armor slot 279,216 112x78</text>
+    <rect x="318" y="243" width="48" height="48" class="equipped"/>
+    <text x="320" y="239" class="small">48x48</text>
+
+    <rect x="151" y="311" width="112" height="78" class="slot"/>
+    <text x="157" y="305" class="label">Accessory 1 slot 151,311 112x78</text>
+    <rect x="192" y="340" width="42" height="42" class="equipped"/>
+    <text x="194" y="336" class="small">42x42</text>
+
+    <rect x="279" y="311" width="112" height="78" class="slot"/>
+    <text x="285" y="305" class="label">Accessory 2 slot 279,311 112x78</text>
+    <rect x="320" y="340" width="42" height="42" class="equipped"/>
+    <text x="322" y="336" class="small">42x42</text>
+  </g>
+
+  <g id="bag-grid">
+    <text x="432" y="116" class="label">Bag grid: 5 cols x 6 rows, cell 40x40, gap 6, start 432,134</text>
+
+    <g>
+      <rect x="432" y="134" width="40" height="40" class="gridCell"/><rect x="426" y="141" width="40" height="40" class="equipped"/><text x="452" y="154" class="cellNum">01</text>
+      <rect x="478" y="134" width="40" height="40" class="gridCell"/><rect x="472" y="141" width="40" height="40" class="equipped"/><text x="498" y="154" class="cellNum">02</text>
+      <rect x="524" y="134" width="40" height="40" class="gridCell"/><rect x="518" y="141" width="40" height="40" class="equipped"/><text x="544" y="154" class="cellNum">03</text>
+      <rect x="570" y="134" width="40" height="40" class="gridCell"/><rect x="564" y="141" width="40" height="40" class="equipped"/><text x="590" y="154" class="cellNum">04</text>
+      <rect x="616" y="134" width="40" height="40" class="gridCell"/><rect x="610" y="141" width="40" height="40" class="equipped"/><text x="636" y="154" class="cellNum">05</text>
+    </g>
+
+    <g>
+      <rect x="432" y="180" width="40" height="40" class="gridCell"/><rect x="426" y="187" width="40" height="40" class="equipped"/><text x="452" y="200" class="cellNum">06</text>
+      <rect x="478" y="180" width="40" height="40" class="gridCell"/><rect x="472" y="187" width="40" height="40" class="equipped"/><text x="498" y="200" class="cellNum">07</text>
+      <rect x="524" y="180" width="40" height="40" class="gridCell"/><rect x="518" y="187" width="40" height="40" class="equipped"/><text x="544" y="200" class="cellNum">08</text>
+      <rect x="570" y="180" width="40" height="40" class="gridCell"/><rect x="564" y="187" width="40" height="40" class="equipped"/><text x="590" y="200" class="cellNum">09</text>
+      <rect x="616" y="180" width="40" height="40" class="gridCell"/><rect x="610" y="187" width="40" height="40" class="equipped"/><text x="636" y="200" class="cellNum">10</text>
+    </g>
+
+    <g>
+      <rect x="432" y="226" width="40" height="40" class="gridCell"/><rect x="426" y="233" width="40" height="40" class="equipped"/><text x="452" y="246" class="cellNum">11</text>
+      <rect x="478" y="226" width="40" height="40" class="gridCell"/><rect x="472" y="233" width="40" height="40" class="equipped"/><text x="498" y="246" class="cellNum">12</text>
+      <rect x="524" y="226" width="40" height="40" class="gridCell"/><rect x="518" y="233" width="40" height="40" class="equipped"/><text x="544" y="246" class="cellNum">13</text>
+      <rect x="570" y="226" width="40" height="40" class="gridCell"/><rect x="564" y="233" width="40" height="40" class="equipped"/><text x="590" y="246" class="cellNum">14</text>
+      <rect x="616" y="226" width="40" height="40" class="gridCell"/><rect x="610" y="233" width="40" height="40" class="equipped"/><text x="636" y="246" class="cellNum">15</text>
+    </g>
+
+    <g>
+      <rect x="432" y="272" width="40" height="40" class="gridCell"/><rect x="426" y="279" width="40" height="40" class="equipped"/><text x="452" y="292" class="cellNum">16</text>
+      <rect x="478" y="272" width="40" height="40" class="gridCell"/><rect x="472" y="279" width="40" height="40" class="equipped"/><text x="498" y="292" class="cellNum">17</text>
+      <rect x="524" y="272" width="40" height="40" class="gridCell"/><rect x="518" y="279" width="40" height="40" class="equipped"/><text x="544" y="292" class="cellNum">18</text>
+      <rect x="570" y="272" width="40" height="40" class="gridCell"/><rect x="564" y="279" width="40" height="40" class="equipped"/><text x="590" y="292" class="cellNum">19</text>
+      <rect x="616" y="272" width="40" height="40" class="gridCell"/><rect x="610" y="279" width="40" height="40" class="equipped"/><text x="636" y="292" class="cellNum">20</text>
+    </g>
+
+    <g>
+      <rect x="432" y="318" width="40" height="40" class="gridCell"/><rect x="426" y="325" width="40" height="40" class="equipped"/><text x="452" y="338" class="cellNum">21</text>
+      <rect x="478" y="318" width="40" height="40" class="gridCell"/><rect x="472" y="325" width="40" height="40" class="equipped"/><text x="498" y="338" class="cellNum">22</text>
+      <rect x="524" y="318" width="40" height="40" class="gridCell"/><rect x="518" y="325" width="40" height="40" class="equipped"/><text x="544" y="338" class="cellNum">23</text>
+      <rect x="570" y="318" width="40" height="40" class="gridCell"/><rect x="564" y="325" width="40" height="40" class="equipped"/><text x="590" y="338" class="cellNum">24</text>
+      <rect x="616" y="318" width="40" height="40" class="gridCell"/><rect x="610" y="325" width="40" height="40" class="equipped"/><text x="636" y="338" class="cellNum">25</text>
+    </g>
+
+    <g>
+      <rect x="432" y="364" width="40" height="40" class="gridCell"/><rect x="426" y="371" width="40" height="40" class="equipped"/><text x="452" y="384" class="cellNum">26</text>
+      <rect x="478" y="364" width="40" height="40" class="gridCell"/><rect x="472" y="371" width="40" height="40" class="equipped"/><text x="498" y="384" class="cellNum">27</text>
+      <rect x="524" y="364" width="40" height="40" class="gridCell"/><rect x="518" y="371" width="40" height="40" class="equipped"/><text x="544" y="384" class="cellNum">28</text>
+      <rect x="570" y="364" width="40" height="40" class="gridCell"/><rect x="564" y="371" width="40" height="40" class="equipped"/><text x="590" y="384" class="cellNum">29</text>
+      <rect x="616" y="364" width="40" height="40" class="gridCell"/><rect x="610" y="371" width="40" height="40" class="equipped"/><text x="636" y="384" class="cellNum">30</text>
+    </g>
+  </g>
+
+  <g id="ui-helpers">
+    <rect x="657" y="499" width="108" height="42" rx="6" class="closeArea"/>
+    <text x="665" y="495" class="label">Close hotspot</text>
+    <line x1="82" y1="519" x2="94" y2="519" class="statusMark"/>
+    <line x1="88" y1="513" x2="88" y2="525" class="statusMark"/>
+    <text x="100" y="523" class="label">Status text anchor 88,519</text>
+  </g>
+
+  <text x="16" y="578" class="subtitle">Bag icon footprint uses xOffset -6 and yOffset +7 inside each 40x40 cell. Equipped icons use the current live offsets from code.</text>
+</svg>

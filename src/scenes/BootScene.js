@@ -125,14 +125,32 @@ class BootScene extends Phaser.Scene {
     this.load.image('level8-overworld', 'assets/overworld/level8-overworld.png');
     this.load.image('level9-overworld', 'assets/overworld/level9-overworld.png');
     this.load.image('castle-overworld', 'assets/overworld/castle-overworld.png');
-    this.load.image('settings-icon', 'assets/ui/settings-icon.png');
-    this.load.image('save-game-icon', 'assets/ui/save-game-icon.png');
-    this.load.image('abandon-run-icon', 'assets/ui/abandon-run-icon.png');
-    this.load.image('inventory-icon', 'assets/ui/inventory-icon.png');
-    this.load.image('character-sheet-icon', 'assets/ui/character-sheet-icon.png');
+    [
+      'settings-icon',
+      'save-game-icon',
+      'abandon-run-icon',
+      'inventory-icon',
+      'character-sheet-icon',
+      'inn-icon',
+      'shop-icon',
+      'blacksmith-icon',
+      'mine-icon',
+      'alchemist-icon',
+      'overworld-icon',
+    ].forEach((key) => {
+      this.load.image(key, `assets/ui/${key}.png`);
+    });
     this.load.image('inventory-ui-layout', 'assets/ui/Inventory.png');
-    this.load.image('blacksmith-ui-background', 'assets/ui/blacksmith.png');
-    this.load.image('overworld-ui-background', 'assets/ui/overworld.png');
+    for (let n = 1; n <= 10; n++) {
+      this.load.image(`level${n}-ui-background`, `assets/overworld/level${n}-bg.png`);
+    }
+    this.load.image('startgame-ui-background', 'assets/overworld/Startgame-bg.png');
+    this.load.image('town-ui-background', 'assets/overworld/town-bg.png');
+    this.load.image('blacksmith-ui-background', 'assets/overworld/blacksmith-bg.png');
+    this.load.image('shop-ui-background', 'assets/overworld/shop-bg.png');
+    this.load.image('mine-ui-background', 'assets/overworld/mine-bg.png');
+    this.load.image('alchemist-ui-background', 'assets/overworld/alchemist-bg.png');
+    this.load.image('overworld-ui-background', 'assets/overworld/overworld-bg.png');
     [
       'button-slash',
       'button-heavy-strike',

@@ -1,6 +1,6 @@
 /**
  * OverworldScene.js
- * World Map: level nodes, Visit Town, Inventory, Character Sheet, Abandon run. Shop is inside Town.
+ * Overworld: level nodes, Visit Town, Inventory, Character Sheet, Abandon run. Shop is inside Town.
  */
 
 class OverworldScene extends Phaser.Scene {
@@ -201,7 +201,7 @@ class OverworldScene extends Phaser.Scene {
         .setDepth(-20);
     }
 
-    this.add.text(w / 2, 28, 'World Map', { fontSize: 32, color: '#fbbf24' }).setOrigin(0.5);
+    this.add.text(w / 2, 28, 'Overworld', { fontSize: 32, color: '#fbbf24' }).setOrigin(0.5);
     this.add.text(w / 2, 58, 'Gold: ' + hero.gold, { fontSize: 16, color: '#fbbf24' }).setOrigin(0.5);
     this.add.text(w / 2, 84, 'Day: ' + (GAME_STATE.day || 1), { fontSize: 16, color: '#e5e7eb' }).setOrigin(0.5);
 

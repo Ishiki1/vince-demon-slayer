@@ -208,3 +208,138 @@ function attachHoverScaleTooltip(hitArea, icon, options) {
 
   return { destroyTooltip };
 }
+
+function addSceneBackground(scene, textureKey, options) {
+  if (!scene || !textureKey || !scene.textures || !scene.textures.exists(textureKey)) return null;
+  const width = (options && options.width) || CONFIG.WIDTH;
+  const height = (options && options.height) || CONFIG.HEIGHT;
+  const x = options && options.x != null ? options.x : width / 2;
+  const y = options && options.y != null ? options.y : height / 2;
+  const depth = options && options.depth != null ? options.depth : -20;
+  return scene.add.image(x, y, textureKey).setDisplaySize(width, height).setDepth(depth);
+}
+
+function createUiIconButton(scene, x, y, textureKey, tooltipText, onClick, options) {
+  if (!scene || !textureKey || !scene.textures || !scene.textures.exists(textureKey)) return null;
+  const size = (options && options.size) || 40;
+  const hitPadding = (options && options.hitPadding) || 14;
+  const depth = options && options.depth != null ? options.depth : 15;
+  const disabled = !!(options && options.disabled);
+  const alpha = options && options.alpha != null ? options.alpha : (disabled ? 0.55 : 1);
+  const hitArea = scene.add.rectangle(x, y, size + hitPadding, size + hitPadding, 0x0f172a, 0.001).setDepth(depth);
+  const icon = scene.add.image(x, y, textureKey).setDisplaySize(size, size).setDepth(depth + 1).setAlpha(alpha);
+  if (disabled) return { hitArea, icon };
+
+  hitArea.setInteractive({ useHandCursor: true });
+  hitArea.on('pointerdown', () => {
+    if (typeof onClick === 'function') onClick();
+  });
+  attachHoverScaleTooltip(hitArea, icon, {
+    tooltipText,
+    tooltipKey: options && options.tooltipKey,
+    tooltipX: options && options.tooltipX,
+    tooltipY: options && options.tooltipY,
+    tooltipOriginX: options && options.tooltipOriginX,
+    tooltipOriginY: options && options.tooltipOriginY,
+    tooltipStyle: options && options.tooltipStyle,
+    tooltipWidth: options && options.tooltipWidth,
+    tooltipDepth: options && options.tooltipDepth,
+    hoverWidth: (options && options.hoverSize) || (size + 4),
+    hoverHeight: (options && options.hoverSize) || (size + 4),
+  });
+  return { hitArea, icon };
+}
+
+function createRightAlignedUiIconRow(scene, buttons, options) {
+  if (!scene || !Array.isArray(buttons) || buttons.length === 0) return [];
+  const visibleButtons = buttons.filter((button) => !button.hidden && scene.textures.exists(button.textureKey));
+  if (visibleButtons.length === 0) return [];
+  const rightX = options && options.rightX != null ? options.rightX : (CONFIG.WIDTH - 56);
+  const y = options && options.y != null ? options.y : 56;
+  const spacing = (options && options.spacing) || 58;
+  return visibleButtons.map((button, index) => {
+    const x = rightX - spacing * (visibleButtons.length - 1 - index);
+    return createUiIconButton(scene, x, y, button.textureKey, button.tooltip, button.onClick, {
+      size: options && options.size,
+      hoverSize: options && options.hoverSize,
+      hitPadding: options && options.hitPadding,
+      depth: options && options.depth,
+      tooltipKey: options && options.tooltipKey,
+      tooltipX: options && options.tooltipX != null ? options.tooltipX : x,
+      tooltipY: options && options.tooltipY,
+      tooltipOriginX: options && options.tooltipOriginX,
+      tooltipOriginY: options && options.tooltipOriginY,
+      tooltipStyle: options && options.tooltipStyle,
+      tooltipWidth: options && options.tooltipWidth,
+      tooltipDepth: options && options.tooltipDepth,
+      disabled: button.disabled,
+      alpha: button.alpha,
+    });
+  });
+}
+
+function createTownNavRow(scene, options) {
+  if (!scene) return [];
+  const currentSection = options && options.currentSection ? options.currentSection : null;
+  const onInnAction = options && typeof options.onInnAction === 'function' ? options.onInnAction : null;
+  const openShop = () => {
+    GAME_STATE.shopFrom = 'town';
+    GAME_STATE.shopView = 'choice';
+    scene.scene.start('Shop');
+  };
+  const buttons = [
+    {
+      textureKey: 'inn-icon',
+      tooltip: onInnAction ? 'Rest at the Inn' : 'Town / Inn',
+      onClick: onInnAction || (() => scene.scene.start('Town')),
+      disabled: currentSection === 'inn' && !onInnAction,
+    },
+    {
+      textureKey: 'shop-icon',
+      tooltip: 'Shop',
+      onClick: openShop,
+      disabled: currentSection === 'shop',
+    },
+    {
+      textureKey: 'blacksmith-icon',
+      tooltip: 'Blacksmith',
+      onClick: () => scene.scene.start('Blacksmith', { mode: 'menu' }),
+      disabled: currentSection === 'blacksmith',
+    },
+    {
+      textureKey: 'mine-icon',
+      tooltip: 'Mine',
+      onClick: () => scene.scene.start('Mine'),
+      disabled: currentSection === 'mine',
+    },
+    {
+      textureKey: 'alchemist-icon',
+      tooltip: 'Alchemist',
+      onClick: () => scene.scene.start('Alchemist'),
+      disabled: currentSection === 'alchemist',
+    },
+    {
+      textureKey: 'overworld-icon',
+      tooltip: 'Overworld',
+      onClick: () => scene.scene.start('Overworld'),
+      disabled: currentSection === 'overworld',
+    },
+  ];
+  return createRightAlignedUiIconRow(scene, buttons, {
+    rightX: options && options.rightX,
+    y: options && options.y,
+    spacing: options && options.spacing,
+    size: options && options.size,
+    hoverSize: options && options.hoverSize,
+    hitPadding: options && options.hitPadding,
+    depth: options && options.depth,
+    tooltipKey: options && options.tooltipKey,
+    tooltipX: options && options.tooltipX,
+    tooltipY: options && options.tooltipY != null ? options.tooltipY : 98,
+    tooltipOriginX: options && options.tooltipOriginX,
+    tooltipOriginY: options && options.tooltipOriginY,
+    tooltipStyle: options && options.tooltipStyle,
+    tooltipWidth: options && options.tooltipWidth,
+    tooltipDepth: options && options.tooltipDepth,
+  });
+}

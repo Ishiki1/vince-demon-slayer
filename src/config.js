@@ -27,6 +27,7 @@ const CONFIG = {
     warrior: { health: 4, mana: 2, strength: 1, intelligence: 1 },
     sorceress: { health: 2, mana: 4, strength: 1, intelligence: 1 },
   },
+  HERO_MAX_EVASION: 0.9,
 
   // Enemy scaling: base * scale^level; boss gets multipliers and per-level scaling (tuned for harder game)
   ENEMY_BASE_HP: 8,

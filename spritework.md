@@ -10,7 +10,13 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 - **Hero assets** live in `assets/hero/`. Display size in combat is set in `config.js`, not by the image size.
 - **Item assets** are now driven by `src/data/itemVisuals.js`. `BootScene.js` preloads item art and hover sheets by looping the manifest instead of maintaining a hand-edited item list.
 - **Item definitions** in `src/data/items.js` now point at `visualId` entries, so selectors, hover keys, and future Sorceress or class-specific visuals all resolve from the same source of truth.
-- **Blacksmith landing menu** now uses `assets/ui/blacksmith.png` as a static background, with live clickable hotspots aligned to the painted plaque buttons.
+- **Town landing scene** now uses `assets/overworld/town-bg.png` as a fullscreen backdrop and routes travel through the shared top-right Town/service icon row instead of plaque hotspots.
+- **Blacksmith scenes** now use `assets/overworld/blacksmith-bg.png` as the shared forge backdrop for the landing menu plus blacksmith subviews, while keeping craft/repair/upgrade controls code-driven.
+- **Shop scene** now uses `assets/overworld/shop-bg.png` as its static backdrop behind the buy/sell UI.
+- **Mine scene** now uses `assets/overworld/mine-bg.png` as its static backdrop behind the rent-pickaxe flow.
+- **Alchemist scene** now uses `assets/overworld/alchemist-bg.png` as its placeholder backdrop.
+- **Service navigation icons** `inn-icon`, `shop-icon`, `blacksmith-icon`, `mine-icon`, `alchemist-icon`, and `overworld-icon` are now preloaded and used by Town-related scenes for the shared top-right navigation row.
+- **Combat and loot scenes** now reuse level-specific backdrops for `level1` through `level10` when those backgrounds exist, falling back to the default dark presentation for later levels or special encounters without matching art.
 
 ## Repo Item Pipeline
 
@@ -46,8 +52,22 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 | Standard boss attack placeholder | `assets/goons/vampire_attack_512x512_sheet.png` | `vampire_attack_sheet` |
 | Bat idle | `assets/goons/bat_idle_512x512_sheet.png` | `bat_idle_sheet` |
 | Bat attack | `assets/goons/bat_attack_512x512_sheet.png` | `bat_attack_sheet` |
-| Overworld scene background | `assets/ui/overworld.png` | `overworld-ui-background` |
-| Blacksmith landing background | `assets/ui/blacksmith.png` | `blacksmith-ui-background` |
+| Overworld scene background | `assets/overworld/overworld-bg.png` | `overworld-ui-background` |
+| Level 1 combat/loot background | `assets/overworld/level1-bg.png` | `level1-ui-background` |
+| Level 2 combat/loot background | `assets/overworld/level2-bg.png` | `level2-ui-background` |
+| Level 3 combat/loot background | `assets/overworld/level3-bg.png` | `level3-ui-background` |
+| Level 4 combat/loot background | `assets/overworld/level4-bg.png` | `level4-ui-background` |
+| Level 5 combat/loot background | `assets/overworld/level5-bg.png` | `level5-ui-background` |
+| Level 6 combat/loot background | `assets/overworld/level6-bg.png` | `level6-ui-background` |
+| Level 7 combat/loot background | `assets/overworld/level7-bg.png` | `level7-ui-background` |
+| Level 8 combat/loot background | `assets/overworld/level8-bg.png` | `level8-ui-background` |
+| Level 9 combat/loot background | `assets/overworld/level9-bg.png` | `level9-ui-background` |
+| Level 10 combat/loot background | `assets/overworld/level10-bg.png` | `level10-ui-background` |
+| Town landing background | `assets/overworld/town-bg.png` | `town-ui-background` |
+| Blacksmith scene background | `assets/overworld/blacksmith-bg.png` | `blacksmith-ui-background` |
+| Shop scene background | `assets/overworld/shop-bg.png` | `shop-ui-background` |
+| Mine scene background | `assets/overworld/mine-bg.png` | `mine-ui-background` |
+| Alchemist scene background | `assets/overworld/alchemist-bg.png` | `alchemist-ui-background` |
 | Overworld animated background sheet (currently not wired) | `assets/overworld/overworldmap_background_sheet.png` | not wired |
 | Town overworld icon | `assets/overworld/town-overworld.png` | `town-overworld` |
 | Level 1 overworld icon | `assets/overworld/level1-overworld.png` | `level1-overworld` |
@@ -65,6 +85,12 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 | Overworld abandon-run UI icon | `assets/ui/abandon-run-icon.png` | `abandon-run-icon` |
 | Overworld inventory UI icon | `assets/ui/inventory-icon.png` | `inventory-icon` |
 | Overworld character-sheet UI icon | `assets/ui/character-sheet-icon.png` | `character-sheet-icon` |
+| Town/service blacksmith UI icon | `assets/ui/blacksmith-icon.png` | `blacksmith-icon` |
+| Town/service alchemist UI icon | `assets/ui/alchemist-icon.png` | `alchemist-icon` |
+| Town/service shop UI icon | `assets/ui/shop-icon.png` | `shop-icon` |
+| Town/service inn UI icon | `assets/ui/inn-icon.png` | `inn-icon` |
+| Town/service mine UI icon | `assets/ui/mine-icon.png` | `mine-icon` |
+| Town/service overworld UI icon | `assets/ui/overworld-icon.png` | `overworld-icon` (distinct from `town-overworld`) |
 | Overworld inventory layout frame | `assets/ui/Inventory.png` | `inventory-ui-layout` |
 | Rusty Sword item icon | `assets/items/common-sword.png` | `common-sword` |
 | Common armor item icon | `assets/items/common-armor.png` | `common-armor` |
@@ -163,7 +189,7 @@ The overworld scene now uses `assets/ui/overworld.png` as its static map backgro
 
 The top and bottom overworld utility controls now use dedicated UI icon sprites with hover tooltips instead of rectangle buttons with always-visible text labels.
 
-The overworld inventory scene now uses `assets/ui/Inventory.png` as its frame/layout reference directly. Item icons and the hero preview are aligned to the painted paper-doll and bag wells without the old dark masking rectangles or extra item-border overlays.
+The overworld inventory scene now uses `assets/ui/Inventory.png` as its frame/layout reference directly. The live `800x600` placement contract matches `inventory-layout-redesign-guide.svg`: hero portrait center `166,186` at `84x128`, equip-slot centers `286,138` / `286,234` / `166,342` / `286,342`, and a `5x6` bag grid starting at `366,96` with `54x54` cells and `8` px gaps.
 
 ---
 

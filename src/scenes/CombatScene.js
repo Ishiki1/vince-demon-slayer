@@ -70,6 +70,157 @@ class CombatScene extends Phaser.Scene {
     this.heroSprite.play(animKey);
   }
 
+  getHeroEvasionCap() {
+    return CONFIG.HERO_MAX_EVASION != null ? CONFIG.HERO_MAX_EVASION : 0.9;
+  }
+
+  getDisplayedEvasionPercent() {
+    if (this.hero && typeof this.hero.getEvasionChance === 'function') {
+      return Math.round(this.hero.getEvasionChance() * 100);
+    }
+    const uncappedEvasion = this.hero ? (this.hero.battleEvasionChance || 0) : 0;
+    return Math.round(Math.min(this.getHeroEvasionCap(), uncappedEvasion) * 100);
+  }
+
+  logMaxEvasionReachedIfNeeded() {
+    if (!this.hero || typeof this.hero.getEvasionChance !== 'function') return;
+    if (this.hero.getEvasionChance() >= this.getHeroEvasionCap()) {
+      this.logCombat('Max evasion (' + Math.round(this.getHeroEvasionCap() * 100) + '%) reached.');
+    }
+  }
+
+  getEnemyAnimationSet(enemy) {
+    if (!enemy) return null;
+    if (enemy.name === 'The Reaper') {
+      return {
+        idleSheetKey: 'reaper_idle_sheet',
+        idleAnimKey: 'reaper_idle',
+        attackSheetKey: 'reaper_attack_sheet',
+        attackAnimKey: 'reaper_attack',
+      };
+    }
+    if (this.isVampireBossEnemy(enemy)) {
+      return {
+        idleSheetKey: 'vampire_idle_sheet',
+        idleAnimKey: 'vampire_idle',
+        attackSheetKey: 'vampire_attack_sheet',
+        attackAnimKey: 'vampire_attack',
+      };
+    }
+    if (enemy.goonType === 'skeleton') {
+      return {
+        idleSheetKey: 'skeleton_idle_sheet',
+        idleAnimKey: 'skeleton_idle',
+        attackSheetKey: 'skeleton_attack_sheet',
+        attackAnimKey: 'skeleton_attack',
+      };
+    }
+    if (enemy.goonType === 'bat') {
+      return {
+        idleSheetKey: 'bat_idle_sheet',
+        idleAnimKey: 'bat_idle',
+        attackSheetKey: 'bat_attack_sheet',
+        attackAnimKey: 'bat_attack',
+      };
+    }
+    if (enemy.goonType === 'imp') {
+      return {
+        idleSheetKey: 'imp_idle_sheet',
+        idleAnimKey: 'imp_idle',
+        attackSheetKey: 'imp_attack_sheet',
+        attackAnimKey: 'imp_attack',
+      };
+    }
+    return null;
+  }
+
+  drawCombatBackground(w, h) {
+    const textureKey = this.level && typeof getLevelBackgroundTextureKey === 'function'
+      ? getLevelBackgroundTextureKey(this.level.id)
+      : null;
+    if (textureKey && typeof addSceneBackground === 'function' && this.textures.exists(textureKey)) {
+      addSceneBackground(this, textureKey, { width: w, height: h, depth: -30 });
+      this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.18).setDepth(-25);
+      return;
+    }
+    this.add.rectangle(w / 2, h / 2, w, h, 0x1a1a2e).setDepth(-30);
+  }
+
+  restoreEnemyIdleAnimation(enemyIndex) {
+    const enemy = this.enemies[enemyIndex];
+    const sprite = this.enemySprites[enemyIndex];
+    const animSet = this.getEnemyAnimationSet(enemy);
+    if (!enemy || !sprite || !animSet || typeof sprite.play !== 'function') return;
+    if (!this.textures.exists(animSet.idleSheetKey) || !this.anims.exists(animSet.idleAnimKey)) return;
+    sprite.setTexture(animSet.idleSheetKey);
+    sprite.play(animSet.idleAnimKey);
+  }
+
+  playEnemyAttackAnimationThen(enemyIndex, callback) {
+    const enemy = this.enemies[enemyIndex];
+    const sprite = this.enemySprites[enemyIndex];
+    const animSet = this.getEnemyAnimationSet(enemy);
+    if (!enemy || !sprite || !animSet || typeof sprite.play !== 'function') {
+      callback();
+      return;
+    }
+    if (!this.textures.exists(animSet.attackSheetKey) || !this.anims.exists(animSet.attackAnimKey)) {
+      callback();
+      return;
+    }
+    sprite.stop();
+    sprite.setTexture(animSet.attackSheetKey);
+    sprite.play(animSet.attackAnimKey);
+    sprite.once('animationcomplete', () => {
+      this.restoreEnemyIdleAnimation(enemyIndex);
+      callback();
+    });
+  }
+
+  getUpcomingEnemyTurnNumber(enemy) {
+    return ((enemy && enemy.turnsTaken) || 0) + 1;
+  }
+
+  markEnemyTurnTaken(enemy) {
+    if (!enemy) return;
+    enemy.turnsTaken = this.getUpcomingEnemyTurnNumber(enemy);
+  }
+
+  clearHeroCombatBuffs() {
+    const removed = [];
+    if ((this.hero.battleDefenseBonus || 0) > 0) removed.push('Def');
+    if ((this.hero.battleEvasionChance || 0) > 0) removed.push('Evasion');
+    if ((this.hero.flameAuraRounds || 0) > 0) removed.push('Flame Aura');
+    if ((this.hero.blockReflectRounds || 0) > 0) removed.push('Reflect');
+    if ((this.hero.invulnerableRounds || 0) > 0) removed.push('Invulnerable');
+    this.hero.battleDefenseBonus = 0;
+    this.hero.battleEvasionChance = 0;
+    this.hero.flameAuraRounds = 0;
+    this.hero.blockReflectRounds = 0;
+    this.hero.invulnerableRounds = 0;
+    return removed;
+  }
+
+  executeEnemySkill(enemyIndex, skill, callback) {
+    const enemy = this.enemies[enemyIndex];
+    if (!enemy || !skill) {
+      callback(0);
+      return;
+    }
+    this.enemyTurnHadUtilitySkill = true;
+    if (skill.effect === 'clearHeroCombatBuffs') {
+      const removedBuffs = this.clearHeroCombatBuffs();
+      if (removedBuffs.length > 0) {
+        this.logCombat(enemy.name + ' uses ' + skill.name + '. Removed: ' + removedBuffs.join(', ') + '.');
+      } else {
+        this.logCombat(enemy.name + ' uses ' + skill.name + '. But no buffs were active.');
+      }
+      callback(0);
+      return;
+    }
+    callback(0);
+  }
+
   create() {
     if (!GAME_STATE.hero) {
       this.scene.start('Menu');
@@ -152,6 +303,8 @@ class CombatScene extends Phaser.Scene {
     this.statusEffectsText = null;
     this.justWonReaperFight = false;
     this.enemyTurnUsedInvulnerability = false;
+    this.enemyTurnHadUtilitySkill = false;
+    this.enemyTurnWasReflecting = false;
     this.combatLogLines = [];
     this.combatLogText = null;
     this.combatLogMaxLines = 8;
@@ -169,6 +322,7 @@ class CombatScene extends Phaser.Scene {
 
     const w = CONFIG.WIDTH;
     const h = CONFIG.HEIGHT;
+    this.drawCombatBackground(w, h);
 
     const heroW = CONFIG.HERO_SPRITE_DISPLAY_WIDTH;
     const heroH = CONFIG.HERO_SPRITE_DISPLAY_HEIGHT;
@@ -477,17 +631,16 @@ class CombatScene extends Phaser.Scene {
 
     if (skill.battleDefenseBonus != null && skill.battleEvasionChance != null) {
       this.hero.currentMana -= skill.manaCost;
-      this.hero.battleDefenseBonus = Math.max(this.hero.battleDefenseBonus || 0, skill.battleDefenseBonus);
-      this.hero.battleEvasionChance = Math.max(this.hero.battleEvasionChance || 0, skill.battleEvasionChance);
+      this.hero.battleDefenseBonus = (this.hero.battleDefenseBonus || 0) + skill.battleDefenseBonus;
+      this.hero.battleEvasionChance = (this.hero.battleEvasionChance || 0) + skill.battleEvasionChance;
       this.logCombat(
         skill.name +
         '. +' + skill.battleDefenseBonus +
         ' Def, ' + Math.round((skill.battleEvasionChance || 0) * 100) +
-        '% Evasion this battle.'
+        '% Evasion this battle. Total: Def +' + this.hero.battleDefenseBonus +
+        ', Evasion ' + this.getDisplayedEvasionPercent() + '%.'
       );
-      if (this.hero.getEvasionChance && this.hero.getEvasionChance() >= 0.95) {
-        this.logCombat('Max evasion (95%) reached.');
-      }
+      this.logMaxEvasionReachedIfNeeded();
       if (skillId === 'ironEvasion') {
         this.playHeroAnimThen('hero_iron_evasion_sheet', 'hero_iron_evasion', () => this.endPlayerTurn());
       } else {
@@ -498,8 +651,12 @@ class CombatScene extends Phaser.Scene {
 
     if (skill.battleDefenseBonus != null) {
       this.hero.currentMana -= skill.manaCost;
-      this.hero.battleDefenseBonus = skill.battleDefenseBonus;
-      this.logCombat(skill.name + '. +' + skill.battleDefenseBonus + ' Def this battle.');
+      this.hero.battleDefenseBonus = (this.hero.battleDefenseBonus || 0) + skill.battleDefenseBonus;
+      this.logCombat(
+        skill.name +
+        '. +' + skill.battleDefenseBonus +
+        ' Def this battle. Total: Def +' + this.hero.battleDefenseBonus + '.'
+      );
       if (skillId === 'ironSkin') {
         this.playHeroAnimThen('hero_iron_skin_sheet', 'hero_iron_skin', () => this.endPlayerTurn());
       } else {
@@ -518,11 +675,13 @@ class CombatScene extends Phaser.Scene {
 
     if (skill.battleEvasionChance != null) {
       this.hero.currentMana -= skill.manaCost;
-      this.hero.battleEvasionChance = Math.min(1, (this.hero.battleEvasionChance || 0) + skill.battleEvasionChance);
-      this.logCombat(skill.name + '. +' + Math.round((skill.battleEvasionChance || 0) * 100) + '% Evasion.');
-      if (this.hero.getEvasionChance && this.hero.getEvasionChance() >= 0.95) {
-        this.logCombat('Max evasion (95%) reached.');
-      }
+      this.hero.battleEvasionChance = (this.hero.battleEvasionChance || 0) + skill.battleEvasionChance;
+      this.logCombat(
+        skill.name +
+        '. +' + Math.round((skill.battleEvasionChance || 0) * 100) +
+        '% Evasion. Total: Evasion ' + this.getDisplayedEvasionPercent() + '%.'
+      );
+      this.logMaxEvasionReachedIfNeeded();
       if (skillId === 'evasion') {
         this.playHeroAnimThen('hero_evade_sheet', 'hero_evade', () => this.endPlayerTurn());
       } else {
@@ -613,28 +772,15 @@ class CombatScene extends Phaser.Scene {
     }
     if (CombatSystem.isHeroDead(this.hero)) return;
     this.enemyTurnUsedInvulnerability = false;
-
-    const isSingleReaper = this.enemies.length === 1 && this.enemies[0].name === 'The Reaper' && this.enemies[0].hp > 0;
-    const reaperSprite = this.enemySprites[0];
-    if (isSingleReaper && this.anims.exists('reaper_attack') && reaperSprite && typeof reaperSprite.play === 'function') {
-      reaperSprite.stop();
-      reaperSprite.setTexture('reaper_attack_sheet');
-      reaperSprite.play('reaper_attack');
-      reaperSprite.once('animationcomplete', () => {
-        const totalDamage = this.applyEnemyTurnDamage();
-        reaperSprite.setTexture('reaper_idle_sheet');
-        reaperSprite.play('reaper_idle');
-        this.finishEnemyTurn(totalDamage);
-      });
-      return;
-    }
-
-    const reflecting = (this.hero.blockReflectRounds || 0) > 0;
-    this.processEnemyAttacks(0, 0, reflecting);
+    this.enemyTurnHadUtilitySkill = false;
+    this.enemyTurnWasReflecting = false;
+    this.processEnemyAttacks(0, 0);
   }
 
-  applySingleEnemyAttack(enemyIndex, result, reflecting) {
+  applySingleEnemyAttack(enemyIndex, result) {
     const enemy = this.enemies[enemyIndex];
+    const reflecting = (this.hero.blockReflectRounds || 0) > 0;
+    if (reflecting) this.enemyTurnWasReflecting = true;
     if (reflecting) {
       if (result.invulnerable) {
         this.logCombat(enemy.name + ' attacks. Avoid Death Potion blocked it.');
@@ -669,72 +815,43 @@ class CombatScene extends Phaser.Scene {
     return 0;
   }
 
-  processEnemyAttacks(i, totalSoFar, reflecting) {
+  processEnemyAttacks(i, totalSoFar) {
     if (i >= this.enemies.length) {
-      if (reflecting) this.hero.blockReflectRounds = Math.max(0, (this.hero.blockReflectRounds || 0) - 1);
+      if ((this.hero.blockReflectRounds || 0) > 0) {
+        this.hero.blockReflectRounds = Math.max(0, (this.hero.blockReflectRounds || 0) - 1);
+      }
       this.finishEnemyTurn(totalSoFar);
       return;
     }
     const enemy = this.enemies[i];
     if (enemy.hp <= 0) {
-      this.processEnemyAttacks(i + 1, totalSoFar, reflecting);
+      this.processEnemyAttacks(i + 1, totalSoFar);
+      return;
+    }
+    const scheduledSkill = typeof getEnemyScheduledSkillForTurn === 'function'
+      ? getEnemyScheduledSkillForTurn(enemy, this.getUpcomingEnemyTurnNumber(enemy))
+      : null;
+    if (scheduledSkill) {
+      const finishSkill = (addedDamage) => {
+        this.markEnemyTurnTaken(enemy);
+        this.processEnemyAttacks(i + 1, totalSoFar + (addedDamage || 0));
+      };
+      if (scheduledSkill.useAttackAnimation) {
+        this.playEnemyAttackAnimationThen(i, () => this.executeEnemySkill(i, scheduledSkill, finishSkill));
+      } else {
+        this.executeEnemySkill(i, scheduledSkill, finishSkill);
+      }
       return;
     }
     const result = CombatSystem.getEnemyAttackDamage(enemy, this.hero);
-    const sprite = this.enemySprites[i];
-    const isVampireBossWithAnim = this.isVampireBossEnemy(enemy) && this.anims.exists('vampire_attack') && sprite && typeof sprite.play === 'function';
-    const isSkeletonWithAnim = enemy.goonType === 'skeleton' && this.anims.exists('skeleton_attack') && sprite && typeof sprite.play === 'function';
-    const isBatWithAnim = enemy.goonType === 'bat' && this.anims.exists('bat_attack') && sprite && typeof sprite.play === 'function';
-    const isImpWithAnim = enemy.goonType === 'imp' && this.anims.exists('imp_attack') && sprite && typeof sprite.play === 'function';
-
-    if (isVampireBossWithAnim) {
-      sprite.stop();
-      sprite.setTexture('vampire_attack_sheet');
-      sprite.play('vampire_attack');
-      const self = this;
-      sprite.once('animationcomplete', () => {
-        const dmg = self.applySingleEnemyAttack(i, result, reflecting);
-        sprite.setTexture('vampire_idle_sheet');
-        sprite.play('vampire_idle');
-        self.processEnemyAttacks(i + 1, totalSoFar + dmg, reflecting);
-      });
-    } else if (isSkeletonWithAnim) {
-      sprite.stop();
-      sprite.setTexture('skeleton_attack_sheet');
-      sprite.play('skeleton_attack');
-      const self = this;
-      sprite.once('animationcomplete', () => {
-        const dmg = self.applySingleEnemyAttack(i, result, reflecting);
-        sprite.setTexture('skeleton_idle_sheet');
-        sprite.play('skeleton_idle');
-        self.processEnemyAttacks(i + 1, totalSoFar + dmg, reflecting);
-      });
-    } else if (isBatWithAnim) {
-      sprite.stop();
-      sprite.setTexture('bat_attack_sheet');
-      sprite.play('bat_attack');
-      const self = this;
-      sprite.once('animationcomplete', () => {
-        const dmg = self.applySingleEnemyAttack(i, result, reflecting);
-        sprite.setTexture('bat_idle_sheet');
-        sprite.play('bat_idle');
-        self.processEnemyAttacks(i + 1, totalSoFar + dmg, reflecting);
-      });
-    } else if (isImpWithAnim) {
-      sprite.stop();
-      sprite.setTexture('imp_attack_sheet');
-      sprite.play('imp_attack');
-      const self = this;
-      sprite.once('animationcomplete', () => {
-        const dmg = self.applySingleEnemyAttack(i, result, reflecting);
-        sprite.setTexture('imp_idle_sheet');
-        sprite.play('imp_idle');
-        self.processEnemyAttacks(i + 1, totalSoFar + dmg, reflecting);
-      });
-    } else {
-      const dmg = this.applySingleEnemyAttack(i, result, reflecting);
-      this.processEnemyAttacks(i + 1, totalSoFar + dmg, reflecting);
-    }
+    const continueAfterAttack = (dmg) => {
+      this.markEnemyTurnTaken(enemy);
+      this.processEnemyAttacks(i + 1, totalSoFar + dmg);
+    };
+    this.playEnemyAttackAnimationThen(i, () => {
+      const dmg = this.applySingleEnemyAttack(i, result);
+      continueAfterAttack(dmg);
+    });
   }
 
   applyEnemyTurnDamage() {
@@ -781,14 +898,14 @@ class CombatScene extends Phaser.Scene {
   }
 
   finishEnemyTurn(totalDamage) {
-    const reflecting = (this.hero.blockReflectRounds || 0) > 0;
-    this.shakeSprite(this.heroSprite, () => {});
+    const shouldShakeHero = totalDamage > 0 || this.enemyTurnUsedInvulnerability || (!this.enemyTurnWasReflecting && !this.enemyTurnHadUtilitySkill);
+    if (shouldShakeHero) this.shakeSprite(this.heroSprite, () => {});
     if (totalDamage > 0) {
       this.showDamageNumber(this.heroSprite.x, this.heroSprite.y, totalDamage);
     } else if (this.enemyTurnUsedInvulnerability) {
       const txt = this.add.text(this.heroSprite.x, this.heroSprite.y - 30, 'Invulnerable!', { fontSize: 18, color: '#fde68a' }).setOrigin(0.5);
       this.tweens.add({ targets: txt, y: txt.y - 30, alpha: 0, duration: 500, onComplete: () => txt.destroy() });
-    } else if (!reflecting) {
+    } else if (!this.enemyTurnWasReflecting && !this.enemyTurnHadUtilitySkill) {
       const txt = this.add.text(this.heroSprite.x, this.heroSprite.y - 30, 'Dodged!', { fontSize: 18, color: '#94a3b8' }).setOrigin(0.5);
       this.tweens.add({ targets: txt, y: txt.y - 30, alpha: 0, duration: 500, onComplete: () => txt.destroy() });
     }
@@ -880,7 +997,7 @@ class CombatScene extends Phaser.Scene {
   updateStatusEffects() {
     const parts = [];
     if (this.hero.battleDefenseBonus > 0) parts.push('Def +' + this.hero.battleDefenseBonus);
-    if ((this.hero.battleEvasionChance || 0) > 0) parts.push('Evasion ' + Math.round(this.hero.battleEvasionChance * 100) + '%');
+    if ((this.hero.battleEvasionChance || 0) > 0) parts.push('Evasion ' + this.getDisplayedEvasionPercent() + '%');
     if ((this.hero.flameAuraRounds || 0) > 0) parts.push('Flame Aura ' + this.hero.flameAuraRounds + 'r');
     if ((this.hero.blockReflectRounds || 0) > 0) parts.push('Reflect ' + this.hero.blockReflectRounds + 'r');
     if ((this.hero.invulnerableRounds || 0) > 0) parts.push('Invulnerable ' + this.hero.invulnerableRounds + 'r');

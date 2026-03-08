@@ -4,6 +4,12 @@
  */
 
 const BLACKSMITH_MENU_BUTTONS = [
+  { label: 'Craft Items', action: 'craft', x: 146, y: 552, width: 180, height: 44 },
+  { label: 'Upgrade Items', action: 'upgrade', x: 400, y: 552, width: 180, height: 44 },
+  { label: 'Repair Items', action: 'repair', x: 654, y: 552, width: 180, height: 44 },
+];
+
+const BLACKSMITH_FALLBACK_BUTTONS = [
   { label: 'Craft Items', action: 'craft', x: 402, y: 88, width: 278, height: 78 },
   { label: 'Upgrade Items', action: 'upgrade', x: 402, y: 217, width: 278, height: 78 },
   { label: 'Repair Items', action: 'repair', x: 402, y: 347, width: 278, height: 78 },
@@ -27,14 +33,13 @@ class BlacksmithScene extends Phaser.Scene {
     InventorySystem.ensureAccessorySlots(hero);
     const requestedMode = data && typeof data.mode === 'string' ? data.mode : 'menu';
     const mode = (requestedMode === 'repair' || requestedMode === 'craft') ? requestedMode : 'menu';
+    this.drawSceneFrame(hero);
 
     if (mode === 'menu') {
-      this.buildLandingMenu(w, h, hero);
+      this.buildLandingMenu(w, h);
       return;
     }
 
-    this.add.text(w / 2, 40, 'Blacksmith', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
-    this.add.text(w / 2, 72, 'Gold: ' + hero.gold, { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
     this.createModeTabs(w, mode);
 
     if (mode === 'repair') {
@@ -50,28 +55,36 @@ class BlacksmithScene extends Phaser.Scene {
     }, () => this.scene.restart({ mode: 'menu' }));
   }
 
-  buildLandingMenu(w, h, hero) {
-    if (this.textures.exists('blacksmith-ui-background')) {
-      this.add.image(w / 2, h / 2, 'blacksmith-ui-background').setDisplaySize(w, h);
-      BLACKSMITH_MENU_BUTTONS.forEach((button) => this.createLandingHotspot(button));
-      return;
+  drawSceneFrame(hero) {
+    const hasArt = !!addSceneBackground(this, 'blacksmith-ui-background');
+    if (!hasArt) {
+      this.add.rectangle(CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2, CONFIG.WIDTH, CONFIG.HEIGHT, 0x0f172a);
     }
-
-    this.add.rectangle(w / 2, h / 2, w, h, 0x0f172a);
-    this.add.text(w / 2, 44, 'Blacksmith', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
-    this.add.text(w / 2, 78, 'Gold: ' + hero.gold, { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
-    BLACKSMITH_MENU_BUTTONS.forEach((button) => {
-      createButton(this, button.x, button.y, button.width, button.height, button.label, {
-        bgColor: 0x475569,
-        fontSize: 18,
-      }, () => this.handleLandingAction(button.action));
-    });
+    this.add.text(20, 32, 'Blacksmith', {
+      fontSize: 28,
+      color: '#fbbf24',
+      stroke: '#0f172a',
+      strokeThickness: 5,
+    }).setOrigin(0, 0.5);
+    this.add.text(20, 62, 'Gold: ' + hero.gold, {
+      fontSize: 18,
+      color: '#fbbf24',
+      stroke: '#0f172a',
+      strokeThickness: 4,
+    }).setOrigin(0, 0.5);
+    createTownNavRow(this, { currentSection: 'blacksmith' });
+    return hasArt;
   }
 
-  createLandingHotspot(button) {
-    const hitArea = this.add.rectangle(button.x, button.y, button.width, button.height, 0x000000, 0.001);
-    hitArea.setInteractive({ useHandCursor: true });
-    hitArea.on('pointerdown', () => this.handleLandingAction(button.action));
+  buildLandingMenu(w, h) {
+    const hasArt = this.textures.exists('blacksmith-ui-background');
+    const buttons = hasArt ? BLACKSMITH_MENU_BUTTONS : BLACKSMITH_FALLBACK_BUTTONS;
+    buttons.forEach((button) => {
+      createButton(this, button.x, button.y, button.width, button.height, button.label, {
+        bgColor: button.action === 'upgrade' ? 0x64748b : 0x475569,
+        fontSize: hasArt ? 16 : 18,
+      }, () => this.handleLandingAction(button.action));
+    });
   }
 
   handleLandingAction(action) {

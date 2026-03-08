@@ -4,6 +4,183 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.17 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Skip class select when only Vince is unlocked
+
+### Changed
+- **New run flow:** Starting a fresh run now skips the class-selection screen and goes straight to `UnlockSelect` when Vince the Warrior is the only unlocked class, reducing an extra click before the run begins.
+
+### Technical
+- [src/data/classes.js](src/data/classes.js): Added a helper to detect when exactly one class is unlocked.
+- [src/scenes/MenuScene.js](src/scenes/MenuScene.js), [src/scenes/RunEndedScene.js](src/scenes/RunEndedScene.js), [src/scenes/ClassSelectScene.js](src/scenes/ClassSelectScene.js): Routed single-class new-run flows directly into `UnlockSelect` and kept `ClassSelect` as a safe fallback only when multiple classes are available.
+
+---
+
+## Version 3.2.16 – 2026-03-08
+
+## Version 3.2.17 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Wire level 1-7 backgrounds into combat flow
+
+### Added
+- **Level environment art:** Levels `1` through `7` now use their new dedicated background art during combat and loot scenes when the matching `levelN-bg` file exists.
+
+### Technical
+- [src/data/levels.js](src/data/levels.js): Added a shared helper that maps `level1` through `level7` to stable texture keys for reusable scene background lookup.
+- [src/scenes/BootScene.js](src/scenes/BootScene.js): Preloaded `level1-bg.png` through `level7-bg.png` as combat/loot background textures.
+- [src/scenes/CombatScene.js](src/scenes/CombatScene.js), [src/scenes/LootScene.js](src/scenes/LootScene.js): Render the matching level background behind the active fight and loot UI, with a safe fallback for levels or encounters that do not have bespoke art yet.
+- [spritework.md](spritework.md): Documented the new level background assets and their runtime texture keys.
+
+---
+
+## Version 3.2.16 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Wire town scenes to shared nav row and new backgrounds
+
+### Changed
+- **Town navigation:** Town, Shop, Blacksmith, Mine, Alchemist, and the blacksmith upgrade flow now share the reusable top-right Town/service icon row for travel between local destinations and the Overworld.
+- **Town presentation:** The Town hub now uses the new `town-bg` art and treats the inn icon as the rest action instead of relying on the older painted-plaque hotspot layout.
+- **Service backdrops:** Shop, Mine, Alchemist, and Blacksmith now render the newly added `*-bg` artwork as fullscreen scene backgrounds while preserving their existing gameplay logic.
+
+### Technical
+- [src/ui/SceneUi.js](src/ui/SceneUi.js): Added shared helpers for fullscreen UI backgrounds, reusable icon buttons, and the Town/service navigation row so scene conversions can reuse one interaction pattern.
+- [src/scenes/BootScene.js](src/scenes/BootScene.js): Preloaded the full Town navigation icon set and wired the new `town-bg`, `blacksmith-bg`, `shop-bg`, `mine-bg`, and `alchemist-bg` assets with stable texture keys.
+- [src/scenes/TownScene.js](src/scenes/TownScene.js), [src/scenes/ShopScene.js](src/scenes/ShopScene.js), [src/scenes/BlacksmithScene.js](src/scenes/BlacksmithScene.js), [src/scenes/MineScene.js](src/scenes/MineScene.js), [src/scenes/AlchemistScene.js](src/scenes/AlchemistScene.js), [src/scenes/UpgradeScene.js](src/scenes/UpgradeScene.js): Swapped Town-related scene travel to the shared icon row, applied the new background art, and kept each scene's existing local actions intact.
+- [spritework.md](spritework.md): Updated the documented service-scene backgrounds and marked the full Town/service icon set as wired into scene preload and navigation.
+
+---
+
+## Version 3.2.15 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Clean remaining town navigation icons
+
+### Added
+- **Reusable UI art:** Added cleaned transparent `mine` and `overworld` icon assets to complete the current Town navigation icon set for the top-right sprite-button workflow.
+
+### Technical
+- [assets/ui/mine-icon.png](assets/ui/mine-icon.png), [assets/ui/overworld-icon.png](assets/ui/overworld-icon.png): Cleaned the approved ore-cart and rustic folded-map proofs into square transparent UI icon files using the repo asset pipeline.
+- [spritework.md](spritework.md): Expanded the service-navigation icon documentation so the full Town icon batch is listed and the reusable `overworld-icon` is clearly distinguished from the existing `town-overworld` map-node asset.
+
+---
+
+## Version 3.2.14 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Clean first reusable town navigation icon batch
+
+### Added
+- **Reusable UI art:** Added cleaned transparent `blacksmith`, `alchemist`, `shop`, and `inn` icon assets for the new top-right navigation workflow used by art-first town and service screens.
+
+### Technical
+- [assets/ui/blacksmith-icon.png](assets/ui/blacksmith-icon.png), [assets/ui/alchemist-icon.png](assets/ui/alchemist-icon.png), [assets/ui/shop-icon.png](assets/ui/shop-icon.png), [assets/ui/inn-icon.png](assets/ui/inn-icon.png): Cleaned the approved proof images into square transparent UI icon files using the repo asset pipeline so they are ready for future preload and scene wiring.
+- [spritework.md](spritework.md): Documented the new service-navigation icon files and marked them as not yet wired into scene preload/render code.
+
+---
+
+## Version 3.2.13 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Switch blacksmith to the new forge background
+
+### Changed
+- **Blacksmith presentation:** The blacksmith landing menu now uses the new forge interior background from the overworld asset set instead of the older vertical-plaque UI art.
+- **Blacksmith interactions:** The invisible `Craft`, `Upgrade`, `Repair`, and `Back to Town` hotspots are now aligned to the new bottom-row painted plaques in the updated background.
+
+### Technical
+- [src/scenes/BootScene.js](src/scenes/BootScene.js), [src/scenes/BlacksmithScene.js](src/scenes/BlacksmithScene.js): Repointed the blacksmith background preload to `assets/overworld/blacksmith.png` and retuned the landing-menu hotspot table for the new stretched `800x600` plaque layout while keeping the old fallback button layout for missing-texture cases.
+- [spritework.md](spritework.md): Updated the documented blacksmith background asset path and noted the new plaque alignment style.
+
+---
+
+## Version 3.2.12 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Add art-driven town menu and Alchemist placeholder
+
+### Added
+- **Alchemist placeholder:** Town now includes a `Visit Alchemist` entry that opens a simple `Coming Soon` placeholder scene with a route back to Town.
+
+### Changed
+- **Town presentation:** The Town scene now uses the regenerated painted town background instead of stacked rectangle buttons.
+- **Town interactions:** Rest, Shop, Blacksmith, Mine, Alchemist, and Back to Overworld are now driven by invisible plaque-sized hotspots aligned to the painted buttons, similar to the blacksmith landing menu.
+
+### Technical
+- [src/scenes/BootScene.js](src/scenes/BootScene.js), [src/scenes/TownScene.js](src/scenes/TownScene.js): Preloaded the town menu background and replaced the Town screen with an art-first landing menu that preserves rest logic and town routing behind invisible hotspots.
+- [src/scenes/AlchemistScene.js](src/scenes/AlchemistScene.js), [src/main.js](src/main.js), [index.html](index.html), [spritework.md](spritework.md): Added the placeholder Alchemist scene, registered it with the game, and documented the new town background asset.
+
+---
+
+## Version 3.2.11 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Warn before overwriting an existing save
+
+### Changed
+- **New game safety prompt:** Clicking `Start New Game` from the menu now shows a confirmation popup when a save already exists, letting the player choose `Load Save Game` instead of accidentally wiping progress.
+
+### Technical
+- [src/scenes/MenuScene.js](src/scenes/MenuScene.js): Added a save-overwrite warning modal, shared fresh-start/load helpers, and reused the existing save-load error feedback path.
+
+---
+
+## Version 3.2.10 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Match combat inventory to overworld layout
+
+### Changed
+- **Combat inventory presentation:** The battle-scene inventory now uses the same full-screen `Inventory.png` layout, paper-doll slots, bag grid, close hotspot, and icon placement style as the overworld inventory instead of the older side-panel list.
+- **Overworld title:** The top label on the overworld screen now reads `Overworld` instead of `World Map`.
+
+### Technical
+- [src/ui/InventoryPanel.js](src/ui/InventoryPanel.js): Replaced the old grouped list panel with an art-first combat inventory overlay that mirrors the overworld inventory layout and item-hit-area behavior.
+- [src/scenes/OverworldScene.js](src/scenes/OverworldScene.js): Renamed the screen title text to `Overworld`.
+
+---
+
+## Version 3.2.9 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Add reusable enemy buff removal skill
+
+### Added
+- **Reusable enemy skill:** Added a shared `buff-removal-skill` enemy ability definition that can be attached to future enemies with turn-based cadence metadata instead of hardcoding one-off Reaper behavior.
+
+### Changed
+- **Reaper combat pattern:** The Reaper now uses `Buff Removal` on every third turn, playing his normal attack animation while stripping Vince's current combat buffs such as Defense, Evasion, Flame Aura, Reflect, and temporary invulnerability.
+- **Enemy action flow:** Combat now routes enemy attack animations through a shared helper so both normal attacks and future attack-animated enemy skills can reuse the same animation pipeline.
+
+### Technical
+- [src/data/enemySkills.js](src/data/enemySkills.js), [index.html](index.html): Added a shared enemy-skill registry plus load order for runtime access.
+- [src/data/levels.js](src/data/levels.js), [src/entities/Enemy.js](src/entities/Enemy.js), [src/scenes/CombatScene.js](src/scenes/CombatScene.js): Gave enemies reusable turn counters and scheduled skill metadata, wired the Reaper to `buff-removal-skill` every third turn, and added combat helpers for enemy skill execution, buff clearing, and shared attack-animation playback.
+
+---
+
+## Version 3.2.8 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Reset run unlock picks, stack battle buffs, add mine reward icon
+
+### Fixed
+- **Run unlock carryover:** Starting a fresh run now opens the unlock picker with no previous run selections still checked, so `I Love Mining` and other run-only unlocks must be chosen again.
+- **Battle buff totals:** Defense and evasion battle buffs now stack correctly across multiple skill uses, and the status line under the level reflects the combined live bonus instead of only the last or larger single skill.
+- **Evasion cap:** Total hero evasion in combat is now capped at `90%` instead of `95%`, and the combat log/status display report the capped value.
+
+### Changed
+- **Mine reward popup:** Mining now shows the found material's sprite in the result popup using the same `96x96` item-icon sizing as the loot scene, whether the mine attempt was paid or free.
+
+### Technical
+- [src/data/unlocks.js](src/data/unlocks.js), [src/main.js](src/main.js): Added a helper to clear saved run-unlock selections and call it during run reset so each new run starts with a blank unlock picker.
+- [src/config.js](src/config.js), [src/entities/Hero.js](src/entities/Hero.js), [src/scenes/CombatScene.js](src/scenes/CombatScene.js): Centralized the hero evasion cap, made battle defense/evasion bonuses additive, and updated combat status/log messaging to use the effective capped total.
+- [src/scenes/MineScene.js](src/scenes/MineScene.js): Reused the shared item-icon helper for the mine reward popup so material drops render with the loot-scene art size.
+
+---
+
 ## Version 3.2.7 – 2026-03-08
 
 **Date:** 2026-03-08  

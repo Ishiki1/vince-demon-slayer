@@ -4,10 +4,10 @@
  */
 
 const INVENTORY_WINDOW = {
-  x: 118,
-  y: 54,
-  width: 564,
-  height: 462,
+  x: 88,
+  y: 40,
+  width: 624,
+  height: 520,
   slotFill: 0x0b1220,
   slotStroke: 0x4b5563,
   innerFill: 0x111827,
@@ -18,48 +18,42 @@ const INVENTORY_WINDOW = {
 const INVENTORY_GRID = {
   cols: 5,
   rows: 6,
-  cellSize: 40,
-  cellGap: 6,
-  startX: 432,
-  startY: 134,
+  cellSize: 54,
+  cellGap: 8,
+  startX: 366,
+  startY: 96,
 };
 
+// These coordinates mirror inventory-layout-redesign-guide.svg on the fixed 800x600 canvas.
 const INVENTORY_LAYOUT = {
   slots: {
-    character: { x: 150, y: 118, width: 112, height: 182 },
-    weapon: { x: 279, y: 121, width: 112, height: 78 },
-    armor: { x: 279, y: 216, width: 112, height: 78 },
-    accessory1: { x: 151, y: 311, width: 112, height: 78 },
-    accessory2: { x: 279, y: 311, width: 112, height: 78 },
+    character: { x: 116, y: 96, width: 100, height: 180 },
+    weapon: { x: 236, y: 96, width: 100, height: 84 },
+    armor: { x: 236, y: 192, width: 100, height: 84 },
+    accessory1: { x: 116, y: 300, width: 100, height: 84 },
+    accessory2: { x: 236, y: 300, width: 100, height: 84 },
   },
   hero: {
-    xOffset: 10,
-    yOffset: 6,
-    width: 100,
-    height: 152,
+    x: 166,
+    y: 186,
+    width: 84,
+    height: 128,
   },
   equipped: {
-    sizes: {
-      weapon: { width: 48, height: 48 },
-      armor: { width: 48, height: 48 },
-      accessory: { width: 42, height: 42 },
-    },
-    offsets: {
-      weapon: { x: 8, y: 10 },
-      armor: { x: 7, y: 12 },
-      accessory: { x: 6, y: 11 },
-    },
+    weapon: { x: 286, y: 138, width: 100, height: 84 },
+    armor: { x: 286, y: 234, width: 100, height: 84 },
+    accessory1: { x: 166, y: 342, width: 100, height: 84 },
+    accessory2: { x: 286, y: 342, width: 100, height: 84 },
   },
   bag: {
-    xOffset: -6,
-    yOffset: 7,
-    iconWidth: 40,
-    iconHeight: 40,
-    durabilityXOffset: 0,
-    durabilityYOffset: 5,
+    iconWidth: 54,
+    iconHeight: 54,
+    durabilityXOffset: -2,
+    durabilityYOffset: 0,
   },
-  closeButton: { x: 711, y: 520, width: 108, height: 42 },
-  statusText: { x: 88, y: 519 },
+  closeButton: { x: 636, y: 528, width: 96, height: 36 },
+  statusText: { x: 400, y: 72, originX: 0.5, originY: 0.5 },
+  tooltip: { x: 400, y: 498, width: 520 },
 };
 
 class InventoryOverworldScene extends Phaser.Scene {
@@ -111,7 +105,12 @@ class InventoryOverworldScene extends Phaser.Scene {
       for (let col = 0; col < INVENTORY_GRID.cols; col++) {
         const x = INVENTORY_GRID.startX + col * (INVENTORY_GRID.cellSize + INVENTORY_GRID.cellGap);
         const y = INVENTORY_GRID.startY + row * (INVENTORY_GRID.cellSize + INVENTORY_GRID.cellGap);
-        this.gridCells.push({ x, y });
+        this.gridCells.push({
+          x,
+          y,
+          centerX: x + INVENTORY_GRID.cellSize / 2,
+          centerY: y + INVENTORY_GRID.cellSize / 2,
+        });
       }
     }
 
@@ -128,7 +127,10 @@ class InventoryOverworldScene extends Phaser.Scene {
       this.statusText = this.add.text(INVENTORY_LAYOUT.statusText.x, INVENTORY_LAYOUT.statusText.y, '', {
         fontSize: 13,
         color: '#e5e7eb',
-      }).setOrigin(0, 0.5).setDepth(30);
+      }).setOrigin(
+        INVENTORY_LAYOUT.statusText.originX,
+        INVENTORY_LAYOUT.statusText.originY
+      ).setDepth(30);
       return;
     }
 
@@ -154,16 +156,48 @@ class InventoryOverworldScene extends Phaser.Scene {
       fontFamily: 'Georgia',
     }).setOrigin(0.5);
 
-    this.createStaticSlot(152, 126, 112, 180, 'Character');
-    this.createStaticSlot(279, 126, 112, 78, 'Weapon');
-    this.createStaticSlot(279, 218, 112, 78, 'Armor');
-    this.createStaticSlot(152, 310, 112, 78, 'Accessory');
-    this.createStaticSlot(279, 310, 112, 78, 'Accessory');
+    this.createStaticSlot(
+      INVENTORY_LAYOUT.slots.character.x,
+      INVENTORY_LAYOUT.slots.character.y,
+      INVENTORY_LAYOUT.slots.character.width,
+      INVENTORY_LAYOUT.slots.character.height,
+      'Character'
+    );
+    this.createStaticSlot(
+      INVENTORY_LAYOUT.slots.weapon.x,
+      INVENTORY_LAYOUT.slots.weapon.y,
+      INVENTORY_LAYOUT.slots.weapon.width,
+      INVENTORY_LAYOUT.slots.weapon.height,
+      'Weapon'
+    );
+    this.createStaticSlot(
+      INVENTORY_LAYOUT.slots.armor.x,
+      INVENTORY_LAYOUT.slots.armor.y,
+      INVENTORY_LAYOUT.slots.armor.width,
+      INVENTORY_LAYOUT.slots.armor.height,
+      'Armor'
+    );
+    this.createStaticSlot(
+      INVENTORY_LAYOUT.slots.accessory1.x,
+      INVENTORY_LAYOUT.slots.accessory1.y,
+      INVENTORY_LAYOUT.slots.accessory1.width,
+      INVENTORY_LAYOUT.slots.accessory1.height,
+      'Accessory'
+    );
+    this.createStaticSlot(
+      INVENTORY_LAYOUT.slots.accessory2.x,
+      INVENTORY_LAYOUT.slots.accessory2.y,
+      INVENTORY_LAYOUT.slots.accessory2.width,
+      INVENTORY_LAYOUT.slots.accessory2.height,
+      'Accessory'
+    );
 
     const gridWidth = INVENTORY_GRID.cols * INVENTORY_GRID.cellSize + (INVENTORY_GRID.cols - 1) * INVENTORY_GRID.cellGap + 22;
     const gridHeight = INVENTORY_GRID.rows * INVENTORY_GRID.cellSize + (INVENTORY_GRID.rows - 1) * INVENTORY_GRID.cellGap + 22;
-    this.add.rectangle(544, 255, gridWidth, gridHeight, 0x222d3c, 0.92).setStrokeStyle(2, 0x616d7f, 0.95);
-    this.add.text(544, 96, 'General Inventory', { fontSize: 18, color: '#f3f4f6' }).setOrigin(0.5);
+    const gridFrameCenterX = INVENTORY_GRID.startX - 11 + gridWidth / 2;
+    const gridFrameCenterY = INVENTORY_GRID.startY - 11 + gridHeight / 2;
+    this.add.rectangle(gridFrameCenterX, gridFrameCenterY, gridWidth, gridHeight, 0x222d3c, 0.92).setStrokeStyle(2, 0x616d7f, 0.95);
+    this.add.text(gridFrameCenterX, INVENTORY_GRID.startY - 38, 'General Inventory', { fontSize: 18, color: '#f3f4f6' }).setOrigin(0.5);
 
     this.gridCells = [];
     for (let row = 0; row < INVENTORY_GRID.rows; row++) {
@@ -173,7 +207,13 @@ class InventoryOverworldScene extends Phaser.Scene {
         const cell = this.add.rectangle(x, y, INVENTORY_GRID.cellSize, INVENTORY_GRID.cellSize, INVENTORY_WINDOW.slotFill, 0.96)
           .setOrigin(0, 0)
           .setStrokeStyle(2, INVENTORY_WINDOW.slotStroke, 0.85);
-        this.gridCells.push({ x, y, cell });
+        this.gridCells.push({
+          x,
+          y,
+          centerX: x + INVENTORY_GRID.cellSize / 2,
+          centerY: y + INVENTORY_GRID.cellSize / 2,
+          cell,
+        });
       }
     }
 
@@ -221,17 +261,16 @@ class InventoryOverworldScene extends Phaser.Scene {
   }
 
   renderCharacterPreview() {
-    const bounds = this.slotBounds.character;
     if (this.textures.exists('hero_sheet')) {
       const portrait = this.add.sprite(
-        bounds.x + bounds.width / 2 + INVENTORY_LAYOUT.hero.xOffset,
-        bounds.y + bounds.height / 2 + INVENTORY_LAYOUT.hero.yOffset,
+        INVENTORY_LAYOUT.hero.x,
+        INVENTORY_LAYOUT.hero.y,
         'hero_sheet',
         0
       ).setDisplaySize(INVENTORY_LAYOUT.hero.width, INVENTORY_LAYOUT.hero.height);
       this.dynamicEls.push(portrait);
     } else {
-      const fallback = this.add.text(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2, this.hero.name, {
+      const fallback = this.add.text(INVENTORY_LAYOUT.hero.x, INVENTORY_LAYOUT.hero.y, this.hero.name, {
         fontSize: 20,
         color: '#f8fafc',
       }).setOrigin(0.5);
@@ -244,13 +283,13 @@ class InventoryOverworldScene extends Phaser.Scene {
     const slot = this.hero.inventory.find((entry) => entry.id === slotId);
     const item = slot && ITEMS[slot.itemId];
     if (!slot || !item) return;
-    const equippedSize = INVENTORY_LAYOUT.equipped.sizes[type] || INVENTORY_LAYOUT.equipped.sizes.accessory;
-    const equippedOffset = INVENTORY_LAYOUT.equipped.offsets[type] || INVENTORY_LAYOUT.equipped.offsets.accessory;
+    const equippedLayoutKey = type === 'accessory' ? `accessory${accessoryIndex + 1}` : type;
+    const equippedLayout = INVENTORY_LAYOUT.equipped[equippedLayoutKey];
     const icon = this.createItemIcon(
-      bounds.x + bounds.width / 2 + equippedOffset.x,
-      bounds.y + bounds.height / 2 + equippedOffset.y,
+      equippedLayout.x,
+      equippedLayout.y,
       slot,
-      equippedSize
+      { width: equippedLayout.width, height: equippedLayout.height }
     );
     const hitArea = this.add.rectangle(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2, bounds.width - 10, bounds.height - 10, 0x000000, 0.001)
       .setInteractive({ useHandCursor: true });
@@ -262,8 +301,9 @@ class InventoryOverworldScene extends Phaser.Scene {
     });
     attachHoverScaleTooltip(hitArea, icon, {
       tooltipText: () => this.getItemTooltipText(item, slot),
-      tooltipY: INVENTORY_WINDOW.y + INVENTORY_WINDOW.height - 54,
-      tooltipWidth: INVENTORY_WINDOW.width - 160,
+      tooltipX: INVENTORY_LAYOUT.tooltip.x,
+      tooltipY: INVENTORY_LAYOUT.tooltip.y,
+      tooltipWidth: INVENTORY_LAYOUT.tooltip.width,
       hoverWidth: icon.displayWidth + 4,
       hoverHeight: icon.displayHeight + 4,
       onHoverChanged: (hovered) => this.setInventoryUniqueHoverState(icon, item, hovered),
@@ -285,8 +325,8 @@ class InventoryOverworldScene extends Phaser.Scene {
       if (!slot) return;
       const item = ITEMS[slot.itemId];
       if (!item) return;
-      const centerX = cellData.x + INVENTORY_GRID.cellSize / 2 + INVENTORY_LAYOUT.bag.xOffset;
-      const centerY = cellData.y + INVENTORY_GRID.cellSize / 2 + INVENTORY_LAYOUT.bag.yOffset;
+      const centerX = cellData.centerX;
+      const centerY = cellData.centerY;
       const icon = this.createItemIcon(centerX, centerY, slot, {
         width: INVENTORY_LAYOUT.bag.iconWidth,
         height: INVENTORY_LAYOUT.bag.iconHeight,
@@ -296,8 +336,9 @@ class InventoryOverworldScene extends Phaser.Scene {
       hitArea.on('pointerdown', () => this.onBagItemClick(slot, item));
       attachHoverScaleTooltip(hitArea, icon, {
         tooltipText: () => this.getItemTooltipText(item, slot),
-        tooltipY: INVENTORY_WINDOW.y + INVENTORY_WINDOW.height - 54,
-        tooltipWidth: INVENTORY_WINDOW.width - 160,
+        tooltipX: INVENTORY_LAYOUT.tooltip.x,
+        tooltipY: INVENTORY_LAYOUT.tooltip.y,
+        tooltipWidth: INVENTORY_LAYOUT.tooltip.width,
         hoverWidth: icon.displayWidth + 4,
         hoverHeight: icon.displayHeight + 4,
         onHoverChanged: (hovered) => this.setInventoryUniqueHoverState(icon, item, hovered),

@@ -41,6 +41,7 @@ function resetRun() {
   GAME_STATE.runUnlocks = [];
   GAME_STATE.freeMineWeekUsed = null;
   GAME_STATE.levelJustCompleted = false;
+  if (typeof clearRunUnlockSelection === 'function') clearRunUnlockSelection();
 }
 
 // Global game state shared by all scenes (reset on new run or game over)
@@ -85,7 +86,7 @@ const config = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  scene: [BootScene, MenuScene, ClassSelectScene, ClassOriginScene, OverworldScene, CombatScene, LootScene, EventScene, SkillTreeScene, TransitionScene, TownScene, ShopScene, BlacksmithScene, UpgradeScene, MineScene, InventoryOverworldScene, CharacterSheetScene, RunEndedScene, UnlockSelectScene, SettingsScene],
+  scene: [BootScene, MenuScene, ClassSelectScene, ClassOriginScene, OverworldScene, CombatScene, LootScene, EventScene, SkillTreeScene, TransitionScene, TownScene, AlchemistScene, ShopScene, BlacksmithScene, UpgradeScene, MineScene, InventoryOverworldScene, CharacterSheetScene, RunEndedScene, UnlockSelectScene, SettingsScene],
   input: {
     activePointers: 1,
   },
