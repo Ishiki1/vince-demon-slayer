@@ -97,7 +97,7 @@ const EventEffects = {
 
   applyPriest(hero) {
     ProgressionSystem.addSkill(hero, 'holyLight');
-    return 'You learned: Holy Light (4 mana, heals 5 HP).';
+    return 'You learned: Holy Light (5 mana, heals 35% Max HP).';
   },
 
   applyRobber(hero) {

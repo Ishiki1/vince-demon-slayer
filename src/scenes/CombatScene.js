@@ -335,11 +335,19 @@ class CombatScene extends Phaser.Scene {
     this.scene.start('Overworld');
   }
 
+  getEnemyClickSkillId() {
+    if (this.selectedSkillId) return this.selectedSkillId;
+    return typeof getDefaultZeroManaSkillId === 'function'
+      ? getDefaultZeroManaSkillId(this.hero)
+      : null;
+  }
+
   onEnemyClicked(enemyIndex) {
-    if (this.turnState !== 'playerTurn' || !this.selectedSkillId) return;
+    if (this.turnState !== 'playerTurn') return;
     const enemy = this.enemies[enemyIndex];
     if (!enemy || enemy.hp <= 0) return;
-    const skillId = this.selectedSkillId;
+    const skillId = this.getEnemyClickSkillId();
+    if (!skillId) return;
     this.selectedSkillId = null;
     this.clearTargetMode();
     this.applySingleTargetSkill(skillId, enemyIndex);
@@ -453,7 +461,9 @@ class CombatScene extends Phaser.Scene {
 
     if (skill.isHeal) {
       this.hero.currentMana -= skill.manaCost;
-      const healAmount = skill.healValue != null ? skill.healValue : 0;
+      const healAmount = typeof getSkillHealAmount === 'function'
+        ? getSkillHealAmount(this.hero, skill)
+        : (skill.healValue != null ? skill.healValue : 0);
       this.hero.currentHealth = Math.min(this.hero.getEffectiveHealth(), this.hero.currentHealth + healAmount);
       this.logCombat(skill.name + '. Healed ' + healAmount + ' HP.');
       // Healing animation only for Warrior (Holy Light); Sorceress (Arcane Heal) uses different sprites.

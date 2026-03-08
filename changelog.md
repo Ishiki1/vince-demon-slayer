@@ -4,6 +4,33 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.7 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Rework Holy Light into percent heal
+
+### Changed
+- **Holy Light scaling:** `Holy Light` now restores `35%` of max HP instead of a flat heal so it stays relevant later in a run.
+- **Skill text:** Holy Light-related tooltip, character-sheet, and event text now describe the percent-heal behavior correctly.
+
+### Technical
+- [src/data/skills.js](src/data/skills.js), [src/scenes/CombatScene.js](src/scenes/CombatScene.js), [src/scenes/CharacterSheetScene.js](src/scenes/CharacterSheetScene.js), [src/systems/eventEffects.js](src/systems/eventEffects.js): Added shared heal helpers, switched Holy Light to a percent-based heal, and routed UI copy through the shared heal description.
+
+---
+
+## Version 3.2.6 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Auto-use default attack on enemy click
+
+### Changed
+- **Combat targeting QoL:** Clicking a living enemy without preselecting a skill now uses the hero class's default 0-mana starter attack automatically (`Slash` for Vince, `Fireball` for Isabella).
+
+### Technical
+- [src/data/skills.js](src/data/skills.js), [src/scenes/CombatScene.js](src/scenes/CombatScene.js): Added a shared default-zero-mana skill resolver and used it when enemy clicks happen outside explicit target-selection mode.
+
+---
+
 ## Version 3.2.5 – 2026-03-08
 
 **Date:** 2026-03-08  
