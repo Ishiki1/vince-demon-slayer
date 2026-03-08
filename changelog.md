@@ -4,6 +4,19 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.9 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Reuse overworld inventory scene in combat
+
+### Changed
+- **Battle inventory flow:** Opening inventory during combat now brings up the same full-screen inventory background/layout used on the overworld instead of the old combat side panel, then returns to the paused battle when closed.
+
+### Technical
+- [src/scenes/CombatScene.js](src/scenes/CombatScene.js), [src/scenes/InventoryOverworldScene.js](src/scenes/InventoryOverworldScene.js), [spritework.md](spritework.md): Combat now pauses and launches `InventoryOverworldScene` in resume mode, and the inventory scene now supports returning to combat after refreshing the paused battle UI.
+
+---
+
 ## Version 3.2.8 – 2026-03-08
 
 **Date:** 2026-03-08  

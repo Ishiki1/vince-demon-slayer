@@ -168,6 +168,8 @@ The combat scene now uses the same `inventory-icon` utility sprite as the overwo
 
 The overworld inventory scene now uses `assets/ui/Inventory.png` as its frame/layout reference directly. Item icons and the hero preview are aligned to the painted paper-doll and bag wells without the old dark masking rectangles or extra item-border overlays.
 
+The combat inventory button now opens that same `InventoryOverworldScene` layout instead of the old right-side combat panel, so battle inventory uses the same full-screen inventory background and slot art as the overworld before returning to combat.
+
 ---
 
 ## Frame size (hero)

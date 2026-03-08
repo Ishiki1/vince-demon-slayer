@@ -67,11 +67,13 @@ class InventoryOverworldScene extends Phaser.Scene {
     super({ key: 'InventoryOverworld' });
   }
 
-  create() {
+  create(data) {
     if (!GAME_STATE.hero) {
       this.scene.start('Menu');
       return;
     }
+    this.returnSceneKey = data && data.returnSceneKey ? data.returnSceneKey : 'Overworld';
+    this.returnMode = data && data.returnMode ? data.returnMode : 'start';
     this.hero = GAME_STATE.hero;
     InventorySystem.ensureSlotBased(this.hero);
     InventorySystem.ensureAccessorySlots(this.hero);
@@ -124,7 +126,7 @@ class InventoryOverworldScene extends Phaser.Scene {
         0x000000,
         0.001
       ).setInteractive({ useHandCursor: true }).setDepth(30);
-      closeHitArea.on('pointerdown', () => this.scene.start('Overworld'));
+      closeHitArea.on('pointerdown', () => this.closeInventory());
       this.statusText = this.add.text(INVENTORY_LAYOUT.statusText.x, INVENTORY_LAYOUT.statusText.y, '', {
         fontSize: 13,
         color: '#e5e7eb',
@@ -185,7 +187,7 @@ class InventoryOverworldScene extends Phaser.Scene {
       34,
       'Close',
       { bgColor: 0x7c5a3a, fontSize: 15 },
-      () => this.scene.start('Overworld')
+      () => this.closeInventory()
     );
     closeButton.rect.setStrokeStyle(2, 0xb89b7a, 0.9);
 
@@ -398,5 +400,19 @@ class InventoryOverworldScene extends Phaser.Scene {
       if (this.statusText) this.statusText.setText('');
       this.statusTimer = null;
     });
+  }
+
+  closeInventory() {
+    if (this.returnMode === 'resume') {
+      const returnScene = this.returnSceneKey ? this.scene.get(this.returnSceneKey) : null;
+      if (returnScene) {
+        if (typeof returnScene.playCurrentHeroIdle === 'function') returnScene.playCurrentHeroIdle();
+        if (typeof returnScene.updateBars === 'function') returnScene.updateBars();
+      }
+      if (this.returnSceneKey) this.scene.resume(this.returnSceneKey);
+      this.scene.stop();
+      return;
+    }
+    this.scene.start(this.returnSceneKey || 'Overworld');
   }
 }

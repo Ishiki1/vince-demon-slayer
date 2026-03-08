@@ -246,9 +246,8 @@ class CombatScene extends Phaser.Scene {
     this.combatLogText.setOrigin(0, 0);
 
     this.skillButtons = createSkillButtons(this, hero, (skillId) => this.useSkill(skillId));
-    this.inventoryPanel = createInventoryPanel(this, hero, (slot) => this.onInventoryItemClick(slot));
     const inventoryButton = typeof createIconButton === 'function'
-      ? createIconButton(this, w - 80, h - 40, 'inventory-icon', 'Inventory', () => this.inventoryPanel.toggle(), {
+      ? createIconButton(this, w - 80, h - 40, 'inventory-icon', 'Inventory', () => this.openInventoryScene(), {
           size: 52,
           tooltipY: h - 82,
         })
@@ -257,7 +256,7 @@ class CombatScene extends Phaser.Scene {
       const invBtn = this.add.rectangle(w - 80, h - 40, 120, 44, 0x475569);
       invBtn.setInteractive({ useHandCursor: true });
       this.add.text(w - 80, h - 40, 'Inventory', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
-      invBtn.on('pointerdown', () => this.inventoryPanel.toggle());
+      invBtn.on('pointerdown', () => this.openInventoryScene());
     }
 
     const fleeButton = typeof createIconButton === 'function'
@@ -348,6 +347,14 @@ class CombatScene extends Phaser.Scene {
     GAME_STATE.fledGoldLost = goldLost;
     GAME_STATE.fledItemLostNames = itemLostNames;
     this.scene.start('Overworld');
+  }
+
+  openInventoryScene() {
+    this.scene.pause();
+    this.scene.launch('InventoryOverworld', {
+      returnSceneKey: 'Combat',
+      returnMode: 'resume',
+    });
   }
 
   getEnemyClickSkillId() {
@@ -862,7 +869,6 @@ class CombatScene extends Phaser.Scene {
       msg.destroy();
       okBtn.destroy();
       okTxt.destroy();
-      if (this.inventoryPanel) this.inventoryPanel.refresh();
       this.updateBars();
     });
   }
@@ -881,7 +887,6 @@ class CombatScene extends Phaser.Scene {
         InventorySystem.equip(this.hero, slot.id);
       }
     }
-    this.inventoryPanel.refresh();
     this.playCurrentHeroIdle();
     this.updateBars();
   }
