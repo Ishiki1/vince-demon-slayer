@@ -293,6 +293,17 @@ function getDefaultSkillIdForClass(classId) {
   return 'slash';
 }
 
+function getDefaultZeroManaSkillId(hero) {
+  if (!hero || !Array.isArray(hero.skills)) return null;
+  const defaultSkillId = getDefaultSkillIdForClass(hero.class);
+  if (!defaultSkillId || hero.lockedSkillId === defaultSkillId || !hero.skills.includes(defaultSkillId)) {
+    return null;
+  }
+  const skill = getSkill(hero, defaultSkillId);
+  if (!skill || skill.manaCost !== 0 || skill.isAoe || skill.isHeal) return null;
+  return defaultSkillId;
+}
+
 /** Get a single skill by id for the given hero. */
 function getSkill(hero, skillId) {
   const map = getSkillsForClass(hero);

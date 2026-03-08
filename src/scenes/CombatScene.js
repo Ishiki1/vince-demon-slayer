@@ -335,11 +335,19 @@ class CombatScene extends Phaser.Scene {
     this.scene.start('Overworld');
   }
 
+  getEnemyClickSkillId() {
+    if (this.selectedSkillId) return this.selectedSkillId;
+    return typeof getDefaultZeroManaSkillId === 'function'
+      ? getDefaultZeroManaSkillId(this.hero)
+      : null;
+  }
+
   onEnemyClicked(enemyIndex) {
-    if (this.turnState !== 'playerTurn' || !this.selectedSkillId) return;
+    if (this.turnState !== 'playerTurn') return;
     const enemy = this.enemies[enemyIndex];
     if (!enemy || enemy.hp <= 0) return;
-    const skillId = this.selectedSkillId;
+    const skillId = this.getEnemyClickSkillId();
+    if (!skillId) return;
     this.selectedSkillId = null;
     this.clearTargetMode();
     this.applySingleTargetSkill(skillId, enemyIndex);
