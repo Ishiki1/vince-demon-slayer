@@ -4,6 +4,19 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.6 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Auto-use default attack on enemy click
+
+### Changed
+- **Combat targeting QoL:** Clicking a living enemy without preselecting a skill now uses the hero class's default 0-mana starter attack automatically (`Slash` for Vince, `Fireball` for Isabella).
+
+### Technical
+- [src/data/skills.js](src/data/skills.js), [src/scenes/CombatScene.js](src/scenes/CombatScene.js): Added a shared default-zero-mana skill resolver and used it when enemy clicks happen outside explicit target-selection mode.
+
+---
+
 ## Version 3.2.5 – 2026-03-08
 
 **Date:** 2026-03-08  
