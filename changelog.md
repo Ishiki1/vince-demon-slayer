@@ -4,6 +4,19 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.52 – 2026-03-13
+
+### Fixed
+- **Interrupted mobile preload recovery:** Pending run state now survives a preload/page reset and resumes into the intended scene instead of bouncing back to the title screen. (`main.js`, `BootScene.js`, `MenuScene.js`, `OverworldScene.js`, `saveLoad.js`)
+
+### Changed
+- **Combat utility controls:** Combat now uses dedicated `inventory-icon` and `flee-icon` buttons, and battle inventory opens the full-screen overworld inventory scene before resuming combat on close. (`CombatScene.js`, `InventoryOverworldScene.js`, `SceneUi.js`, `BootScene.js`, `assets/ui/flee-icon.png`)
+
+### Technical
+- **Repo agent guidance:** Added `AGENTS.md` support and documented the AI branch cleanup workflow for future branch consolidation tasks. (`AGENTS.md`, `cursor.md`)
+
+---
+
 ## Version 3.2.51 – 2026-03-11
 
 ### Fixed

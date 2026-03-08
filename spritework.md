@@ -155,6 +155,8 @@ Use a unique texture key. Same frame size (512x512) unless the asset differs.
 - **Set idle swap:** When Vince has a full unique set equipped (weapon + armor + accessory), combat idle swaps to the matching `hero_<element>_set_idle_sheet` / `hero_<element>_set_idle`. All set idles loop via generalized idle detection in `playCurrentHeroIdle()`.
 - **Bosses:** Standard bosses use `vampire_idle_sheet` / `vampire_attack_sheet` (placeholder, labeled `Vampire`). Reaper keeps its own sheets.
 - **Enemies:** Bats and skeletons use their own idle/attack sheet pairs.
+- **Combat utility icons:** Combat uses the shared `inventory-icon` plus `flee-icon` for inventory/flee controls instead of rectangle buttons.
+- **Combat inventory flow:** Opening inventory during combat launches `InventoryOverworldScene` in resume mode, then returns to the paused battle after close.
 - **Item hover:** Loot icons swap to their hover sheet on pointer over. Hover keys are derived from the base texture key. Unique items in inventory auto-apply golden hover.
 - **Skill animations:** Use `playHeroAnimThen(sheetKey, animKey, callback)`. Callback is typically `() => this.endPlayerTurn()` or the AoE/effect runner. No per-skill `animationcomplete` branch needed.
 - **Manual approach (when needed):** `this.heroSprite.stop()`, `.setTexture('hero_<name>_sheet')`, `.play('hero_<name>')`. Check `this.anims.exists('hero_<name>')` when relevant.
