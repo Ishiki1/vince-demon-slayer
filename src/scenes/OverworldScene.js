@@ -75,26 +75,10 @@ class OverworldScene extends Phaser.Scene {
   }
 
   createUiIconButton(x, y, textureKey, tooltip, onClick, options) {
-    const size = options && options.size ? options.size : 50;
-    const hoverSize = options && options.hoverSize ? options.hoverSize : size + 4;
-    const tooltipY = options && options.tooltipY != null ? options.tooltipY : (y + 42);
-    if (!this.textures.exists(textureKey)) return null;
-    const hitArea = this.add.rectangle(x, y, size + 14, size + 14, 0x0f172a, 0.001);
-    const icon = this.add.image(x, y, textureKey).setDisplaySize(size, size);
-    hitArea.setInteractive({ useHandCursor: true });
-    const activate = () => onClick();
-    const show = () => {
-      icon.setDisplaySize(hoverSize, hoverSize);
-      this.showTooltip(tooltip, x, tooltipY);
-    };
-    const hide = () => {
-      icon.setDisplaySize(size, size);
-      this.hideTooltip();
-    };
-    hitArea.on('pointerdown', activate);
-    hitArea.on('pointerover', show);
-    hitArea.on('pointerout', hide);
-    return { hitArea, icon };
+    if (typeof createIconButton === 'function') {
+      return createIconButton(this, x, y, textureKey, tooltip, onClick, options);
+    }
+    return null;
   }
 
   createTownMapButton(x, y) {

@@ -31,6 +31,68 @@ function createButton(scene, x, y, width, height, label, options, callback) {
 }
 
 /**
+ * Create an icon-first button with hover growth and a shared tooltip.
+ * @param {Phaser.Scene} scene
+ * @param {number} x
+ * @param {number} y
+ * @param {string} textureKey
+ * @param {string} tooltip
+ * @param {function} onClick
+ * @param {object} options
+ * @returns {{ hitArea: Phaser.GameObjects.Rectangle, icon: Phaser.GameObjects.Image }|null}
+ */
+function createIconButton(scene, x, y, textureKey, tooltip, onClick, options) {
+  if (!scene || !textureKey || !scene.textures.exists(textureKey)) return null;
+  const size = options && options.size ? options.size : 50;
+  const hoverSize = options && options.hoverSize ? options.hoverSize : size + 4;
+  const tooltipY = options && options.tooltipY != null ? options.tooltipY : (y + 42);
+  const tooltipX = options && options.tooltipX != null ? options.tooltipX : x;
+  const tooltipKey = (options && options.tooltipKey) || `${textureKey}-tooltip`;
+  const tooltipBgKey = `${tooltipKey}-bg`;
+  const hitArea = scene.add.rectangle(x, y, size + 14, size + 14, 0x0f172a, 0.001);
+  const icon = scene.add.image(x, y, textureKey).setDisplaySize(size, size);
+  hitArea.setInteractive({ useHandCursor: true });
+  const destroyTooltip = () => {
+    if (scene[tooltipBgKey]) {
+      scene[tooltipBgKey].destroy();
+      scene[tooltipBgKey] = null;
+    }
+    if (scene[tooltipKey]) {
+      scene[tooltipKey].destroy();
+      scene[tooltipKey] = null;
+    }
+  };
+  const showTooltip = () => {
+    if (!tooltip) return;
+    destroyTooltip();
+    const text = scene.add.text(tooltipX, tooltipY, tooltip, {
+      fontSize: 13,
+      color: '#e5e7eb',
+      fontFamily: 'Arial',
+    }).setOrigin(0.5).setDepth(30);
+    scene[tooltipBgKey] = scene.add.rectangle(
+      tooltipX,
+      tooltipY,
+      text.width + 20,
+      text.height + 12,
+      0x0f172a,
+      0.92
+    ).setStrokeStyle(1, 0x94a3b8, 0.9).setDepth(29);
+    scene[tooltipKey] = text;
+  };
+  hitArea.on('pointerdown', onClick);
+  hitArea.on('pointerover', () => {
+    icon.setDisplaySize(hoverSize, hoverSize);
+    showTooltip();
+  });
+  hitArea.on('pointerout', () => {
+    icon.setDisplaySize(size, size);
+    destroyTooltip();
+  });
+  return { hitArea, icon };
+}
+
+/**
  * Attach a hover-only animated outline or swap effect to a sprite.
  * Keeps the base texture visible until the pointer is over the target.
  * @param {Phaser.GameObjects.Sprite} sprite

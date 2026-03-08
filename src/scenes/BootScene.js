@@ -130,6 +130,7 @@ class BootScene extends Phaser.Scene {
     this.load.image('abandon-run-icon', 'assets/ui/abandon-run-icon.png');
     this.load.image('inventory-icon', 'assets/ui/inventory-icon.png');
     this.load.image('character-sheet-icon', 'assets/ui/character-sheet-icon.png');
+    this.load.image('flee-icon', 'assets/ui/flee-icon.png');
     this.load.image('inventory-ui-layout', 'assets/ui/Inventory.png');
     this.load.image('blacksmith-ui-background', 'assets/ui/blacksmith.png');
     this.load.image('overworld-ui-background', 'assets/ui/overworld.png');

@@ -246,17 +246,32 @@ class CombatScene extends Phaser.Scene {
     this.combatLogText.setOrigin(0, 0);
 
     this.skillButtons = createSkillButtons(this, hero, (skillId) => this.useSkill(skillId));
-
-    const invBtn = this.add.rectangle(w - 80, h - 40, 120, 44, 0x475569);
-    invBtn.setInteractive({ useHandCursor: true });
-    this.add.text(w - 80, h - 40, 'Inventory', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
     this.inventoryPanel = createInventoryPanel(this, hero, (slot) => this.onInventoryItemClick(slot));
-    invBtn.on('pointerdown', () => this.inventoryPanel.toggle());
+    const inventoryButton = typeof createIconButton === 'function'
+      ? createIconButton(this, w - 80, h - 40, 'inventory-icon', 'Inventory', () => this.inventoryPanel.toggle(), {
+          size: 52,
+          tooltipY: h - 82,
+        })
+      : null;
+    if (!inventoryButton) {
+      const invBtn = this.add.rectangle(w - 80, h - 40, 120, 44, 0x475569);
+      invBtn.setInteractive({ useHandCursor: true });
+      this.add.text(w - 80, h - 40, 'Inventory', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
+      invBtn.on('pointerdown', () => this.inventoryPanel.toggle());
+    }
 
-    const fleeBtn = this.add.rectangle(w - 80, h - 95, 120, 40, 0x7f1d1d);
-    fleeBtn.setInteractive({ useHandCursor: true });
-    this.add.text(w - 80, h - 95, 'Flee', { fontSize: 14, color: '#fecaca' }).setOrigin(0.5);
-    fleeBtn.on('pointerdown', () => this.showFleeConfirmModal());
+    const fleeButton = typeof createIconButton === 'function'
+      ? createIconButton(this, w - 80, h - 95, 'flee-icon', 'Flee', () => this.showFleeConfirmModal(), {
+          size: 52,
+          tooltipY: h - 137,
+        })
+      : null;
+    if (!fleeButton) {
+      const fleeBtn = this.add.rectangle(w - 80, h - 95, 120, 40, 0x7f1d1d);
+      fleeBtn.setInteractive({ useHandCursor: true });
+      this.add.text(w - 80, h - 95, 'Flee', { fontSize: 14, color: '#fecaca' }).setOrigin(0.5);
+      fleeBtn.on('pointerdown', () => this.showFleeConfirmModal());
+    }
 
     if (GAME_STATE.reaperFight) {
       this.showReaperPopup();

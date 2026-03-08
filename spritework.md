@@ -65,6 +65,7 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 | Overworld abandon-run UI icon | `assets/ui/abandon-run-icon.png` | `abandon-run-icon` |
 | Overworld inventory UI icon | `assets/ui/inventory-icon.png` | `inventory-icon` |
 | Overworld character-sheet UI icon | `assets/ui/character-sheet-icon.png` | `character-sheet-icon` |
+| Combat flee UI icon | `assets/ui/flee-icon.png` | `flee-icon` |
 | Overworld inventory layout frame | `assets/ui/Inventory.png` | `inventory-ui-layout` |
 | Rusty Sword item icon | `assets/items/common-sword.png` | `common-sword` |
 | Common armor item icon | `assets/items/common-armor.png` | `common-armor` |
@@ -162,6 +163,8 @@ The overworld location icons listed above are now preloaded and used by `Overwor
 The overworld scene now uses `assets/ui/overworld.png` as its static map background. The animated overworld background sheet remains available on disk but is not wired.
 
 The top and bottom overworld utility controls now use dedicated UI icon sprites with hover tooltips instead of rectangle buttons with always-visible text labels.
+
+The combat scene now uses the same `inventory-icon` utility sprite as the overworld for opening inventory, and a new generated `flee-icon` sprite for the flee action, both with hover tooltips instead of the old rectangle buttons.
 
 The overworld inventory scene now uses `assets/ui/Inventory.png` as its frame/layout reference directly. Item icons and the hero preview are aligned to the painted paper-doll and bag wells without the old dark masking rectangles or extra item-border overlays.
 

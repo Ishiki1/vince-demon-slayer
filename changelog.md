@@ -4,6 +4,19 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.8 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Icon-based combat inventory and flee buttons
+
+### Changed
+- **Combat utility buttons:** The battle scene inventory control now uses the same backpack icon as the overworld, and the flee action now uses a dedicated pixel-art flee icon instead of text rectangles.
+
+### Technical
+- [assets/ui/flee-icon.png](assets/ui/flee-icon.png), [src/ui/SceneUi.js](src/ui/SceneUi.js), [src/scenes/CombatScene.js](src/scenes/CombatScene.js), [src/scenes/BootScene.js](src/scenes/BootScene.js), [src/scenes/OverworldScene.js](src/scenes/OverworldScene.js), [spritework.md](spritework.md): Added a generated combat flee icon, introduced a shared icon-button helper, and reused the overworld inventory icon styling in combat.
+
+---
+
 ## Version 3.2.7 – 2026-03-08
 
 **Date:** 2026-03-08  
