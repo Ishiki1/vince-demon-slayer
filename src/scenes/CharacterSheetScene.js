@@ -66,7 +66,12 @@ class CharacterSheetScene extends Phaser.Scene {
           const statLabel = skill.damageStat === 'intelligence' ? 'Int' : 'Str';
           skillLine += ' — ' + skill.damageMultiplier + 'x ' + statLabel + ' damage';
         }
-        if (skill.isHeal && skill.healValue != null) skillLine += ' — Heals ' + skill.healValue + ' HP';
+        if (skill.isHeal) {
+          const healDescription = typeof getSkillHealDescription === 'function'
+            ? getSkillHealDescription(skill)
+            : (skill.healValue != null ? 'Heals ' + skill.healValue + ' HP' : 'Heals');
+          skillLine += ' — ' + healDescription;
+        }
         if (skill.battleDefenseBonus != null) skillLine += ' — +' + skill.battleDefenseBonus + ' Def';
         if (skill.battleEvasionChance != null) skillLine += ' — +' + Math.round((skill.battleEvasionChance || 0) * 100) + '% Evasion';
         if (skill.blockReflectRounds != null) skillLine += ' — Block/reflect ' + skill.blockReflectRounds + ' turns';

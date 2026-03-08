@@ -66,7 +66,7 @@ const WARRIOR_SKILLS = {
     manaCost: 5,
     assetKey: 'button-holy-light',
     isHeal: true,
-    healValue: 25,
+    healPercentMaxHealth: 0.35,
     skillTier: 2,
     cost: 1,
   },
@@ -310,6 +310,25 @@ function getSkill(hero, skillId) {
   return map ? map[skillId] : null;
 }
 
+function getSkillHealAmount(hero, skill) {
+  if (!skill || !skill.isHeal) return 0;
+  if (skill.healPercentMaxHealth != null && hero && typeof hero.getEffectiveHealth === 'function') {
+    return Math.round(hero.getEffectiveHealth() * skill.healPercentMaxHealth);
+  }
+  return skill.healValue != null ? skill.healValue : 0;
+}
+
+function getSkillHealDescription(skill) {
+  if (!skill || !skill.isHeal) return '';
+  if (skill.healPercentMaxHealth != null) {
+    return 'Heals ' + Math.round(skill.healPercentMaxHealth * 100) + '% Max HP';
+  }
+  if (skill.healValue != null) {
+    return 'Heals ' + skill.healValue + ' HP';
+  }
+  return 'Heals';
+}
+
 function getChoiceAssetKey(choiceId, hero) {
   const skill = getSkill(hero, choiceId);
   if (skill && skill.assetKey) return skill.assetKey;
@@ -381,7 +400,7 @@ function getSkillChoiceTooltip(choiceId, hero) {
   }
   if (skill.isAoe) lines.push('AoE');
   else if (skill.damageMultiplier != null || skill.isHeal) lines.push('Single target');
-  if (skill.isHeal && skill.healValue != null) lines.push('Heals ' + skill.healValue + ' HP');
+  if (skill.isHeal) lines.push(getSkillHealDescription(skill));
   if (skill.battleDefenseBonus != null) lines.push('Def +' + skill.battleDefenseBonus + ' this battle');
   if (skill.battleEvasionChance != null) lines.push('Evasion +' + Math.round((skill.battleEvasionChance || 0) * 100) + '%');
   if (skill.dotRounds != null) lines.push('DoT ' + skill.dotRounds + ' rounds');
