@@ -69,23 +69,23 @@ class SettingsScene extends Phaser.Scene {
 
     const row1Y = 140 + controlsOffsetY;
     this.add.text(120 + controlsOffsetX, row1Y, 'Music', { fontSize: 18, color: '#e5e7eb' }).setOrigin(0, 0.5);
-    const musicMinus = this.add.rectangle(280 + controlsOffsetX, row1Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
+    const musicMinus = this.add.rectangle(280 + controlsOffsetX, row1Y, 48, 48, 0x475569).setInteractive({ useHandCursor: true });
     this.add.text(280 + controlsOffsetX, row1Y, '−', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
     this.musicLabel = this.add.text(360 + controlsOffsetX, row1Y, Math.round(musicVol * 100) + '%', { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
-    const musicPlus = this.add.rectangle(440 + controlsOffsetX, row1Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
+    const musicPlus = this.add.rectangle(440 + controlsOffsetX, row1Y, 48, 48, 0x475569).setInteractive({ useHandCursor: true });
     this.add.text(440 + controlsOffsetX, row1Y, '+', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
 
     const row2Y = 200 + controlsOffsetY;
     this.add.text(120 + controlsOffsetX, row2Y, 'SFX', { fontSize: 18, color: '#e5e7eb' }).setOrigin(0, 0.5);
-    const sfxMinus = this.add.rectangle(280 + controlsOffsetX, row2Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
+    const sfxMinus = this.add.rectangle(280 + controlsOffsetX, row2Y, 48, 48, 0x475569).setInteractive({ useHandCursor: true });
     this.add.text(280 + controlsOffsetX, row2Y, '−', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
     this.sfxLabel = this.add.text(360 + controlsOffsetX, row2Y, Math.round(sfxVol * 100) + '%', { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
-    const sfxPlus = this.add.rectangle(440 + controlsOffsetX, row2Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
+    const sfxPlus = this.add.rectangle(440 + controlsOffsetX, row2Y, 48, 48, 0x475569).setInteractive({ useHandCursor: true });
     this.add.text(440 + controlsOffsetX, row2Y, '+', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
 
     const row3Y = 260 + controlsOffsetY;
     this.add.text(120 + controlsOffsetX, row3Y, 'Animations', { fontSize: 18, color: '#e5e7eb' }).setOrigin(0, 0.5);
-    const animationMinus = this.add.rectangle(280 + controlsOffsetX, row3Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
+    const animationMinus = this.add.rectangle(280 + controlsOffsetX, row3Y, 48, 48, 0x475569).setInteractive({ useHandCursor: true });
     this.add.text(280 + controlsOffsetX, row3Y, '−', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
     this.animationLabel = this.add.text(
       360 + controlsOffsetX,
@@ -93,7 +93,7 @@ class SettingsScene extends Phaser.Scene {
       typeof getAnimationSpeedLabel === 'function' ? getAnimationSpeedLabel(animationSpeed) : (Math.round(animationSpeed * 100) + '%'),
       { fontSize: 18, color: '#fbbf24' }
     ).setOrigin(0.5);
-    const animationPlus = this.add.rectangle(440 + controlsOffsetX, row3Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
+    const animationPlus = this.add.rectangle(440 + controlsOffsetX, row3Y, 48, 48, 0x475569).setInteractive({ useHandCursor: true });
     this.add.text(440 + controlsOffsetX, row3Y, '+', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
 
     const step = 0.1;

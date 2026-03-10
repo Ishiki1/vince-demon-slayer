@@ -320,6 +320,21 @@ function createRightAlignedUiIconRow(scene, buttons, options) {
   });
 }
 
+function groupBagSlots(bagSlots) {
+  const groups = [];
+  const seen = {};
+  for (const slot of bagSlots) {
+    if (seen[slot.itemId]) {
+      seen[slot.itemId].slots.push(slot);
+    } else {
+      const group = { itemId: slot.itemId, slots: [slot] };
+      seen[slot.itemId] = group;
+      groups.push(group);
+    }
+  }
+  return groups;
+}
+
 function createTownNavRow(scene, options) {
   if (!scene) return [];
   const currentSection = options && options.currentSection ? options.currentSection : null;

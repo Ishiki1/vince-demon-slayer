@@ -323,11 +323,15 @@ class InventoryOverworldScene extends Phaser.Scene {
       return !InventorySystem.isSlotEquipped(this.hero, slot.id);
     });
 
+    const groups = groupBagSlots(bagSlots);
+
     this.gridCells.forEach((cellData, index) => {
-      const slot = bagSlots[index];
-      if (!slot) return;
+      const group = groups[index];
+      if (!group) return;
+      const slot = group.slots[0];
       const item = ITEMS[slot.itemId];
       if (!item) return;
+      const count = group.slots.length;
       const col = index % INVENTORY_GRID.cols;
       const columnXOffset = (INVENTORY_LAYOUT.bag.columnXOffsets && INVENTORY_LAYOUT.bag.columnXOffsets[col]) || 0;
       const centerX = cellData.centerX + columnXOffset;
@@ -340,7 +344,7 @@ class InventoryOverworldScene extends Phaser.Scene {
         .setInteractive({ useHandCursor: true });
       hitArea.on('pointerdown', () => this.onBagItemClick(slot, item));
       attachHoverScaleTooltip(hitArea, icon, {
-        tooltipText: () => this.getItemTooltipText(item, slot),
+        tooltipText: () => this.getItemTooltipText(item, slot, count),
         tooltipX: INVENTORY_LAYOUT.tooltip.x,
         tooltipY: INVENTORY_LAYOUT.tooltip.y,
         tooltipWidth: INVENTORY_LAYOUT.tooltip.width,
@@ -349,11 +353,15 @@ class InventoryOverworldScene extends Phaser.Scene {
         onHoverChanged: (hovered) => this.setInventoryUniqueHoverState(icon, item, hovered),
       });
       this.dynamicEls.push(hitArea);
-      this.renderDurability(
-        slot,
-        cellData.x + INVENTORY_GRID.cellSize - 2 + columnXOffset + INVENTORY_LAYOUT.bag.durabilityXOffset,
-        cellData.y + INVENTORY_GRID.cellSize - 4 + INVENTORY_LAYOUT.bag.durabilityYOffset
-      );
+      if (count > 1) {
+        const qtyText = this.add.text(
+          cellData.x + 4 + columnXOffset,
+          cellData.y + INVENTORY_GRID.cellSize - 4,
+          'x' + count,
+          { fontSize: 8, color: '#ffffff' }
+        ).setOrigin(0, 1);
+        this.dynamicEls.push(qtyText);
+      }
     });
   }
 
@@ -421,11 +429,15 @@ class InventoryOverworldScene extends Phaser.Scene {
     this.setStatusMessage(item.name + ' cannot be used here.');
   }
 
-  getItemTooltipText(item, slot) {
+  getItemTooltipText(item, slot, count) {
     const parts = [item.name + ' [' + item.rarity + ']'];
     const effectLine = getItemEffectLine(item);
     if (effectLine) parts.push(effectLine);
-    if (slot.durability != null) parts.push('Durability: ' + slot.durability + '/' + slot.maxDurability);
+    if (count != null && count > 1) {
+      parts.push('Owned: ' + count);
+    } else if (slot.durability != null) {
+      parts.push('Durability: ' + slot.durability + '/' + slot.maxDurability);
+    }
     return parts.join('\n');
   }
 

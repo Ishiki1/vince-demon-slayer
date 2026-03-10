@@ -111,7 +111,7 @@ class ShopScene extends Phaser.Scene {
         if (effectLine) this.add.text(80, y + 14, effectLine, { fontSize: 12, color: '#a5b4fc' });
         const price = ShopSystem.getPrice(itemId);
         this.add.text(80, y + 32, price + ' gold', { fontSize: 14, color: '#fbbf24' });
-        const buyBtn = this.add.rectangle(w - 120, y + 16, 80, 36, canBuy ? 0x4ade80 : 0x64748b);
+        const buyBtn = this.add.rectangle(w - 120, y + 16, 80, 44, canBuy ? 0x4ade80 : 0x64748b);
         buyBtn.setInteractive({ useHandCursor: true });
         this.add.text(w - 120, y + 16, 'Buy', { fontSize: 14, color: '#fff' }).setOrigin(0.5);
         if (canBuy) {
@@ -147,7 +147,7 @@ class ShopScene extends Phaser.Scene {
       });
       const sellAllY = 72;
       if (nonEquippedNonPotion.length > 0) {
-        const sellAllBtn = this.add.rectangle(w - 100, sellAllY, 140, 36, 0x0ea5e9);
+        const sellAllBtn = this.add.rectangle(w - 100, sellAllY, 140, 44, 0x0ea5e9);
         sellAllBtn.setInteractive({ useHandCursor: true });
         this.add.text(w - 100, sellAllY, 'Sell All (no potions)', { fontSize: 12, color: '#fff' }).setOrigin(0.5);
         sellAllBtn.on('pointerdown', () => {
@@ -177,27 +177,38 @@ class ShopScene extends Phaser.Scene {
       });
 
       const listStartY = filterY + 44;
-      sellable.forEach((slot, i) => {
-        const item = ITEMS[slot.itemId];
+      const equippedRows = sellable.filter(s => InventorySystem.isSlotEquipped(hero, s.id));
+      const nonEquipped = sellable.filter(s => !InventorySystem.isSlotEquipped(hero, s.id));
+      const groupedNonEquipped = groupBagSlots(nonEquipped);
+      const sellRows = [];
+      groupedNonEquipped.forEach(group => {
+        sellRows.push({ slots: group.slots, item: ITEMS[group.itemId], count: group.slots.length, equipped: false });
+      });
+      equippedRows.forEach(slot => {
+        sellRows.push({ slots: [slot], item: ITEMS[slot.itemId], count: 1, equipped: true });
+      });
+      sellRows.forEach((row, i) => {
+        const item = row.item;
         if (!item) return;
         const y = listStartY + i * 72;
         const typeLabel = SHOP_TYPE_LABELS[item.type] || item.type;
-        const sellPrice = ShopSystem.getSellPrice(slot.itemId);
-        const isEquipped = InventorySystem.isSlotEquipped(hero, slot.id);
-        const nameLine = item.name + ' (' + item.rarity + ') — ' + typeLabel + (isEquipped ? ' (Equipped)' : '');
+        const sellPrice = ShopSystem.getSellPrice(row.slots[0].itemId);
+        const qtyLabel = row.count > 1 ? ' x' + row.count : '';
+        const nameLine = item.name + ' (' + item.rarity + ') — ' + typeLabel + qtyLabel + (row.equipped ? ' (Equipped)' : '');
         createItemIconSprite(this, item, 44, y + 10, { width: 34, height: 34 });
         this.add.text(80, y - 2, nameLine, { fontSize: 15, color: '#e5e7eb' });
-        this.add.text(80, y + 16, sellPrice + ' gold', { fontSize: 14, color: '#fbbf24' });
-        const sellBtn = this.add.rectangle(w - 100, y + 8, 70, 32, 0x0ea5e9);
+        const priceLabel = row.count > 1 ? sellPrice + ' gold each' : sellPrice + ' gold';
+        this.add.text(80, y + 16, priceLabel, { fontSize: 14, color: '#fbbf24' });
+        const sellBtn = this.add.rectangle(w - 100, y + 8, 76, 44, 0x0ea5e9);
         sellBtn.setInteractive({ useHandCursor: true });
         this.add.text(w - 100, y + 8, 'Sell', { fontSize: 13, color: '#fff' }).setOrigin(0.5);
         sellBtn.on('pointerdown', () => {
           hero.gold += sellPrice;
-          InventorySystem.removeSlotById(hero, slot.id);
+          InventorySystem.removeSlotById(hero, row.slots[0].id);
           this.scene.restart();
         });
       });
-      if (sellable.length === 0) {
+      if (sellRows.length === 0) {
         this.add.text(w / 2, h / 2 - 40, 'Nothing to sell.', { fontSize: 18, color: '#94a3b8' }).setOrigin(0.5);
       }
       const backToChoice = this.add.rectangle(w / 2, h - 60, 180, 48, 0x475569);

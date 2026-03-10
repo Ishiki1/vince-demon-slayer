@@ -2,11 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Demon Slayer - Vince</title>
   <style>
-    body { margin: 0; background: #1a1a2e; }
-    canvas { display: block; margin: 0 auto; }
+    html, body { margin: 0; padding: 0; overflow: hidden; touch-action: none; position: fixed; width: 100%; height: 100%; background: #1a1a2e; }
+    #phaser-game { width: 100%; height: 100%; }
+    canvas { display: block; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
   </style>
 </head>
 <body>

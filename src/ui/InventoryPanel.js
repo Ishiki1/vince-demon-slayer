@@ -142,11 +142,15 @@ function createInventoryPanel(scene, hero, onEquipOrUse) {
     }
   }
 
-  function getItemTooltipText(item, slot) {
+  function getItemTooltipText(item, slot, count) {
     const parts = [item.name + ' [' + item.rarity + ']'];
     const effectLine = getItemEffectLine(item);
     if (effectLine) parts.push(effectLine);
-    if (slot.durability != null) parts.push('Durability: ' + slot.durability + '/' + slot.maxDurability);
+    if (count != null && count > 1) {
+      parts.push('Owned: ' + count);
+    } else if (slot.durability != null) {
+      parts.push('Durability: ' + slot.durability + '/' + slot.maxDurability);
+    }
     return parts.join('\n');
   }
 
@@ -443,11 +447,15 @@ function createInventoryPanel(scene, hero, onEquipOrUse) {
       return !InventorySystem.isSlotEquipped(hero, slot.id);
     });
 
+    const groups = groupBagSlots(bagSlots);
+
     gridCells.forEach((cellData, index) => {
-      const slot = bagSlots[index];
-      if (!slot) return;
+      const group = groups[index];
+      if (!group) return;
+      const slot = group.slots[0];
       const item = ITEMS[slot.itemId];
       if (!item) return;
+      const count = group.slots.length;
       const col = index % COMBAT_INVENTORY_GRID.cols;
       const columnXOffset = (COMBAT_INVENTORY_LAYOUT.bag.columnXOffsets && COMBAT_INVENTORY_LAYOUT.bag.columnXOffsets[col]) || 0;
       const icon = createItemIcon(cellData.centerX + columnXOffset, cellData.centerY, slot, {
@@ -468,7 +476,7 @@ function createInventoryPanel(scene, hero, onEquipOrUse) {
       hitArea.on('pointerdown', () => handleSlotClick(slot, item, actionText));
       attachHoverScaleTooltip(hitArea, icon, {
         tooltipKey,
-        tooltipText: () => getItemTooltipText(item, slot),
+        tooltipText: () => getItemTooltipText(item, slot, count),
         tooltipX: COMBAT_INVENTORY_LAYOUT.tooltip.x,
         tooltipY: COMBAT_INVENTORY_LAYOUT.tooltip.y,
         tooltipWidth: COMBAT_INVENTORY_LAYOUT.tooltip.width,
@@ -478,11 +486,15 @@ function createInventoryPanel(scene, hero, onEquipOrUse) {
         onHoverChanged: (hovered) => setInventoryUniqueHoverState(icon, item, hovered),
       });
       pushDynamic(hitArea);
-      renderDurability(
-        slot,
-        cellData.x + COMBAT_INVENTORY_GRID.cellSize - 2 + columnXOffset + COMBAT_INVENTORY_LAYOUT.bag.durabilityXOffset,
-        cellData.y + COMBAT_INVENTORY_GRID.cellSize - 4 + COMBAT_INVENTORY_LAYOUT.bag.durabilityYOffset
-      );
+      if (count > 1) {
+        const qtyText = scene.add.text(
+          cellData.x + 4 + columnXOffset,
+          cellData.y + COMBAT_INVENTORY_GRID.cellSize - 4,
+          'x' + count,
+          { fontSize: 8, color: '#ffffff' }
+        ).setOrigin(0, 1).setDepth(COMBAT_INVENTORY_DEPTH.dynamic + 3);
+        pushDynamic(qtyText);
+      }
     });
   }
 

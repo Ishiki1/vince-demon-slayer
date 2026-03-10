@@ -4,6 +4,24 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.50 – 2026-03-10
+
+### Changed
+- **Mobile compatibility:** The game now renders correctly on phones, tablets, and desktops. Viewport meta tags prevent double-tap zoom, pull-to-refresh, and address bar resize on mobile browsers. The canvas fills the full viewport with `FIT` scaling and dark letterboxing on non-4:3 screens. (`index.html`, `main.js`)
+- **Touch-friendly controls:** Settings +/- buttons enlarged from 44x36 to 48x48. Shop buy/sell buttons enlarged to meet the 44px minimum tap target. (`SettingsScene.js`, `ShopScene.js`)
+- **Fullscreen toggle:** The main menu now shows a small fullscreen button in the bottom-right corner for mobile browsers. (`MenuScene.js`)
+
+---
+
+## Version 3.2.49 – 2026-03-10
+
+### Changed
+- **Inventory stacking:** Identical items in the general bag grid now stack into a single visual slot with a quantity label (e.g. `x3`). Equipped items remain individual. The underlying slot-based data model is unchanged. (`SceneUi.js`, `InventoryOverworldScene.js`, `InventoryPanel.js`)
+- **Bag durability hidden:** Durability text no longer appears on bag grid cells. It remains visible on equipped-item slots and in the tooltip for equipment. (`InventoryOverworldScene.js`, `InventoryPanel.js`)
+- **Shop sell stacking:** The sell list now groups identical non-equipped items into one row with a quantity and "each" price label. Selling removes one unit at a time. (`ShopScene.js`)
+
+---
+
 ## Version 3.2.38–3.2.48 – 2026-03-10
 
 ### Fixed

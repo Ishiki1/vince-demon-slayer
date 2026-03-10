@@ -125,6 +125,16 @@ class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     const openSettings = () => this.scene.start('Settings', { from: 'Menu' });
+
+    if (this.scale && typeof this.scale.startFullscreen === 'function') {
+      const fsBtn = this.add.text(w - 12, h - 12, '[ ]', {
+        fontSize: 16, color: '#94a3b8', fontFamily: 'Arial',
+      }).setOrigin(1, 1).setDepth(20).setInteractive({ useHandCursor: true });
+      fsBtn.on('pointerdown', () => {
+        if (this.scale.isFullscreen) this.scale.stopFullscreen();
+        else this.scale.startFullscreen();
+      });
+    }
     if (hasArt) {
       const menuButtons = [
         { action: 'load', x: 400, y: 197, width: 246, height: 78 },
