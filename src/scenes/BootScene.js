@@ -115,16 +115,7 @@ class BootScene extends Phaser.Scene {
       frameHeight: 512,
     });
     this.load.image('town-overworld', 'assets/overworld/town-overworld.png');
-    this.load.image('level1-overworld', 'assets/overworld/level1-overworld.png');
-    this.load.image('level2-overworld', 'assets/overworld/level2-overworld.png');
-    this.load.image('level3-overworld', 'assets/overworld/level3-overworld.png');
-    this.load.image('level4-overworld', 'assets/overworld/level4-overworld.png');
-    this.load.image('level5-overworld', 'assets/overworld/level5-overworld.png');
-    this.load.image('level6-overworld', 'assets/overworld/level6-overworld.png');
-    this.load.image('level7-overworld', 'assets/overworld/level7-overworld.png');
-    this.load.image('level8-overworld', 'assets/overworld/level8-overworld.png');
-    this.load.image('level9-overworld', 'assets/overworld/level9-overworld.png');
-    this.load.image('castle-overworld', 'assets/overworld/castle-overworld.png');
+    this.load.json('overworld-hotspots', 'assets/overworld/overworld-hotspots-800x600.json');
     [
       'settings-icon',
       'save-game-icon',
@@ -144,13 +135,14 @@ class BootScene extends Phaser.Scene {
     for (let n = 1; n <= 10; n++) {
       this.load.image(`level${n}-ui-background`, `assets/overworld/level${n}-bg.png`);
     }
-    this.load.image('startgame-ui-background', 'assets/overworld/Startgame-bg.png');
+    this.load.image('startgame-ui-background', 'assets/overworld/startgame-bg.png');
     this.load.image('town-ui-background', 'assets/overworld/town-bg.png');
     this.load.image('blacksmith-ui-background', 'assets/overworld/blacksmith-bg.png');
     this.load.image('shop-ui-background', 'assets/overworld/shop-bg.png');
     this.load.image('mine-ui-background', 'assets/overworld/mine-bg.png');
     this.load.image('alchemist-ui-background', 'assets/overworld/alchemist-bg.png');
-    this.load.image('overworld-ui-background', 'assets/overworld/overworld-bg.png');
+    this.load.image('lootscene-ui-background', 'assets/overworld/LootScene-bg.png');
+    this.load.image('overworld-ui-background', 'assets/overworld/overworld-bg-800x600-hotspots.png');
     [
       'button-slash',
       'button-heavy-strike',
@@ -366,15 +358,17 @@ class BootScene extends Phaser.Scene {
         });
       }
     }
-    // Imp idle (goon enemy): 6×8 grid = 48 frames, all with imp; use only those frames
-    const IMP_IDLE_FRAME_COUNT = 48;
     if (this.textures.exists('imp_idle_sheet')) {
-      this.anims.create({
-        key: 'imp_idle',
-        frames: this.anims.generateFrameNumbers('imp_idle_sheet', { start: 0, end: IMP_IDLE_FRAME_COUNT - 1 }),
-        frameRate: 20,
-        repeat: -1,
-      });
+      const impIdleFrameNames = this.textures.get('imp_idle_sheet').getFrameNames();
+      const impIdleCount = impIdleFrameNames ? impIdleFrameNames.length : 0;
+      if (impIdleCount > 0) {
+        this.anims.create({
+          key: 'imp_idle',
+          frames: this.anims.generateFrameNumbers('imp_idle_sheet', { start: 0, end: impIdleCount - 1 }),
+          frameRate: 20,
+          repeat: -1,
+        });
+      }
     }
     // Imp attack: one-shot for when imp attacks in combat
     if (this.textures.exists('imp_attack_sheet')) {

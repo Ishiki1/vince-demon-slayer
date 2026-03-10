@@ -1,0 +1,120 @@
+{
+  "sourceCanvas": [
+    900,
+    600
+  ],
+  "targetCanvas": [
+    800,
+    600
+  ],
+  "results": [
+    {
+      "id": "level5",
+      "sprite": "assets/overworld/level1-overworld.png",
+      "score": 0.7497187813868401,
+      "sourceRect": {
+        "x": 214,
+        "y": 184,
+        "width": 97,
+        "height": 72
+      },
+      "x": 190,
+      "y": 184,
+      "width": 86,
+      "height": 72,
+      "centerX": 233,
+      "centerY": 220,
+      "scale": 0.42
+    },
+    {
+      "id": "level6",
+      "sprite": "assets/overworld/level4-overworld.png",
+      "score": 0.9080756286999039,
+      "sourceRect": {
+        "x": 38,
+        "y": 123,
+        "width": 129,
+        "height": 107
+      },
+      "x": 34,
+      "y": 123,
+      "width": 115,
+      "height": 107,
+      "centerX": 91,
+      "centerY": 177,
+      "scale": 0.58
+    },
+    {
+      "id": "level7",
+      "sprite": "assets/overworld/level3-overworld.png",
+      "score": 0.7489548395884221,
+      "sourceRect": {
+        "x": 364,
+        "y": 164,
+        "width": 56,
+        "height": 45
+      },
+      "x": 324,
+      "y": 164,
+      "width": 50,
+      "height": 45,
+      "centerX": 348,
+      "centerY": 187,
+      "scale": 0.24
+    },
+    {
+      "id": "level9",
+      "sprite": "assets/overworld/level9-overworld.png",
+      "score": 0.7721125013190968,
+      "sourceRect": {
+        "x": 662,
+        "y": 82,
+        "width": 53,
+        "height": 60
+      },
+      "x": 588,
+      "y": 82,
+      "width": 47,
+      "height": 60,
+      "centerX": 612,
+      "centerY": 112,
+      "scale": 0.26
+    },
+    {
+      "id": "level10",
+      "sprite": "assets/overworld/castle-overworld.png",
+      "score": 0.7736854729829892,
+      "sourceRect": {
+        "x": 160,
+        "y": 6,
+        "width": 76,
+        "height": 79
+      },
+      "x": 142,
+      "y": 6,
+      "width": 68,
+      "height": 79,
+      "centerX": 176,
+      "centerY": 46,
+      "scale": 0.34
+    },
+    {
+      "id": "level4",
+      "sprite": "assets/overworld/level8-overworld.png",
+      "score": 0.7484528599387248,
+      "sourceRect": {
+        "x": 64,
+        "y": 308,
+        "width": 171,
+        "height": 167
+      },
+      "x": 57,
+      "y": 308,
+      "width": 152,
+      "height": 167,
+      "centerX": 133,
+      "centerY": 392,
+      "scale": 0.74
+    }
+  ]
+}

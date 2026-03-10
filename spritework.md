@@ -15,8 +15,12 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 - **Shop scene** now uses `assets/overworld/shop-bg.png` as its static backdrop behind the buy/sell UI.
 - **Mine scene** now uses `assets/overworld/mine-bg.png` as its static backdrop behind the rent-pickaxe flow.
 - **Alchemist scene** now uses `assets/overworld/alchemist-bg.png` as its placeholder backdrop.
+- **Loot scene** now uses `assets/overworld/LootScene-bg.png` as its dedicated backdrop instead of borrowing the current level background when that art is available.
+- **Menu scene** now uses `assets/overworld/startgame-bg.png` as a fullscreen painted landing menu with invisible hotspots aligned over the built-in `Load Game`, `Start New Game`, and `Settings` buttons.
 - **Service navigation icons** `inn-icon`, `shop-icon`, `blacksmith-icon`, `mine-icon`, `alchemist-icon`, and `overworld-icon` are now preloaded and used by Town-related scenes for the shared top-right navigation row.
 - **Combat and loot scenes** now reuse level-specific backdrops for `level1` through `level10` when those backgrounds exist, falling back to the default dark presentation for later levels or special encounters without matching art.
+- **Overworld scene** now uses `assets/overworld/overworld-bg-800x600-hotspots.png` as the painted map backdrop and reads `assets/overworld/overworld-hotspots-800x600.json` for invisible travel hotspots. Only the town overlay sprite remains rendered on top of the map; the old act-level overworld icon sprites are no longer drawn in runtime.
+- **Overworld hotspots** stay invisible in runtime and currently show only the tooltip on hover. The earlier orbiting firefly hover idea is intentionally not wired, but the methodology is saved in the project skill notes for future polish work.
 
 ## Repo Item Pipeline
 
@@ -52,7 +56,7 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 | Standard boss attack placeholder | `assets/goons/vampire_attack_512x512_sheet.png` | `vampire_attack_sheet` |
 | Bat idle | `assets/goons/bat_idle_512x512_sheet.png` | `bat_idle_sheet` |
 | Bat attack | `assets/goons/bat_attack_512x512_sheet.png` | `bat_attack_sheet` |
-| Overworld scene background | `assets/overworld/overworld-bg.png` | `overworld-ui-background` |
+| Overworld scene background | `assets/overworld/overworld-bg-800x600-hotspots.png` | `overworld-ui-background` |
 | Level 1 combat/loot background | `assets/overworld/level1-bg.png` | `level1-ui-background` |
 | Level 2 combat/loot background | `assets/overworld/level2-bg.png` | `level2-ui-background` |
 | Level 3 combat/loot background | `assets/overworld/level3-bg.png` | `level3-ui-background` |
@@ -63,23 +67,25 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 | Level 8 combat/loot background | `assets/overworld/level8-bg.png` | `level8-ui-background` |
 | Level 9 combat/loot background | `assets/overworld/level9-bg.png` | `level9-ui-background` |
 | Level 10 combat/loot background | `assets/overworld/level10-bg.png` | `level10-ui-background` |
+| Main-menu background | `assets/overworld/startgame-bg.png` | `startgame-ui-background` |
 | Town landing background | `assets/overworld/town-bg.png` | `town-ui-background` |
 | Blacksmith scene background | `assets/overworld/blacksmith-bg.png` | `blacksmith-ui-background` |
 | Shop scene background | `assets/overworld/shop-bg.png` | `shop-ui-background` |
 | Mine scene background | `assets/overworld/mine-bg.png` | `mine-ui-background` |
 | Alchemist scene background | `assets/overworld/alchemist-bg.png` | `alchemist-ui-background` |
+| Loot scene background | `assets/overworld/LootScene-bg.png` | `lootscene-ui-background` |
 | Overworld animated background sheet (currently not wired) | `assets/overworld/overworldmap_background_sheet.png` | not wired |
 | Town overworld icon | `assets/overworld/town-overworld.png` | `town-overworld` |
-| Level 1 overworld icon | `assets/overworld/level1-overworld.png` | `level1-overworld` |
-| Level 2 overworld icon | `assets/overworld/level2-overworld.png` | `level2-overworld` |
-| Level 3 overworld icon | `assets/overworld/level3-overworld.png` | `level3-overworld` |
-| Level 4 overworld icon | `assets/overworld/level4-overworld.png` | `level4-overworld` |
-| Level 5 overworld icon | `assets/overworld/level5-overworld.png` | `level5-overworld` |
-| Level 6 overworld icon | `assets/overworld/level6-overworld.png` | `level6-overworld` |
-| Level 7 overworld icon | `assets/overworld/level7-overworld.png` | `level7-overworld` |
-| Level 8 overworld icon | `assets/overworld/level8-overworld.png` | `level8-overworld` |
-| Level 9 overworld icon | `assets/overworld/level9-overworld.png` | `level9-overworld` |
-| Castle overworld icon | `assets/overworld/castle-overworld.png` | `castle-overworld` |
+| Level 1 overworld icon | `assets/overworld/level1-overworld.png` | not wired |
+| Level 2 overworld icon | `assets/overworld/level2-overworld.png` | not wired |
+| Level 3 overworld icon | `assets/overworld/level3-overworld.png` | not wired |
+| Level 4 overworld icon | `assets/overworld/level4-overworld.png` | not wired |
+| Level 5 overworld icon | `assets/overworld/level5-overworld.png` | not wired |
+| Level 6 overworld icon | `assets/overworld/level6-overworld.png` | not wired |
+| Level 7 overworld icon | `assets/overworld/level7-overworld.png` | not wired |
+| Level 8 overworld icon | `assets/overworld/level8-overworld.png` | not wired |
+| Level 9 overworld icon | `assets/overworld/level9-overworld.png` | not wired |
+| Castle overworld icon | `assets/overworld/castle-overworld.png` | not wired |
 | Overworld settings UI icon | `assets/ui/settings-icon.png` | `settings-icon` |
 | Overworld save-game UI icon | `assets/ui/save-game-icon.png` | `save-game-icon` |
 | Overworld abandon-run UI icon | `assets/ui/abandon-run-icon.png` | `abandon-run-icon` |
@@ -91,6 +97,7 @@ Use this file when adding or changing hero (or other) sprites and animations. It
 | Town/service inn UI icon | `assets/ui/inn-icon.png` | `inn-icon` |
 | Town/service mine UI icon | `assets/ui/mine-icon.png` | `mine-icon` |
 | Town/service overworld UI icon | `assets/ui/overworld-icon.png` | `overworld-icon` (distinct from `town-overworld`) |
+| Overworld hover firefly orb prototype | `assets/ui/overworld-hover-firefly.svg` | not wired |
 | Overworld inventory layout frame | `assets/ui/Inventory.png` | `inventory-ui-layout` |
 | Rusty Sword item icon | `assets/items/common-sword.png` | `common-sword` |
 | Common armor item icon | `assets/items/common-armor.png` | `common-armor` |
@@ -183,9 +190,11 @@ For single-frame item icons like the `Avoid Death Potion`, use `load.image()` in
 
 Most Sorceress / Isabella item visuals still live in `src/data/itemVisuals.js` as `preload: false` placeholder entries until bespoke art exists. The first approved bespoke batch, `unique-pyre-staff`, `unique-phoenix-robe`, and `unique-cinder-orb`, is now wired as real preloaded item art with dedicated hover sheets. Shared item UI surfaces still fall back to placeholder icon containers for the remaining placeholder-only entries instead of silently rendering nothing.
 
-The overworld location icons listed above are now preloaded and used by `OverworldScene.js` for town plus Act 1 destinations. Any destination without a matching icon texture, such as the current Act 2 levels, still falls back to the rectangle-node UI.
+Only `town-overworld` is now preloaded and rendered in `OverworldScene.js`. The level and castle overworld icon files remain on disk as reference art, but the act 1 map now uses invisible hotspots from `assets/overworld/overworld-hotspots-800x600.json` instead of drawing those icon sprites on top of the background.
 
-The overworld scene now uses `assets/ui/overworld.png` as its static map background. The animated overworld background sheet remains available on disk but is not wired.
+The overworld scene now uses `assets/overworld/overworld-bg-800x600-hotspots.png` as its static map background. The animated overworld background sheet remains available on disk but is not wired.
+
+Hovered act 1 hotspots currently remain invisible and only show their tooltip while hovered. The old orbiting `overworld-hover-firefly` follower idea is preserved only as an unwired reference for future polish work.
 
 The top and bottom overworld utility controls now use dedicated UI icon sprites with hover tooltips instead of rectangle buttons with always-visible text labels.
 

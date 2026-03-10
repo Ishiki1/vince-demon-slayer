@@ -27,7 +27,13 @@ class LootScene extends Phaser.Scene {
       ? getLevelBackgroundTextureKey(GAME_STATE.currentLevelId)
       : null;
 
-    if (levelBackgroundKey && typeof addSceneBackground === 'function' && this.textures.exists(levelBackgroundKey)) {
+    const lootBackgroundKey = 'lootscene-ui-background';
+    const hasDedicatedLootBackground = typeof addSceneBackground === 'function'
+      && !!addSceneBackground(this, lootBackgroundKey, { width: w, height: h, depth: -30 });
+
+    if (hasDedicatedLootBackground) {
+      this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.18).setDepth(-25);
+    } else if (levelBackgroundKey && typeof addSceneBackground === 'function' && this.textures.exists(levelBackgroundKey)) {
       addSceneBackground(this, levelBackgroundKey, { width: w, height: h, depth: -30 });
       this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.32).setDepth(-25);
     } else {

@@ -115,21 +115,60 @@ class MenuScene extends Phaser.Scene {
     const hasArt = !!(typeof addSceneBackground === 'function' && addSceneBackground(this, 'startgame-ui-background'));
     if (!hasArt) {
       this.add.rectangle(w / 2, h / 2, w, h, 0x1a1a2e);
-    } else {
-      this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.28);
-      this.add.rectangle(w / 2, h / 2 + 38, 340, 210, 0x0f172a, 0.56).setStrokeStyle(2, 0x94a3b8, 0.35);
     }
 
-    this.add.text(w / 2, h / 2 - 68, 'Vince the Demon Slayer', {
-      fontSize: 42,
+    this.add.text(w / 2, hasArt ? 70 : (h / 2 - 68), 'Vince the Demon Slayer', {
+      fontSize: hasArt ? 38 : 42,
       color: '#fbbf24',
       stroke: '#0f172a',
       strokeThickness: 6,
     }).setOrigin(0.5);
 
-    const newGameBtn = this.add.rectangle(w / 2, h / 2 + 30, 220, 52, 0x4ade80);
+    const openSettings = () => this.scene.start('Settings', { from: 'Menu' });
+    if (hasArt) {
+      const menuButtons = [
+        { action: 'load', x: 400, y: 197, width: 246, height: 78 },
+        { action: 'newGame', x: 400, y: 293, width: 286, height: 82 },
+        { action: 'settings', x: 400, y: 407, width: 266, height: 82 },
+      ];
+
+      const handleMenuAction = (action) => {
+        if (action === 'load') {
+          this.tryLoadExistingGame(h - 34);
+          return;
+        }
+        if (action === 'newGame') {
+          if (typeof hasSave === 'function' && hasSave()) {
+            this.showExistingSaveWarning();
+            return;
+          }
+          this.startFreshGame();
+          return;
+        }
+        openSettings();
+      };
+
+      menuButtons.forEach((button) => {
+        const hitArea = this.add.rectangle(button.x, button.y, button.width, button.height, 0x000000, 0.001).setDepth(10);
+        hitArea.setInteractive({ useHandCursor: true });
+        hitArea.on('pointerdown', () => handleMenuAction(button.action));
+      });
+      return;
+    }
+
+    const loadY = h / 2 + 30;
+    const newGameY = h / 2 + 95;
+    const settingsY = h / 2 + 160;
+    const canLoad = typeof hasSave === 'function' && hasSave();
+
+    const loadBtn = this.add.rectangle(w / 2, loadY, 220, 52, canLoad ? 0x0ea5e9 : 0x475569);
+    loadBtn.setInteractive({ useHandCursor: true });
+    const loadText = this.add.text(w / 2, loadY, 'Load Game', { fontSize: 22, color: canLoad ? '#fff' : '#94a3b8' }).setOrigin(0.5);
+    loadBtn.on('pointerdown', () => this.tryLoadExistingGame(settingsY + 52));
+
+    const newGameBtn = this.add.rectangle(w / 2, newGameY, 220, 52, 0x4ade80);
     newGameBtn.setInteractive({ useHandCursor: true });
-    this.add.text(w / 2, h / 2 + 30, 'Start New Game', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
+    this.add.text(w / 2, newGameY, 'Start New Game', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
     newGameBtn.on('pointerdown', () => {
       if (typeof hasSave === 'function' && hasSave()) {
         this.showExistingSaveWarning();
@@ -138,20 +177,9 @@ class MenuScene extends Phaser.Scene {
       this.startFreshGame();
     });
 
-    const settingsBtn = this.add.rectangle(w - 80, 40, 100, 36, 0x475569);
+    const settingsBtn = this.add.rectangle(w / 2, settingsY, 180, 48, 0x475569);
     settingsBtn.setInteractive({ useHandCursor: true });
-    this.add.text(w - 80, 40, 'Settings', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
-    settingsBtn.on('pointerdown', () => this.scene.start('Settings', { from: 'Menu' }));
-
-    const canLoad = typeof hasSave === 'function' && hasSave();
-    const loadY = h / 2 + 95;
-    const loadBtn = this.add.rectangle(w / 2, loadY, 220, 52, canLoad ? 0x0ea5e9 : 0x475569);
-    loadBtn.setInteractive({ useHandCursor: canLoad });
-    const loadText = this.add.text(w / 2, loadY, 'Load Game', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
-    if (!canLoad) loadText.setColor('#94a3b8');
-    loadBtn.on('pointerdown', () => {
-      if (!canLoad) return;
-      this.tryLoadExistingGame(loadY + 40);
-    });
+    this.add.text(w / 2, settingsY, 'Settings', { fontSize: 20, color: '#fff' }).setOrigin(0.5);
+    settingsBtn.on('pointerdown', openSettings);
   }
 }

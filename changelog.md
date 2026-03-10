@@ -4,6 +4,274 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.34 – 2026-03-09
+
+**Date:** 2026-03-09  
+**Timestamp:** Fix imp idle boot warnings
+
+### Fixed
+- **Boot-time animation warnings:** The imp idle animation now derives its frame count from the loaded spritesheet instead of requesting non-existent frames `36-47`, which removes repeated Phaser console warnings during boot.
+
+### Technical
+- [src/scenes/BootScene.js](src/scenes/BootScene.js): Switched `imp_idle` animation creation from a stale hardcoded frame total to the same texture-driven frame-count logic used by the other enemy sheets.
+
+---
+
+## Version 3.2.33 – 2026-03-09
+
+**Date:** 2026-03-09  
+**Timestamp:** Restore invisible overworld hotspots
+
+### Changed
+- **Overworld hotspot behavior:** Act 1 and town hotspots are fully invisible again at runtime while keeping the tooltip behavior on hover.
+- **Hover polish direction:** Removed the live orbiting firefly hover effect from runtime and kept that methodology only as saved reference material for future tuning.
+
+### Technical
+- [src/scenes/OverworldScene.js](src/scenes/OverworldScene.js), [src/scenes/BootScene.js](src/scenes/BootScene.js): Removed the runtime hover-orb wiring and preload, and restored invisible tooltip-only hotspot interaction.
+- [.cursor/skills/background-hotspotting/SKILL.md](.cursor/skills/background-hotspotting/SKILL.md), [.cursor/skills/background-hotspotting/reference.md](.cursor/skills/background-hotspotting/reference.md), [.cursor/skills/background-hotspotting/hover-fx-notes.md](.cursor/skills/background-hotspotting/hover-fx-notes.md): Updated the hotspotting skill so invisible hotspots are the default runtime rule and saved the orbiting follower methodology as future reference.
+- [spritework.md](spritework.md): Updated the overworld runtime notes to reflect invisible hotspots and the unwired firefly prototype asset.
+
+---
+
+## Version 3.2.32 – 2026-03-09
+
+**Date:** 2026-03-09  
+**Timestamp:** Add orbiting overworld hover firefly
+
+### Changed
+- **Overworld hover feedback:** Hovering town and act 1 travel hotspots now shows the existing hotspot outline and tooltip plus a slow orbiting firefly/light orb around the hovered bounds for clearer visual targeting.
+
+### Technical
+- [src/scenes/OverworldScene.js](src/scenes/OverworldScene.js): Added a path-based hover FX controller that builds a rectangular orbit around hotspot bounds, spawns a hovering firefly follower on pointerover, and falls back to a graphics glow dot when the hover texture is unavailable.
+- [src/scenes/BootScene.js](src/scenes/BootScene.js), [assets/ui/overworld-hover-firefly.svg](assets/ui/overworld-hover-firefly.svg): Added the dedicated hover orb asset preload for the overworld hotspot effect.
+- [spritework.md](spritework.md): Documented the new overworld hover asset and runtime behavior.
+
+---
+
+## Version 3.2.31 – 2026-03-09
+
+**Date:** 2026-03-09  
+**Timestamp:** Wire hotspot-driven overworld travel
+
+### Changed
+- **Overworld travel:** The game now uses the approved overworld hotspot manifest for act 1 travel, so the painted structures themselves are clickable and the old overlaid level/castle sprite nodes are no longer rendered on top of the map.
+- **Overworld presentation:** The overworld now uses the approved `overworld-bg-800x600-hotspots.png` composite as its runtime background while keeping the town sprite overlay and the existing UI icon controls.
+
+### Technical
+- [src/scenes/OverworldScene.js](src/scenes/OverworldScene.js): Replaced the act 1 level-icon rendering path with invisible hotspot hit areas driven by the manifest, preserved town as a sprite-bound hotspot, and kept rectangle-node fallback behavior for levels without hotspot data.
+- [src/scenes/BootScene.js](src/scenes/BootScene.js): Switched the overworld background preload to the approved hotspot composite, loaded the hotspot manifest JSON, and removed the old act 1 level/castle overworld icon preloads while keeping the town and UI sprite assets.
+- [spritework.md](spritework.md): Updated the overworld asset/runtime documentation to match the new hotspot-driven map behavior.
+
+---
+
+## Version 3.2.30 – 2026-03-09
+
+**Date:** 2026-03-09  
+**Timestamp:** Apply requested overworld hotspot box adjustments
+
+### Changed
+- **Overworld hotspot proof:** Applied the latest review deltas for `level3`, `level4`, `level6`, `level7`, `level8`, `level9`, and `level10`, while leaving `level1`, `level2`, and `level5` unchanged.
+
+### Technical
+- [assets/overworld/overworld-hotspots-800x600.json](assets/overworld/overworld-hotspots-800x600.json), [assets/overworld/overworld-hotspots-800x600-skill-pass.json](assets/overworld/overworld-hotspots-800x600-skill-pass.json): Updated both manifests with the latest box geometry and re-derived center points.
+- [assets/overworld/overworld-hotspots-800x600-approval.svg](assets/overworld/overworld-hotspots-800x600-approval.svg), [assets/overworld/overworld-hotspots-800x600-approval-minimal.svg](assets/overworld/overworld-hotspots-800x600-approval-minimal.svg), [assets/overworld/overworld-hotspots-800x600-skill-pass-approval.svg](assets/overworld/overworld-hotspots-800x600-skill-pass-approval.svg), [assets/overworld/overworld-hotspots-800x600-skill-pass-approval-minimal.svg](assets/overworld/overworld-hotspots-800x600-skill-pass-approval-minimal.svg): Regenerated the proof artifacts after the manual box adjustments.
+
+---
+
+## Version 3.2.29 – 2026-03-09
+
+**Date:** 2026-03-09  
+**Timestamp:** Consolidate background hotspot workflow
+
+### Added
+- **Unified hotspotting skill:** Added a single project skill, `background-hotspotting`, that now covers measurement, runtime normalization, matcher hints, manifest validation, and proof rendering for background-driven click areas.
+- **Workflow guardrails:** Added dedicated image-dimension and hotspot-manifest validation utilities so proof runs fail fast when the source raster size or stored hotspot centers are inconsistent.
+- **Fresh skill-pass artifacts:** Re-ran the full hotspot workflow from scratch against `overworld-bg-800x600-hotspots.png`, producing a new normalized background wrapper, matcher output, skill-pass manifest, and approval proofs.
+
+### Changed
+- **Skill organization:** `re-size-image` and `pixel-grid` now act as redirect stubs to the unified `background-hotspotting` workflow instead of maintaining overlapping instructions.
+- **Hotspot data consistency:** Corrected a few stored hotspot center values so both the canonical manifest and the new skill-pass manifest validate cleanly.
+
+### Technical
+- [.cursor/skills/background-hotspotting/SKILL.md](.cursor/skills/background-hotspotting/SKILL.md), [.cursor/skills/background-hotspotting/reference.md](.cursor/skills/background-hotspotting/reference.md): Added the consolidated workflow skill plus a reference for manifest shape, artifact naming, and failure modes.
+- [.cursor/skills/re-size-image/SKILL.md](.cursor/skills/re-size-image/SKILL.md), [.cursor/skills/pixel-grid/SKILL.md](.cursor/skills/pixel-grid/SKILL.md): Replaced the old split workflow docs with redirect stubs to the unified skill.
+- [scripts/measure_image_dimensions.mjs](scripts/measure_image_dimensions.mjs), [scripts/validate_hotspot_manifest.py](scripts/validate_hotspot_manifest.py), [scripts/suggest_overworld_matches.mjs](scripts/suggest_overworld_matches.mjs): Added explicit source-dimension measurement, manifest validation, and config-driven matcher execution.
+- [assets/overworld/overworld-hotspots-800x600-matcher-config.json](assets/overworld/overworld-hotspots-800x600-matcher-config.json), [assets/overworld/overworld-hotspots-800x600-skill-pass-suggestions.json](assets/overworld/overworld-hotspots-800x600-skill-pass-suggestions.json), [assets/overworld/overworld-hotspots-800x600-skill-pass.json](assets/overworld/overworld-hotspots-800x600-skill-pass.json), [assets/overworld/overworld-hotspots-800x600-skill-pass-approval.svg](assets/overworld/overworld-hotspots-800x600-skill-pass-approval.svg), [assets/overworld/overworld-hotspots-800x600-skill-pass-approval-minimal.svg](assets/overworld/overworld-hotspots-800x600-skill-pass-approval-minimal.svg), [assets/overworld/overworld-bg-800x600-hotspots-runtime-800x600.svg](assets/overworld/overworld-bg-800x600-hotspots-runtime-800x600.svg): Added the consolidated skill-pass artifact set generated from the rerun.
+- [assets/overworld/overworld-hotspots-800x600.json](assets/overworld/overworld-hotspots-800x600.json), [assets/overworld/overworld-hotspots-800x600-approval.svg](assets/overworld/overworld-hotspots-800x600-approval.svg), [assets/overworld/overworld-hotspots-800x600-approval-minimal.svg](assets/overworld/overworld-hotspots-800x600-approval-minimal.svg): Refreshed the canonical manifest/proofs so they match the validator-clean center values.
+
+---
+
+## Version 3.2.28 – 2026-03-09
+
+**Date:** 2026-03-09  
+**Timestamp:** Tighten overworld silhouette hotspot bounds
+
+### Changed
+- **Overworld hotspot proof:** Re-measured the disputed overworld destinations against clean grid crops and tightened `level4`, `level5`, `level6`, `level7`, `level9`, and `level10` to the painted outer silhouettes instead of the previous interior-biased matches.
+- **Approval review:** Added a lower-clutter proof variant so hotspot boxes can be reviewed without the large text panels covering the art.
+
+### Technical
+- [assets/overworld/overworld-hotspots-800x600.json](assets/overworld/overworld-hotspots-800x600.json), [assets/overworld/overworld-hotspots-800x600-approval.svg](assets/overworld/overworld-hotspots-800x600-approval.svg), [assets/overworld/overworld-hotspots-800x600-approval-minimal.svg](assets/overworld/overworld-hotspots-800x600-approval-minimal.svg): Updated the hotspot bounds and regenerated both the full and minimal-label approval proofs.
+- [scripts/overworld_hotspot_proof.py](scripts/overworld_hotspot_proof.py), [scripts/suggest_overworld_matches.mjs](scripts/suggest_overworld_matches.mjs): Added a minimal-label proof mode and a sprite-to-background matching helper to support the new silhouette review workflow.
+- [.cursor/skills/pixel-grid/SKILL.md](.cursor/skills/pixel-grid/SKILL.md): Captured the new learnings about inner-detail false positives and the need to validate against outer painted silhouettes.
+
+---
+
+## Version 3.2.27 – 2026-03-09
+
+**Date:** 2026-03-09  
+**Timestamp:** Refine overworld hotspot proof coordinates
+
+### Changed
+- **Overworld hotspot proof:** Updated the review manifest/proof again so `level8`, `level4`, `level3`, and `level6` match the latest visual feedback more closely while keeping town as a sprite-bounds hotbox.
+
+### Technical
+- [assets/overworld/overworld-hotspots-800x600.json](assets/overworld/overworld-hotspots-800x600.json), [assets/overworld/overworld-hotspots-800x600-approval.svg](assets/overworld/overworld-hotspots-800x600-approval.svg): Applied the requested coordinate shifts and box stretches, then regenerated the approval proof.
+
+---
+
+## Version 3.2.26 – 2026-03-09
+
+**Date:** 2026-03-09  
+**Timestamp:** Split resize and pixel-grid hotspot workflow
+
+### Added
+- **Reusable proof skills:** Added project skills for image normalization and pixel-grid hotspot proofing so the overworld review workflow can be reused on future UI/background alignment tasks.
+
+### Changed
+- **Overworld hotspot proof:** Updated the approval proof to treat town as a sprite-bounds hotbox instead of a separate rectangle, applied the requested shifts for `level1`, `level2`, and `level3`, and corrected the castle mapping to the top-left fortress by matching the wired sprite silhouette instead of the distant background castle.
+
+### Technical
+- [scripts/resize_image_svg.py](scripts/resize_image_svg.py), [assets/overworld/overworld-bg-800x600-normalized.svg](assets/overworld/overworld-bg-800x600-normalized.svg): Added a dependency-free normalization step that records the runtime `800x600` canvas explicitly.
+- [scripts/overworld_hotspot_proof.py](scripts/overworld_hotspot_proof.py), [assets/overworld/overworld-hotspots-800x600.json](assets/overworld/overworld-hotspots-800x600.json), [assets/overworld/overworld-hotspots-800x600-approval.svg](assets/overworld/overworld-hotspots-800x600-approval.svg): Updated the manifest/proof generator for sprite-only overlay hotboxes and the corrected hotspot coordinates.
+- [.cursor/skills/pixel-grid/SKILL.md](.cursor/skills/pixel-grid/SKILL.md), [.cursor/skills/re-size-image/SKILL.md](.cursor/skills/re-size-image/SKILL.md): Captured the reusable workflow and the main alignment learnings so future hotspot proofing starts from the right coordinate system and sprite identity.
+
+---
+
+## Version 3.2.25 – 2026-03-09
+
+**Date:** 2026-03-09  
+**Timestamp:** Add overworld hotspot proof workflow
+
+### Added
+- **Overworld hotspot approval workflow:** Added a reusable manifest plus proof generator for mapping the renumbered overworld route onto the current composite map art, including a bottom-left town sprite overlay and exact hotspot coordinates for approval.
+
+### Technical
+- [scripts/overworld_hotspot_proof.py](scripts/overworld_hotspot_proof.py): Adds a stdlib-only Python proof generator that renders a self-contained SVG with a pixel grid, hotspot rectangles, center marks, and coordinate callouts.
+- [assets/overworld/overworld-hotspots-800x600.json](assets/overworld/overworld-hotspots-800x600.json), [assets/overworld/overworld-hotspots-800x600-approval.svg](assets/overworld/overworld-hotspots-800x600-approval.svg): Stores the renumbered hotspot manifest and the current approval proof built from it.
+
+---
+
+## Version 3.2.24 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Clean level 2 overworld icon fringe
+
+### Fixed
+- **Overworld icon cleanup:** Removed the stray green edge fringe from `level2-overworld.png` so the level 2 map icon now matches the cleaner transparent-background treatment used by the neighboring overworld destination icons.
+
+### Technical
+- [assets/overworld/level2-overworld.png](assets/overworld/level2-overworld.png): Applied a targeted green-fringe cleanup pass in place without changing the icon's existing `256x256` canvas or overall centering.
+
+---
+
+## Version 3.2.23 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Clean level 4 overworld icon matte
+
+### Fixed
+- **Overworld icon cleanup:** Removed the bright green matte and leftover fringe from `level4-overworld.png` so the level 4 map icon now matches the transparent-background treatment used by the neighboring overworld destination icons.
+
+### Technical
+- [assets/overworld/level4-overworld.png](assets/overworld/level4-overworld.png): Reprocessed the icon onto a centered `512x512` transparent canvas using the repo cleanup workflow plus a final targeted green-pixel cleanup pass.
+
+---
+
+## Version 3.2.22 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Switch menu to painted background hotspots
+
+### Changed
+- **Main menu presentation:** The start screen now uses the new `startgame-bg.png` artwork as a full painted landing menu, with invisible hotspots over the built-in `Load Game`, `Start New Game`, and `Settings` buttons instead of overlaying separate button sprites.
+
+### Technical
+- [src/scenes/BootScene.js](src/scenes/BootScene.js), [src/scenes/MenuScene.js](src/scenes/MenuScene.js): Repointed the menu background preload to `assets/overworld/startgame-bg.png`, removed the menu-specific plaque sprite workflow, and aligned invisible click areas over the painted buttons while preserving the existing scene actions and fallback layout.
+- [spritework.md](spritework.md): Updated the menu documentation to describe the art-first hotspot workflow and the new start-screen background asset entry.
+
+---
+
+## Version 3.2.23 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Clean level 4 overworld icon transparency
+
+### Fixed
+- **Level 4 overworld icon cleanup:** `assets/overworld/level4-overworld.png` now uses a transparent background with the bright green matte removed and the remaining green edge contamination cleaned to match the neighboring overworld icon quality more closely.
+
+### Technical
+- [assets/overworld/level4-overworld.png](assets/overworld/level4-overworld.png): Reprocessed the icon through the repo's background-removal pipeline, repacked it onto a centered `512x512` transparent canvas, and overwrote the original asset with the cleaned result.
+
+---
+
+## Version 3.2.21 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Add matching menu load and new game buttons
+
+### Changed
+- **Main menu presentation:** `Load Game`, `Start New Game`, and `Settings` now share the same ornate start-screen button style, with distinct center emblems and hover tooltips instead of the older rectangle buttons for the first two actions.
+
+### Technical
+- [assets/ui/menu-load-button.png](assets/ui/menu-load-button.png), [assets/ui/menu-new-game-button.png](assets/ui/menu-new-game-button.png): Added button variants derived from the approved menu settings plaque, replacing only the center emblem with load and play symbols.
+- [src/scenes/BootScene.js](src/scenes/BootScene.js), [src/scenes/MenuScene.js](src/scenes/MenuScene.js): Preloaded the new menu button textures and switched the start screen to an art-first vertical button stack with tooltip-driven labels and disabled-state handling for `Load Game`.
+- [spritework.md](spritework.md): Documented the full start-screen button set and texture keys.
+
+---
+
+## Version 3.2.20 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Add dedicated menu settings button art
+
+### Changed
+- **Main menu controls:** The start screen now uses a dedicated themed settings button below `Load Game` and `Start New Game`, replacing the old top-right settings icon.
+
+### Technical
+- [assets/ui/menu-settings-button.png](assets/ui/menu-settings-button.png): Cleaned the approved settings-button proof into a transparent wide button asset for the start screen.
+- [src/scenes/BootScene.js](src/scenes/BootScene.js), [src/scenes/MenuScene.js](src/scenes/MenuScene.js): Preloaded the new menu settings texture and wired it as the interactive start-screen settings button with the shared hover tooltip behavior.
+- [spritework.md](spritework.md): Documented the new menu settings button asset and texture key.
+
+---
+
+## Version 3.2.19 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Replace menu settings text button with icon
+
+### Changed
+- **Main menu controls:** The start screen now uses the shared `settings-icon` sprite button in the top-right corner instead of the old rectangular text button.
+
+### Technical
+- [src/scenes/MenuScene.js](src/scenes/MenuScene.js): Replaced the menu's custom `Settings` rectangle/text control with the shared `createUiIconButton` flow wired to the preloaded `settings-icon`, while keeping the old button as a safe fallback.
+
+---
+
+## Version 3.2.18 – 2026-03-08
+
+**Date:** 2026-03-08  
+**Timestamp:** Add dedicated loot scene background art
+
+### Changed
+- **Loot presentation:** The loot screen now uses the dedicated `LootScene-bg.png` artwork as its main background instead of reusing the current level backdrop whenever the new texture is available.
+
+### Technical
+- [src/scenes/BootScene.js](src/scenes/BootScene.js), [src/scenes/LootScene.js](src/scenes/LootScene.js): Preloaded the dedicated loot-scene texture and made `LootScene` prefer it before falling back to the older level-background path.
+- [spritework.md](spritework.md): Documented the new loot-scene background asset and texture key.
+
+---
+
 ## Version 3.2.17 – 2026-03-08
 
 **Date:** 2026-03-08  

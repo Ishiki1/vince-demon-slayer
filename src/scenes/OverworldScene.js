@@ -8,13 +8,11 @@ class OverworldScene extends Phaser.Scene {
     super({ key: 'Overworld' });
   }
 
-  getLevelOverworldTextureKey(level) {
-    if (!level || !level.id) return null;
-    if (level.id === 'level10') return 'castle-overworld';
-    const match = /^level(\d+)$/.exec(level.id);
-    if (!match) return null;
-    const levelNumber = Number(match[1]);
-    return levelNumber >= 1 && levelNumber <= 9 ? `level${levelNumber}-overworld` : null;
+  getOverworldHotspotManifest() {
+    if (!this.cache || !this.cache.json) return null;
+    const manifest = this.cache.json.get('overworld-hotspots');
+    if (!manifest || !Array.isArray(manifest.hotspots)) return null;
+    return manifest;
   }
 
   getLevelNodePosition(level, index) {
@@ -74,6 +72,40 @@ class OverworldScene extends Phaser.Scene {
     }
   }
 
+  clearHotspotHoverState(interactive) {
+    if (interactive && this.activeHoverTarget !== interactive) return;
+    this.activeHoverTarget = null;
+    this.hideTooltip();
+  }
+
+  createHoverableHotspot(rect, tooltip, onClick, options) {
+    const interactive = this.add.rectangle(
+      rect.x + rect.width / 2,
+      rect.y + rect.height / 2,
+      rect.width,
+      rect.height,
+      0x000000,
+      0
+    );
+    const tooltipX = rect.x + rect.width / 2;
+    const tooltipY = rect.y > 30 ? rect.y - 14 : rect.y + rect.height + 18;
+    interactive.setInteractive({ useHandCursor: !!onClick });
+    interactive.on('pointerover', () => {
+      this.activeHoverTarget = interactive;
+      this.showTooltip(tooltip, tooltipX, tooltipY);
+    });
+    interactive.on('pointerout', () => {
+      this.clearHotspotHoverState(interactive);
+    });
+    if (onClick) {
+      interactive.on('pointerdown', () => {
+        this.clearHotspotHoverState(interactive);
+        onClick();
+      });
+    }
+    return interactive;
+  }
+
   createUiIconButton(x, y, textureKey, tooltip, onClick, options) {
     const size = options && options.size ? options.size : 50;
     const hoverSize = options && options.hoverSize ? options.hoverSize : size + 4;
@@ -118,56 +150,55 @@ class OverworldScene extends Phaser.Scene {
     hitArea.on('pointerout', () => icon.setDisplaySize(baseIconSize, baseIconSize));
   }
 
-  createLevelNode(level, x, y, unlocked) {
-    const textureKey = this.getLevelOverworldTextureKey(level);
-    const hasIcon = textureKey && this.textures.exists(textureKey);
-    if (!hasIcon) {
-      const color = unlocked ? 0x4ade80 : 0x64748b;
-      const box = this.add.rectangle(x, y, 120, 64, color);
-      this.add.text(x, y - 8, level.name, { fontSize: 14, color: '#fff' }).setOrigin(0.5);
-      this.add.text(x, y + 14, unlocked ? 'Click to enter' : 'Locked', {
-        fontSize: 11,
-        color: unlocked ? '#e5e7eb' : '#94a3b8',
-      }).setOrigin(0.5);
-      if (unlocked) {
-        box.setInteractive({ useHandCursor: true });
-        box.on('pointerdown', () => this.handleLevelClick(level));
-      }
-      return;
+  createTownHotspot(overlay) {
+    if (!overlay || !overlay.spriteRect || !this.textures.exists(overlay.textureKey || 'town-overworld')) {
+      return false;
     }
+    const spriteRect = overlay.spriteRect;
+    const hotspotRect = overlay.hotspot || spriteRect;
+    const textureKey = overlay.textureKey || 'town-overworld';
+    const centerX = spriteRect.x + spriteRect.width / 2;
+    const centerY = spriteRect.y + spriteRect.height / 2;
+    const icon = this.add.image(centerX, centerY, textureKey)
+      .setDisplaySize(spriteRect.width, spriteRect.height)
+      .setDepth(2);
+    const hoverWidth = spriteRect.width + 6;
+    const hoverHeight = spriteRect.height + 6;
+    const hitArea = this.createHoverableHotspot(
+      hotspotRect,
+      'Town',
+      () => this.scene.start('Town')
+    );
+    hitArea.on('pointerover', () => icon.setDisplaySize(hoverWidth, hoverHeight));
+    hitArea.on('pointerout', () => icon.setDisplaySize(spriteRect.width, spriteRect.height));
+    return true;
+  }
 
-    const customNodeSizes = {
-      level5: 216,
-      level6: 216,
-      level10: 144,
-    };
-    const baseIconSize = (level && customNodeSizes[level.id]) || 108;
-    const hoverIconSize = baseIconSize + 6;
-    const hitArea = this.add.rectangle(x, y, baseIconSize + 20, baseIconSize + 20, 0x0f172a, 0.001);
-    const icon = this.add.image(x, y - 4, textureKey).setDisplaySize(baseIconSize, baseIconSize);
-    icon.setAlpha(unlocked ? 1 : 0.35);
-    const customLabelOffsets = {
-      level5: 62,
-      level6: 62,
-    };
-    const labelOffset = (level && customLabelOffsets[level.id]) || (Math.round(baseIconSize / 2) + 6);
-    const subOffset = labelOffset + 15;
-    const label = this.add.text(x, y + labelOffset, level.name, { fontSize: 13, color: '#fff' }).setOrigin(0.5);
-    const sub = this.add.text(x, y + subOffset, unlocked ? 'Click to enter' : 'Locked', {
-      fontSize: 10,
+  getLevelHotspot(manifest, levelId) {
+    if (!manifest || !Array.isArray(manifest.hotspots)) return null;
+    return manifest.hotspots.find((hotspot) => hotspot.id === levelId) || null;
+  }
+
+  createManifestLevelHotspot(level, hotspot, unlocked) {
+    const tooltip = unlocked ? level.name : `${level.name} (Locked)`;
+    return this.createHoverableHotspot(
+      hotspot,
+      tooltip,
+      unlocked ? () => this.handleLevelClick(level) : null
+    );
+  }
+
+  createLevelNode(level, x, y, unlocked) {
+    const color = unlocked ? 0x4ade80 : 0x64748b;
+    const box = this.add.rectangle(x, y, 120, 64, color, 0.9).setStrokeStyle(2, 0x0f172a, 0.5);
+    this.add.text(x, y - 8, level.name, { fontSize: 14, color: '#fff' }).setOrigin(0.5);
+    this.add.text(x, y + 14, unlocked ? 'Click to enter' : 'Locked', {
+      fontSize: 11,
       color: unlocked ? '#e5e7eb' : '#94a3b8',
     }).setOrigin(0.5);
-
     if (unlocked) {
-      hitArea.setInteractive({ useHandCursor: true });
-      hitArea.on('pointerdown', () => this.handleLevelClick(level));
-      icon.setInteractive({ useHandCursor: true });
-      icon.on('pointerdown', () => this.handleLevelClick(level));
-      icon.on('pointerover', () => icon.setDisplaySize(hoverIconSize, hoverIconSize));
-      icon.on('pointerout', () => icon.setDisplaySize(baseIconSize, baseIconSize));
-    } else {
-      label.setAlpha(0.85);
-      sub.setAlpha(0.9);
+      box.setInteractive({ useHandCursor: true });
+      box.on('pointerdown', () => this.handleLevelClick(level));
     }
   }
 
@@ -194,6 +225,7 @@ class OverworldScene extends Phaser.Scene {
     const hero = GAME_STATE.hero;
     this.tooltipBg = null;
     this.tooltipText = null;
+    this.activeHoverTarget = null;
 
     if (this.textures.exists('overworld-ui-background')) {
       this.add.image(w / 2, h / 2, 'overworld-ui-background')
@@ -206,7 +238,10 @@ class OverworldScene extends Phaser.Scene {
     this.add.text(w / 2, 84, 'Day: ' + (GAME_STATE.day || 1), { fontSize: 16, color: '#e5e7eb' }).setOrigin(0.5);
 
     const btnY = h - 70;
-    this.createTownMapButton(82, btnY);
+    const manifest = this.getOverworldHotspotManifest();
+    if (!this.createTownHotspot(manifest && manifest.townOverlay)) {
+      this.createTownMapButton(82, btnY);
+    }
 
     const uiIconSpacing = 72;
     const topRightRightX = w - 72;
@@ -247,8 +282,13 @@ class OverworldScene extends Phaser.Scene {
 
     const levelsToShow = GAME_STATE.act === 2 ? LEVELS_ACT2 : LEVELS_ACT1;
     levelsToShow.forEach((level, i) => {
-      const { x, y } = this.getLevelNodePosition(level, i);
       const unlocked = GAME_STATE.unlockedLevels.includes(level.id);
+      const hotspot = this.getLevelHotspot(manifest, level.id);
+      if (hotspot) {
+        this.createManifestLevelHotspot(level, hotspot, unlocked);
+        return;
+      }
+      const { x, y } = this.getLevelNodePosition(level, i);
       this.createLevelNode(level, x, y, unlocked);
     });
 
@@ -266,6 +306,7 @@ class OverworldScene extends Phaser.Scene {
   }
 
   shutdown() {
+    this.clearHotspotHoverState();
     this.hideTooltip();
   }
 

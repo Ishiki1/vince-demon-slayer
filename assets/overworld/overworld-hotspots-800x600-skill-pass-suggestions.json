@@ -1,0 +1,224 @@
+{
+  "config": "C:\\GameCraft\\Vince\\assets\\overworld\\overworld-hotspots-800x600-matcher-config.json",
+  "background": "assets/overworld/overworld-bg-800x600-hotspots.png",
+  "sourceCanvas": [
+    900,
+    600
+  ],
+  "targetCanvas": [
+    800,
+    600
+  ],
+  "results": [
+    {
+      "id": "level1",
+      "sprite": "assets/overworld/level6-overworld.png",
+      "textureKey": "level6-overworld",
+      "bgReference": "level1-bg.png",
+      "routeHint": "Bottom-center barred gate.",
+      "score": 0.741804369794937,
+      "sourceRect": {
+        "x": 554,
+        "y": 488,
+        "width": 79,
+        "height": 73
+      },
+      "x": 492,
+      "y": 488,
+      "width": 70,
+      "height": 73,
+      "centerX": 528,
+      "centerY": 525,
+      "scale": 0.38
+    },
+    {
+      "id": "level2",
+      "sprite": "assets/overworld/level7-overworld.png",
+      "textureKey": "level7-overworld",
+      "bgReference": "level2-bg.png",
+      "routeHint": "Lower-middle blue crypt.",
+      "score": 0.7582237544311752,
+      "sourceRect": {
+        "x": 518,
+        "y": 474,
+        "width": 67,
+        "height": 70
+      },
+      "x": 460,
+      "y": 474,
+      "width": 60,
+      "height": 70,
+      "centerX": 490,
+      "centerY": 509,
+      "scale": 0.3
+    },
+    {
+      "id": "level3",
+      "sprite": "assets/overworld/level5-overworld.png",
+      "textureKey": "level5-overworld",
+      "bgReference": "level3-bg.png",
+      "routeHint": "Lower-right winged red temple.",
+      "score": 0.7670113156830048,
+      "sourceRect": {
+        "x": 638,
+        "y": 312,
+        "width": 72,
+        "height": 63
+      },
+      "x": 567,
+      "y": 312,
+      "width": 64,
+      "height": 63,
+      "centerX": 599,
+      "centerY": 344,
+      "scale": 0.34
+    },
+    {
+      "id": "level4",
+      "sprite": "assets/overworld/level8-overworld.png",
+      "textureKey": "level8-overworld",
+      "bgReference": "level4-bg.png",
+      "routeHint": "Lower-left demon maw lava cave.",
+      "score": 0.7484528599387248,
+      "sourceRect": {
+        "x": 64,
+        "y": 308,
+        "width": 171,
+        "height": 167
+      },
+      "x": 57,
+      "y": 308,
+      "width": 152,
+      "height": 167,
+      "centerX": 133,
+      "centerY": 392,
+      "scale": 0.74
+    },
+    {
+      "id": "level5",
+      "sprite": "assets/overworld/level1-overworld.png",
+      "textureKey": "level1-overworld",
+      "bgReference": "level5-bg.png",
+      "routeHint": "Upper-left glowing green portal gate.",
+      "score": 0.7497187813868401,
+      "sourceRect": {
+        "x": 214,
+        "y": 184,
+        "width": 97,
+        "height": 72
+      },
+      "x": 190,
+      "y": 184,
+      "width": 86,
+      "height": 72,
+      "centerX": 233,
+      "centerY": 220,
+      "scale": 0.42
+    },
+    {
+      "id": "level6",
+      "sprite": "assets/overworld/level4-overworld.png",
+      "textureKey": "level4-overworld",
+      "bgReference": "level6-bg.png",
+      "routeHint": "Upper-left lava ruin ring.",
+      "score": 0.9222809628232482,
+      "sourceRect": {
+        "x": 38,
+        "y": 124,
+        "width": 129,
+        "height": 107
+      },
+      "x": 34,
+      "y": 124,
+      "width": 115,
+      "height": 107,
+      "centerX": 91,
+      "centerY": 178,
+      "scale": 0.58
+    },
+    {
+      "id": "level7",
+      "sprite": "assets/overworld/level3-overworld.png",
+      "textureKey": "level3-overworld",
+      "bgReference": "level7-bg.png",
+      "routeHint": "Upper-middle stone mausoleum.",
+      "score": 0.7489548395884221,
+      "sourceRect": {
+        "x": 364,
+        "y": 164,
+        "width": 56,
+        "height": 45
+      },
+      "x": 324,
+      "y": 164,
+      "width": 50,
+      "height": 45,
+      "centerX": 348,
+      "centerY": 187,
+      "scale": 0.24
+    },
+    {
+      "id": "level8",
+      "sprite": "assets/overworld/level2-overworld.png",
+      "textureKey": "level2-overworld",
+      "bgReference": "level8-bg.png",
+      "routeHint": "Center graveyard pit.",
+      "score": 0.905058494075001,
+      "sourceRect": {
+        "x": 498,
+        "y": 226,
+        "width": 134,
+        "height": 74
+      },
+      "x": 443,
+      "y": 226,
+      "width": 119,
+      "height": 74,
+      "centerX": 502,
+      "centerY": 263,
+      "scale": 0.58
+    },
+    {
+      "id": "level9",
+      "sprite": "assets/overworld/level9-overworld.png",
+      "textureKey": "level9-overworld",
+      "bgReference": "level9-bg.png",
+      "routeHint": "Upper-right throne/altar structure.",
+      "score": 0.7721125013190968,
+      "sourceRect": {
+        "x": 662,
+        "y": 82,
+        "width": 53,
+        "height": 60
+      },
+      "x": 588,
+      "y": 82,
+      "width": 47,
+      "height": 60,
+      "centerX": 612,
+      "centerY": 112,
+      "scale": 0.26
+    },
+    {
+      "id": "level10",
+      "sprite": "assets/overworld/castle-overworld.png",
+      "textureKey": "castle-overworld",
+      "bgReference": "level10-bg.png",
+      "routeHint": "Top-left fortress castle.",
+      "score": 0.7736854729829892,
+      "sourceRect": {
+        "x": 160,
+        "y": 6,
+        "width": 76,
+        "height": 79
+      },
+      "x": 142,
+      "y": 6,
+      "width": 68,
+      "height": 79,
+      "centerX": 176,
+      "centerY": 46,
+      "scale": 0.34
+    }
+  ]
+}

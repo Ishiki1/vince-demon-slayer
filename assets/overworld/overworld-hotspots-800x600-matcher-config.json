@@ -1,0 +1,98 @@
+{
+  "background": "assets/overworld/overworld-bg-800x600-hotspots.png",
+  "output": "assets/overworld/overworld-hotspots-800x600-skill-pass-suggestions.json",
+  "sourceCanvas": [900, 600],
+  "targetCanvas": [800, 600],
+  "matches": [
+    {
+      "id": "level1",
+      "sprite": "assets/overworld/level6-overworld.png",
+      "textureKey": "level6-overworld",
+      "bgReference": "level1-bg.png",
+      "routeHint": "Bottom-center barred gate.",
+      "search": { "x": 430, "y": 390, "width": 260, "height": 190 },
+      "scale": { "min": 0.38, "max": 0.82, "step": 0.02 }
+    },
+    {
+      "id": "level2",
+      "sprite": "assets/overworld/level7-overworld.png",
+      "textureKey": "level7-overworld",
+      "bgReference": "level2-bg.png",
+      "routeHint": "Lower-middle blue crypt.",
+      "search": { "x": 260, "y": 300, "width": 260, "height": 180 },
+      "scale": { "min": 0.28, "max": 0.62, "step": 0.02 }
+    },
+    {
+      "id": "level3",
+      "sprite": "assets/overworld/level5-overworld.png",
+      "textureKey": "level5-overworld",
+      "bgReference": "level3-bg.png",
+      "routeHint": "Lower-right winged red temple.",
+      "search": { "x": 530, "y": 240, "width": 220, "height": 190 },
+      "scale": { "min": 0.30, "max": 0.70, "step": 0.02 }
+    },
+    {
+      "id": "level4",
+      "sprite": "assets/overworld/level8-overworld.png",
+      "textureKey": "level8-overworld",
+      "bgReference": "level4-bg.png",
+      "routeHint": "Lower-left demon maw lava cave.",
+      "search": { "x": 0, "y": 230, "width": 270, "height": 250 },
+      "scale": { "min": 0.30, "max": 0.78, "step": 0.02 }
+    },
+    {
+      "id": "level5",
+      "sprite": "assets/overworld/level1-overworld.png",
+      "textureKey": "level1-overworld",
+      "bgReference": "level5-bg.png",
+      "routeHint": "Upper-left glowing green portal gate.",
+      "search": { "x": 110, "y": 110, "width": 240, "height": 170 },
+      "scale": { "min": 0.42, "max": 0.82, "step": 0.02 }
+    },
+    {
+      "id": "level6",
+      "sprite": "assets/overworld/level4-overworld.png",
+      "textureKey": "level4-overworld",
+      "bgReference": "level6-bg.png",
+      "routeHint": "Upper-left lava ruin ring.",
+      "search": { "x": 0, "y": 40, "width": 220, "height": 180 },
+      "scale": { "min": 0.22, "max": 0.60, "step": 0.02 }
+    },
+    {
+      "id": "level7",
+      "sprite": "assets/overworld/level3-overworld.png",
+      "textureKey": "level3-overworld",
+      "bgReference": "level7-bg.png",
+      "routeHint": "Upper-middle stone mausoleum.",
+      "search": { "x": 260, "y": 70, "width": 220, "height": 180 },
+      "scale": { "min": 0.24, "max": 0.58, "step": 0.02 }
+    },
+    {
+      "id": "level8",
+      "sprite": "assets/overworld/level2-overworld.png",
+      "textureKey": "level2-overworld",
+      "bgReference": "level8-bg.png",
+      "routeHint": "Center graveyard pit.",
+      "search": { "x": 430, "y": 180, "width": 200, "height": 170 },
+      "scale": { "min": 0.24, "max": 0.62, "step": 0.02 }
+    },
+    {
+      "id": "level9",
+      "sprite": "assets/overworld/level9-overworld.png",
+      "textureKey": "level9-overworld",
+      "bgReference": "level9-bg.png",
+      "routeHint": "Upper-right throne/altar structure.",
+      "search": { "x": 500, "y": 60, "width": 230, "height": 180 },
+      "scale": { "min": 0.24, "max": 0.58, "step": 0.02 }
+    },
+    {
+      "id": "level10",
+      "sprite": "assets/overworld/castle-overworld.png",
+      "textureKey": "castle-overworld",
+      "bgReference": "level10-bg.png",
+      "routeHint": "Top-left fortress castle.",
+      "search": { "x": 0, "y": 0, "width": 300, "height": 180 },
+      "scale": { "min": 0.28, "max": 0.72, "step": 0.02 }
+    }
+  ]
+}
