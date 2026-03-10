@@ -1,0 +1,36 @@
+{
+  "canvas": {
+    "width": 800,
+    "height": 600
+  },
+  "background": {
+    "path": "shop-with-buttons-bg.png",
+    "sourceWidth": 1536,
+    "sourceHeight": 1024,
+    "fit": "stretch-to-runtime"
+  },
+  "hotspots": [
+    {
+      "id": "sell",
+      "action": "sell",
+      "x": 110,
+      "y": 201,
+      "width": 193,
+      "height": 70,
+      "centerX": 206,
+      "centerY": 236,
+      "note": "Left painted Sell board only; shifted 30px lower per review and still excludes the supporting pole and the shopkeeper hand."
+    },
+    {
+      "id": "buy",
+      "action": "buy",
+      "x": 489,
+      "y": 206,
+      "width": 192,
+      "height": 64,
+      "centerX": 585,
+      "centerY": 238,
+      "note": "Right painted Buy board only; shifted 30px lower per review and still excludes the supporting pole and the shopkeeper hand."
+    }
+  ]
+}

@@ -8,48 +8,93 @@ class SettingsScene extends Phaser.Scene {
     super({ key: 'Settings' });
   }
 
+  getSettingsHotspotManifest() {
+    if (!this.cache || !this.cache.json) return null;
+    const manifest = this.cache.json.get('settingsscene-hotspots');
+    if (!manifest || !Array.isArray(manifest.hotspots)) return null;
+    return manifest;
+  }
+
+  getSettingsHotspot(hotspotId) {
+    const manifest = this.getSettingsHotspotManifest();
+    if (!manifest) return null;
+    return manifest.hotspots.find((hotspot) => hotspot.id === hotspotId) || null;
+  }
+
+  createSettingsHotspot(rect, onClick) {
+    if (!rect || typeof onClick !== 'function') return null;
+    const hotspot = this.add.rectangle(
+      rect.x + rect.width / 2,
+      rect.y + rect.height / 2,
+      rect.width,
+      rect.height,
+      0x000000,
+      0
+    );
+    hotspot.setInteractive({ useHandCursor: true });
+    hotspot.on('pointerdown', onClick);
+    return hotspot;
+  }
+
+  createFallbackBackButton(x, y, onClick) {
+    return createButton(this, x, y, 140, 48, 'Back', {
+      bgColor: 0x475569,
+      fontSize: 18,
+      textColor: '#fff',
+    }, onClick);
+  }
+
   create() {
     const w = CONFIG.WIDTH;
     const h = CONFIG.HEIGHT;
+    const controlsOffsetX = 100;
+    const controlsOffsetY = 100;
+    const titleOffsetX = 0;
+    const titleOffsetY = 100;
     const data = this.scene.settings.data || {};
     const from = data.from === 'Overworld' ? 'Overworld' : 'Menu';
     if (typeof applyAnimationSettings === 'function') applyAnimationSettings(this);
 
-    this.add.text(w / 2, 50, 'Settings', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
+    const hasSettingsBackground = typeof addSceneBackground === 'function'
+      && !!addSceneBackground(this, 'settingsscene-ui-background', { width: w, height: h, depth: -30 });
+    const backHotspot = hasSettingsBackground ? this.getSettingsHotspot('back') : null;
+    const goBack = () => this.scene.start(from);
+
+    this.add.text(w / 2 + titleOffsetX, 50 + titleOffsetY, 'Settings', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
 
     let musicVol = typeof getMusicVolume === 'function' ? getMusicVolume() : 0.7;
     let sfxVol = typeof getSfxVolume === 'function' ? getSfxVolume() : 0.8;
     const animationOptions = typeof getAnimationSpeedOptions === 'function' ? getAnimationSpeedOptions() : [1, 1.5, 2];
     let animationSpeed = typeof getAnimationSpeed === 'function' ? getAnimationSpeed() : 1;
 
-    const row1Y = 140;
-    this.add.text(120, row1Y, 'Music', { fontSize: 18, color: '#e5e7eb' }).setOrigin(0, 0.5);
-    const musicMinus = this.add.rectangle(280, row1Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
-    this.add.text(280, row1Y, '−', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
-    this.musicLabel = this.add.text(360, row1Y, Math.round(musicVol * 100) + '%', { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
-    const musicPlus = this.add.rectangle(440, row1Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
-    this.add.text(440, row1Y, '+', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
+    const row1Y = 140 + controlsOffsetY;
+    this.add.text(120 + controlsOffsetX, row1Y, 'Music', { fontSize: 18, color: '#e5e7eb' }).setOrigin(0, 0.5);
+    const musicMinus = this.add.rectangle(280 + controlsOffsetX, row1Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
+    this.add.text(280 + controlsOffsetX, row1Y, '−', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
+    this.musicLabel = this.add.text(360 + controlsOffsetX, row1Y, Math.round(musicVol * 100) + '%', { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
+    const musicPlus = this.add.rectangle(440 + controlsOffsetX, row1Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
+    this.add.text(440 + controlsOffsetX, row1Y, '+', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
 
-    const row2Y = 200;
-    this.add.text(120, row2Y, 'SFX', { fontSize: 18, color: '#e5e7eb' }).setOrigin(0, 0.5);
-    const sfxMinus = this.add.rectangle(280, row2Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
-    this.add.text(280, row2Y, '−', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
-    this.sfxLabel = this.add.text(360, row2Y, Math.round(sfxVol * 100) + '%', { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
-    const sfxPlus = this.add.rectangle(440, row2Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
-    this.add.text(440, row2Y, '+', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
+    const row2Y = 200 + controlsOffsetY;
+    this.add.text(120 + controlsOffsetX, row2Y, 'SFX', { fontSize: 18, color: '#e5e7eb' }).setOrigin(0, 0.5);
+    const sfxMinus = this.add.rectangle(280 + controlsOffsetX, row2Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
+    this.add.text(280 + controlsOffsetX, row2Y, '−', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
+    this.sfxLabel = this.add.text(360 + controlsOffsetX, row2Y, Math.round(sfxVol * 100) + '%', { fontSize: 18, color: '#fbbf24' }).setOrigin(0.5);
+    const sfxPlus = this.add.rectangle(440 + controlsOffsetX, row2Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
+    this.add.text(440 + controlsOffsetX, row2Y, '+', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
 
-    const row3Y = 260;
-    this.add.text(120, row3Y, 'Animations', { fontSize: 18, color: '#e5e7eb' }).setOrigin(0, 0.5);
-    const animationMinus = this.add.rectangle(280, row3Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
-    this.add.text(280, row3Y, '−', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
+    const row3Y = 260 + controlsOffsetY;
+    this.add.text(120 + controlsOffsetX, row3Y, 'Animations', { fontSize: 18, color: '#e5e7eb' }).setOrigin(0, 0.5);
+    const animationMinus = this.add.rectangle(280 + controlsOffsetX, row3Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
+    this.add.text(280 + controlsOffsetX, row3Y, '−', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
     this.animationLabel = this.add.text(
-      360,
+      360 + controlsOffsetX,
       row3Y,
       typeof getAnimationSpeedLabel === 'function' ? getAnimationSpeedLabel(animationSpeed) : (Math.round(animationSpeed * 100) + '%'),
       { fontSize: 18, color: '#fbbf24' }
     ).setOrigin(0.5);
-    const animationPlus = this.add.rectangle(440, row3Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
-    this.add.text(440, row3Y, '+', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
+    const animationPlus = this.add.rectangle(440 + controlsOffsetX, row3Y, 44, 36, 0x475569).setInteractive({ useHandCursor: true });
+    this.add.text(440 + controlsOffsetX, row3Y, '+', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
 
     const step = 0.1;
 
@@ -91,9 +136,10 @@ class SettingsScene extends Phaser.Scene {
     animationMinus.on('pointerdown', () => updateAnimationSpeed(-1));
     animationPlus.on('pointerdown', () => updateAnimationSpeed(1));
 
-    const backBtn = this.add.rectangle(w / 2, h - 80, 140, 48, 0x475569);
-    backBtn.setInteractive({ useHandCursor: true });
-    this.add.text(w / 2, h - 80, 'Back', { fontSize: 18, color: '#fff' }).setOrigin(0.5);
-    backBtn.on('pointerdown', () => this.scene.start(from));
+    if (backHotspot) {
+      this.createSettingsHotspot(backHotspot, goBack);
+    } else {
+      this.createFallbackBackButton(w / 2 + controlsOffsetX, h - 80 + controlsOffsetY, goBack);
+    }
   }
 }

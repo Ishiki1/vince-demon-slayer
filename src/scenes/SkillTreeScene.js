@@ -14,6 +14,7 @@ class SkillTreeScene extends Phaser.Scene {
     const hero = GAME_STATE.hero;
     const data = this.scene.settings.data || {};
     this.from = data.from;
+    this.isFreeBrowse = this.from === 'overworld' || this.from === 'town';
     this.isBossFight = data.isBossFight === true;
 
     if (!hero) {
@@ -26,19 +27,25 @@ class SkillTreeScene extends Phaser.Scene {
 
     if (this.from === 'combat' && typeof playSfx === 'function') playSfx(this, 'level-up');
 
-    this.add.text(w / 2, 40, (this.from === 'overworld' ? 'Skill Tree' : 'Level Up') + ' — Level ' + hero.level, { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
+    this.add.text(w / 2, 40, (this.isFreeBrowse ? 'Skill Tree' : 'Level Up') + ' — Level ' + hero.level, { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
     this.pointsText = this.add.text(w / 2, 75, 'Skill points: ' + (hero.skillPoints || 0), { fontSize: 18, color: '#e5e7eb' }).setOrigin(0.5);
     this.add.text(w / 2, 105, 'Spend points or Continue:', { fontSize: 16, color: '#94a3b8' }).setOrigin(0.5);
 
     this.buildChoiceButtons();
 
-    const contBtn = this.add.rectangle(w / 2, h - 60, 160, 48, 0x475569);
-    contBtn.setInteractive({ useHandCursor: true });
-    this.add.text(w / 2, h - 60, 'Continue', { fontSize: 18, color: '#fff' }).setOrigin(0.5);
-    contBtn.on('pointerdown', () => {
+    createUiArtButton(this, w / 2, h - 60, 'continue-button', () => {
       GAME_STATE.pendingLevelUp = false;
       if (this.from === 'combat') this.hero.refillCombatStats();
       this.goNext();
+    }, {
+      width: 180,
+      height: 52,
+      fallbackLabel: 'Continue',
+      fallbackWidth: 160,
+      fallbackHeight: 48,
+      bgColor: 0x475569,
+      fontSize: 18,
+      textColor: '#fff',
     });
   }
 
@@ -165,6 +172,8 @@ class SkillTreeScene extends Phaser.Scene {
     if (this.from === 'combat') {
       GAME_STATE.pendingLootItemId = LootSystem.rollLoot(this.isBossFight === true, this.hero.class);
       this.scene.start('Loot');
+    } else if (this.from === 'town') {
+      this.scene.start('Town');
     } else {
       this.scene.start('Overworld');
     }

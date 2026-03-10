@@ -267,8 +267,10 @@ class CombatScene extends Phaser.Scene {
     }
     GAME_STATE.reaperFight = reaperAppears;
 
+    hero.reaperSuppressEquipmentEvasion = false;
     if (reaperAppears) {
       hero.reaperFrightened = true;
+      hero.reaperSuppressEquipmentEvasion = true;
       this.enemies = [createReaper(hero.level)];
       this.isBossFight = true;
     } else {
@@ -424,7 +426,7 @@ class CombatScene extends Phaser.Scene {
     const box = this.add.rectangle(w / 2, h / 2, 380, 160, 0x1e293b);
     const t1 = this.add.text(w / 2, h / 2 - 55, 'The Reaper', { fontSize: 22, color: '#f87171' }).setOrigin(0.5);
     const t2 = this.add.text(w / 2, h / 2 - 25, 'Death has found you. You are frightened.', { fontSize: 14, color: '#e5e7eb' }).setOrigin(0.5).setWordWrapWidth(340);
-    const t3 = this.add.text(w / 2, h / 2 + 5, 'Your strength is halved and your evasion is lost.', { fontSize: 14, color: '#e5e7eb' }).setOrigin(0.5).setWordWrapWidth(340);
+    const t3 = this.add.text(w / 2, h / 2 + 5, 'Your strength is halved and your equipment evasion is stripped at the start of this fight.', { fontSize: 14, color: '#e5e7eb' }).setOrigin(0.5).setWordWrapWidth(340);
     const fightBtn = this.add.rectangle(w / 2, h / 2 + 45, 100, 36, 0x475569);
     fightBtn.setInteractive({ useHandCursor: true });
     const t4 = this.add.text(w / 2, h / 2 + 45, 'Fight', { fontSize: 14, color: '#fff' }).setOrigin(0.5);
@@ -476,6 +478,7 @@ class CombatScene extends Phaser.Scene {
     }
     this.hero.gold = Math.max(0, this.hero.gold - goldLost);
     this.hero.reaperFrightened = false;
+    this.hero.reaperSuppressEquipmentEvasion = false;
     GAME_STATE.reaperFight = false;
     GAME_STATE.forcedEncounter = null;
     GAME_STATE.currentLevelId = null;
@@ -1042,6 +1045,7 @@ class CombatScene extends Phaser.Scene {
     this.hero.blockReflectRounds = 0;
     this.hero.invulnerableRounds = 0;
     this.hero.reaperFrightened = false;
+    this.hero.reaperSuppressEquipmentEvasion = false;
     GAME_STATE.reaperFight = false;
     const wasForcedEncounter = !!this.forcedEncounter;
     GAME_STATE.forcedEncounter = null;
@@ -1096,6 +1100,7 @@ class CombatScene extends Phaser.Scene {
       this.hero.blockReflectRounds = 0;
       this.hero.invulnerableRounds = 0;
       this.hero.reaperFrightened = false;
+      this.hero.reaperSuppressEquipmentEvasion = false;
     }
     GAME_STATE.reaperFight = false;
     GAME_STATE.forcedEncounter = null;
@@ -1114,6 +1119,7 @@ class CombatScene extends Phaser.Scene {
       this.hero.blockReflectRounds = 0;
       this.hero.invulnerableRounds = 0;
       this.hero.reaperFrightened = false;
+      this.hero.reaperSuppressEquipmentEvasion = false;
     }
     GAME_STATE.reaperFight = false;
     if (this.skillButtons) this.skillButtons.destroy();

@@ -1,0 +1,25 @@
+{
+  "canvas": {
+    "width": 800,
+    "height": 600
+  },
+  "background": {
+    "path": "LootScene-bg.png",
+    "sourceWidth": 1536,
+    "sourceHeight": 1024,
+    "fit": "stretch-to-runtime"
+  },
+  "hotspots": [
+    {
+      "id": "continue",
+      "action": "continue",
+      "x": 308,
+      "y": 472,
+      "width": 183,
+      "height": 54,
+      "centerX": 399,
+      "centerY": 499,
+      "note": "Bottom-center painted Continue plaque; hotspot fits the beveled outer frame and excludes the soft drop shadow on the step."
+    }
+  ]
+}

@@ -18,6 +18,39 @@ class ShopScene extends Phaser.Scene {
     super({ key: 'Shop' });
   }
 
+  getShopHotspotManifest() {
+    if (!this.cache || !this.cache.json) return null;
+    const manifest = this.cache.json.get('shop-hotspots');
+    if (!manifest || !Array.isArray(manifest.hotspots)) return null;
+    return manifest;
+  }
+
+  getShopHotspot(hotspotId) {
+    const manifest = this.getShopHotspotManifest();
+    if (!manifest) return null;
+    return manifest.hotspots.find((hotspot) => hotspot.id === hotspotId) || null;
+  }
+
+  createChoiceHotspot(rect, onClick) {
+    if (!rect || typeof onClick !== 'function') return null;
+    const hotspot = this.add.rectangle(
+      rect.x + rect.width / 2,
+      rect.y + rect.height / 2,
+      rect.width,
+      rect.height,
+      0x000000,
+      0
+    );
+    hotspot.setInteractive({ useHandCursor: true });
+    hotspot.on('pointerdown', onClick);
+    return hotspot;
+  }
+
+  openShopView(nextView) {
+    GAME_STATE.shopView = nextView;
+    this.scene.restart();
+  }
+
   create() {
     if (!GAME_STATE.hero) {
       this.scene.start('Menu');
@@ -28,17 +61,24 @@ class ShopScene extends Phaser.Scene {
     const hero = GAME_STATE.hero;
     InventorySystem.ensureAccessorySlots(hero);
     const shopView = GAME_STATE.shopView || 'choice';
-    this.drawSceneFrame(hero, shopView);
+    const hasArt = this.drawSceneFrame(hero, shopView);
 
     if (shopView === 'choice') {
+      const buyHotspot = hasArt ? this.getShopHotspot('buy') : null;
+      const sellHotspot = hasArt ? this.getShopHotspot('sell') : null;
+      if (buyHotspot && sellHotspot) {
+        this.createChoiceHotspot(buyHotspot, () => this.openShopView('buy'));
+        this.createChoiceHotspot(sellHotspot, () => this.openShopView('sell'));
+        return;
+      }
       const buyBtn = this.add.rectangle(w / 2, h / 2 - 50, 200, 56, 0x4ade80);
       buyBtn.setInteractive({ useHandCursor: true });
       this.add.text(w / 2, h / 2 - 50, 'Buy', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
-      buyBtn.on('pointerdown', () => { GAME_STATE.shopView = 'buy'; this.scene.restart(); });
+      buyBtn.on('pointerdown', () => this.openShopView('buy'));
       const sellBtn = this.add.rectangle(w / 2, h / 2 + 30, 200, 56, 0x0ea5e9);
       sellBtn.setInteractive({ useHandCursor: true });
       this.add.text(w / 2, h / 2 + 30, 'Sell', { fontSize: 22, color: '#fff' }).setOrigin(0.5);
-      sellBtn.on('pointerdown', () => { GAME_STATE.shopView = 'sell'; this.scene.restart(); });
+      sellBtn.on('pointerdown', () => this.openShopView('sell'));
       return;
     }
 
@@ -86,7 +126,7 @@ class ShopScene extends Phaser.Scene {
       const backToChoice = this.add.rectangle(w / 2, h - 60, 180, 48, 0x475569);
       backToChoice.setInteractive({ useHandCursor: true });
       this.add.text(w / 2, h - 60, 'Back to Shop', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
-      backToChoice.on('pointerdown', () => { GAME_STATE.shopView = 'choice'; this.scene.restart(); });
+      backToChoice.on('pointerdown', () => this.openShopView('choice'));
       return;
     }
 
@@ -163,7 +203,7 @@ class ShopScene extends Phaser.Scene {
       const backToChoice = this.add.rectangle(w / 2, h - 60, 180, 48, 0x475569);
       backToChoice.setInteractive({ useHandCursor: true });
       this.add.text(w / 2, h - 60, 'Back to Shop', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
-      backToChoice.on('pointerdown', () => { GAME_STATE.shopView = 'choice'; this.scene.restart(); });
+      backToChoice.on('pointerdown', () => this.openShopView('choice'));
     }
   }
 
@@ -186,5 +226,6 @@ class ShopScene extends Phaser.Scene {
       strokeThickness: 4,
     }).setOrigin(0, 0.5);
     createTownNavRow(this, { currentSection: 'shop' });
+    return hasArt;
   }
 }

@@ -29,6 +29,7 @@ function createHero(classId) {
     inventory: [],
     battleDefenseBonus: 0,
     battleEvasionChance: 0,
+    reaperSuppressEquipmentEvasion: false,
     invulnerableRounds: 0,
     maxInventory: 20,
     level: 1,
@@ -208,6 +209,20 @@ function createHero(classId) {
       return this.getAccessoryEvasionTotal();
     },
 
+    getPassiveEvasionChance() {
+      return (this.passives || []).reduce((sum, id) => {
+        const passive = typeof PASSIVES !== 'undefined' ? PASSIVES[id] : null;
+        return sum + (passive && passive.effect && passive.effect.stat === 'evasion' ? passive.effect.value : 0);
+      }, 0);
+    },
+
+    getEquipmentEvasionChance() {
+      let evasion = (this.getArmorEvasion ? this.getArmorEvasion() : 0) + (this.getAccessoryEvasion ? this.getAccessoryEvasion() : 0);
+      const setBonus = (this.getUniqueSetBonus && this.getUniqueSetBonus()) || {};
+      evasion += setBonus.evasion || 0;
+      return evasion;
+    },
+
     getUniqueSetBonus() {
       if (typeof getUniqueElement !== 'function' || typeof UNIQUE_SET_BONUSES === 'undefined') return null;
       const wSlot = this.weapon != null ? this.inventory.find(s => s.id === this.weapon) : null;
@@ -224,15 +239,11 @@ function createHero(classId) {
     },
 
     getEvasionChance() {
-      if (this.reaperFrightened) return 0;
       let ev = (this.battleEvasionChance || 0);
-      const passiveEv = (this.passives || []).reduce((s, id) => {
-        const p = typeof PASSIVES !== 'undefined' && PASSIVES[id];
-        return s + (p && p.effect && p.effect.stat === 'evasion' ? p.effect.value : 0);
-      }, 0);
-      ev += passiveEv + (this.getArmorEvasion ? this.getArmorEvasion() : 0) + (this.getAccessoryEvasion ? this.getAccessoryEvasion() : 0);
-      const setBonus = (this.getUniqueSetBonus && this.getUniqueSetBonus()) || {};
-      ev += setBonus.evasion || 0;
+      ev += this.getPassiveEvasionChance ? this.getPassiveEvasionChance() : 0;
+      if (!this.reaperSuppressEquipmentEvasion) {
+        ev += this.getEquipmentEvasionChance ? this.getEquipmentEvasionChance() : 0;
+      }
       const maxEvasion = CONFIG.HERO_MAX_EVASION != null ? CONFIG.HERO_MAX_EVASION : 0.9;
       return Math.min(maxEvasion, Math.max(0, ev));
     },

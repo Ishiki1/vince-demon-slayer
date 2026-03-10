@@ -35,6 +35,33 @@ class TownScene extends Phaser.Scene {
       currentSection: 'town',
       onInnAction: () => this.handleLandingAction('rest'),
     });
+    const bottomUtilityY = h - 70;
+    const bottomUtilityRightX = w - 42;
+    const bottomUtilitySpacing = 72;
+    createUiIconButton(
+      this,
+      bottomUtilityRightX - bottomUtilitySpacing,
+      bottomUtilityY,
+      'inventory-icon',
+      'Inventory',
+      () => this.scene.start('InventoryOverworld', { from: 'Town' }),
+      {
+        size: 52,
+        tooltipY: bottomUtilityY - 42,
+      }
+    );
+    createUiIconButton(
+      this,
+      bottomUtilityRightX,
+      bottomUtilityY,
+      'character-sheet-icon',
+      'Character Sheet',
+      () => this.scene.start('CharacterSheet', { from: 'Town' }),
+      {
+        size: 52,
+        tooltipY: bottomUtilityY - 42,
+      }
+    );
 
     if (!hasArt) {
       createButton(this, w / 2, h / 2 - 20, 220, 48, `Rest (Full HP & Mana) - ${this.restPrice}g`, { bgColor: 0x4ade80, fontSize: 15 }, () => {

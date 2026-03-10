@@ -46,8 +46,9 @@ const INVENTORY_LAYOUT = {
     accessory2: { x: 286, y: 342, width: 100, height: 84 },
   },
   bag: {
-    iconWidth: 54,
-    iconHeight: 54,
+    iconWidth: 49,
+    iconHeight: 49,
+    columnXOffsets: [10, 10, 0, 0, 0],
     durabilityXOffset: -2,
     durabilityYOffset: 0,
   },
@@ -66,6 +67,8 @@ class InventoryOverworldScene extends Phaser.Scene {
       this.scene.start('Menu');
       return;
     }
+    const data = this.scene.settings.data || {};
+    this.returnScene = data.from === 'Town' ? 'Town' : 'Overworld';
     this.hero = GAME_STATE.hero;
     InventorySystem.ensureSlotBased(this.hero);
     InventorySystem.ensureAccessorySlots(this.hero);
@@ -123,7 +126,7 @@ class InventoryOverworldScene extends Phaser.Scene {
         0x000000,
         0.001
       ).setInteractive({ useHandCursor: true }).setDepth(30);
-      closeHitArea.on('pointerdown', () => this.scene.start('Overworld'));
+      closeHitArea.on('pointerdown', () => this.scene.start(this.returnScene));
       this.statusText = this.add.text(INVENTORY_LAYOUT.statusText.x, INVENTORY_LAYOUT.statusText.y, '', {
         fontSize: 13,
         color: '#e5e7eb',
@@ -225,7 +228,7 @@ class InventoryOverworldScene extends Phaser.Scene {
       34,
       'Close',
       { bgColor: 0x7c5a3a, fontSize: 15 },
-      () => this.scene.start('Overworld')
+      () => this.scene.start(this.returnScene)
     );
     closeButton.rect.setStrokeStyle(2, 0xb89b7a, 0.9);
 
@@ -325,13 +328,15 @@ class InventoryOverworldScene extends Phaser.Scene {
       if (!slot) return;
       const item = ITEMS[slot.itemId];
       if (!item) return;
-      const centerX = cellData.centerX;
+      const col = index % INVENTORY_GRID.cols;
+      const columnXOffset = (INVENTORY_LAYOUT.bag.columnXOffsets && INVENTORY_LAYOUT.bag.columnXOffsets[col]) || 0;
+      const centerX = cellData.centerX + columnXOffset;
       const centerY = cellData.centerY;
       const icon = this.createItemIcon(centerX, centerY, slot, {
         width: INVENTORY_LAYOUT.bag.iconWidth,
         height: INVENTORY_LAYOUT.bag.iconHeight,
       });
-      const hitArea = this.add.rectangle(cellData.x + INVENTORY_GRID.cellSize / 2, cellData.y + INVENTORY_GRID.cellSize / 2, INVENTORY_GRID.cellSize, INVENTORY_GRID.cellSize, 0x000000, 0.001)
+      const hitArea = this.add.rectangle(cellData.x + INVENTORY_GRID.cellSize / 2 + columnXOffset, cellData.y + INVENTORY_GRID.cellSize / 2, INVENTORY_GRID.cellSize, INVENTORY_GRID.cellSize, 0x000000, 0.001)
         .setInteractive({ useHandCursor: true });
       hitArea.on('pointerdown', () => this.onBagItemClick(slot, item));
       attachHoverScaleTooltip(hitArea, icon, {
@@ -346,7 +351,7 @@ class InventoryOverworldScene extends Phaser.Scene {
       this.dynamicEls.push(hitArea);
       this.renderDurability(
         slot,
-        cellData.x + INVENTORY_GRID.cellSize - 2 + INVENTORY_LAYOUT.bag.durabilityXOffset,
+        cellData.x + INVENTORY_GRID.cellSize - 2 + columnXOffset + INVENTORY_LAYOUT.bag.durabilityXOffset,
         cellData.y + INVENTORY_GRID.cellSize - 4 + INVENTORY_LAYOUT.bag.durabilityYOffset
       );
     });

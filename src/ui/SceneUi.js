@@ -219,6 +219,48 @@ function addSceneBackground(scene, textureKey, options) {
   return scene.add.image(x, y, textureKey).setDisplaySize(width, height).setDepth(depth);
 }
 
+function createUiArtButton(scene, x, y, textureKey, onClick, options) {
+  if (!scene) return null;
+  const width = (options && options.width) || 180;
+  const height = (options && options.height) || 52;
+  const depth = options && options.depth != null ? options.depth : 15;
+  const hitPaddingX = (options && options.hitPaddingX) || 18;
+  const hitPaddingY = (options && options.hitPaddingY) || 14;
+  const useHandCursor = !options || options.useHandCursor !== false;
+
+  if (scene.textures && scene.textures.exists(textureKey)) {
+    const hitArea = scene.add.rectangle(x, y, width + hitPaddingX, height + hitPaddingY, 0x0f172a, 0.001).setDepth(depth);
+    const button = scene.add.image(x, y, textureKey).setDisplaySize(width, height).setDepth(depth + 1);
+    hitArea.setInteractive({ useHandCursor });
+    hitArea.on('pointerdown', () => {
+      if (typeof onClick === 'function') onClick();
+    });
+    attachHoverScaleTooltip(hitArea, button, {
+      tooltipText: options && options.tooltipText,
+      tooltipKey: options && options.tooltipKey,
+      tooltipX: options && options.tooltipX,
+      tooltipY: options && options.tooltipY,
+      tooltipOriginX: options && options.tooltipOriginX,
+      tooltipOriginY: options && options.tooltipOriginY,
+      tooltipStyle: options && options.tooltipStyle,
+      tooltipWidth: options && options.tooltipWidth,
+      tooltipDepth: options && options.tooltipDepth,
+      hoverWidth: (options && options.hoverWidth) || (width + 6),
+      hoverHeight: (options && options.hoverHeight) || (height + 4),
+    });
+    return { hitArea, button };
+  }
+
+  if (options && options.fallbackLabel) {
+    return createButton(scene, x, y, options.fallbackWidth || width, options.fallbackHeight || 48, options.fallbackLabel, {
+      bgColor: options.bgColor,
+      fontSize: options.fontSize,
+      textColor: options.textColor,
+    }, onClick);
+  }
+  return null;
+}
+
 function createUiIconButton(scene, x, y, textureKey, tooltipText, onClick, options) {
   if (!scene || !textureKey || !scene.textures || !scene.textures.exists(textureKey)) return null;
   const size = (options && options.size) || 40;

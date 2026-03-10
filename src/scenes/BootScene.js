@@ -131,6 +131,7 @@ class BootScene extends Phaser.Scene {
     ].forEach((key) => {
       this.load.image(key, `assets/ui/${key}.png`);
     });
+    this.load.image('continue-button', 'assets/ui/continue-button.png');
     this.load.image('inventory-ui-layout', 'assets/ui/Inventory.png');
     for (let n = 1; n <= 10; n++) {
       this.load.image(`level${n}-ui-background`, `assets/overworld/level${n}-bg.png`);
@@ -138,10 +139,15 @@ class BootScene extends Phaser.Scene {
     this.load.image('startgame-ui-background', 'assets/overworld/startgame-bg.png');
     this.load.image('town-ui-background', 'assets/overworld/town-bg.png');
     this.load.image('blacksmith-ui-background', 'assets/overworld/blacksmith-bg.png');
-    this.load.image('shop-ui-background', 'assets/overworld/shop-bg.png');
+    this.load.image('shop-ui-background', 'assets/overworld/shop-with-buttons-bg.png');
+    this.load.json('shop-hotspots', 'assets/overworld/shop-with-buttons-bg-hotspots-800x600.json');
     this.load.image('mine-ui-background', 'assets/overworld/mine-bg.png');
     this.load.image('alchemist-ui-background', 'assets/overworld/alchemist-bg.png');
-    this.load.image('lootscene-ui-background', 'assets/overworld/LootScene-bg.png');
+    this.load.image('eventscene-ui-background', 'assets/ui/EventScene-bg.png');
+    this.load.image('lootscene-ui-background', 'assets/ui/LootScene-bg.png');
+    this.load.json('lootscene-hotspots', 'assets/ui/LootScene-bg-hotspots-800x600.json');
+    this.load.image('settingsscene-ui-background', 'assets/ui/SettingsScene-bg.png');
+    this.load.json('settingsscene-hotspots', 'assets/ui/SettingsScene-bg-hotspots-800x600.json');
     this.load.image('overworld-ui-background', 'assets/overworld/overworld-bg-800x600-hotspots.png');
     [
       'button-slash',

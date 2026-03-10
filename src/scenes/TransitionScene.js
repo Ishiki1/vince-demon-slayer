@@ -17,16 +17,22 @@ class TransitionScene extends Phaser.Scene {
     this.add.text(w / 2, 180, 'Reach him to defeat him.', { fontSize: 18, color: '#e5e7eb' }).setOrigin(0.5).setWordWrapWidth(w - 80);
     this.add.text(w / 2, 240, 'Levels 11-20 unlocked. You cannot return to previous levels.', { fontSize: 16, color: '#94a3b8' }).setOrigin(0.5).setWordWrapWidth(w - 80);
 
-    const contBtn = this.add.rectangle(w / 2, h - 80, 180, 48, 0x4ade80);
-    contBtn.setInteractive({ useHandCursor: true });
-    this.add.text(w / 2, h - 80, 'Continue', { fontSize: 20, color: '#fff' }).setOrigin(0.5);
-    contBtn.on('pointerdown', () => {
+    createUiArtButton(this, w / 2, h - 80, 'continue-button', () => {
       GAME_STATE.act = 2;
       GAME_STATE.unlockedLevels = ['level11'];
       GAME_STATE.unlockedClasses = typeof unlockClassesForAct === 'function'
         ? unlockClassesForAct(GAME_STATE.unlockedClasses, 2)
         : ['warrior', 'sorceress'];
       this.scene.start('Overworld');
+    }, {
+      width: 180,
+      height: 52,
+      fallbackLabel: 'Continue',
+      fallbackWidth: 180,
+      fallbackHeight: 48,
+      bgColor: 0x4ade80,
+      fontSize: 20,
+      textColor: '#fff',
     });
   }
 }

@@ -1,11 +1,62 @@
 /**
  * LootScene.js
- * After a fight: show gold earned, rolled loot. Take or Skip. Then next fight or Overworld.
+ * After a fight: show gold earned, rolled loot, and continue via the painted background plaque.
  */
 
 class LootScene extends Phaser.Scene {
   constructor() {
     super({ key: 'Loot' });
+  }
+
+  getLootHotspotManifest() {
+    if (!this.cache || !this.cache.json) return null;
+    const manifest = this.cache.json.get('lootscene-hotspots');
+    if (!manifest || !Array.isArray(manifest.hotspots)) return null;
+    return manifest;
+  }
+
+  getLootHotspot(hotspotId) {
+    const manifest = this.getLootHotspotManifest();
+    if (!manifest) return null;
+    return manifest.hotspots.find((hotspot) => hotspot.id === hotspotId) || null;
+  }
+
+  createLootHotspot(rect, onClick) {
+    if (!rect || typeof onClick !== 'function') return null;
+    const hotspot = this.add.rectangle(
+      rect.x + rect.width / 2,
+      rect.y + rect.height / 2,
+      rect.width,
+      rect.height,
+      0x000000,
+      0
+    );
+    hotspot.setInteractive({ useHandCursor: true });
+    hotspot.on('pointerdown', onClick);
+    return hotspot;
+  }
+
+  createFallbackContinueButton(x, y, onClick) {
+    return createUiArtButton(this, x, y, 'continue-button', onClick, {
+      width: 180,
+      height: 52,
+      fallbackLabel: 'Continue',
+      fallbackWidth: 170,
+      fallbackHeight: 48,
+      bgColor: 0x4ade80,
+      fontSize: 18,
+      textColor: '#fff',
+    });
+  }
+
+  handleContinue(hero, itemId) {
+    if (this.continueHandled) return;
+    this.continueHandled = true;
+    // The art-first loot screen now uses a single Continue plaque to claim any pending loot and move on.
+    if (hero && itemId && ITEMS[itemId]) {
+      InventorySystem.add(hero, itemId);
+    }
+    this.finishLoot();
   }
 
   create() {
@@ -23,6 +74,7 @@ class LootScene extends Phaser.Scene {
     const hero = GAME_STATE.hero;
     const itemId = GAME_STATE.pendingLootItemId;
     const goldEarned = GAME_STATE.goldEarned || 0;
+    this.continueHandled = false;
     const levelBackgroundKey = typeof getLevelBackgroundTextureKey === 'function'
       ? getLevelBackgroundTextureKey(GAME_STATE.currentLevelId)
       : null;
@@ -30,6 +82,8 @@ class LootScene extends Phaser.Scene {
     const lootBackgroundKey = 'lootscene-ui-background';
     const hasDedicatedLootBackground = typeof addSceneBackground === 'function'
       && !!addSceneBackground(this, lootBackgroundKey, { width: w, height: h, depth: -30 });
+    const continueHotspot = hasDedicatedLootBackground ? this.getLootHotspot('continue') : null;
+    const handleContinue = () => this.handleContinue(hero, itemId);
 
     if (hasDedicatedLootBackground) {
       this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.18).setDepth(-25);
@@ -52,25 +106,14 @@ class LootScene extends Phaser.Scene {
       this.add.text(w / 2, h / 2 - 20, `(${item.rarity})`, { fontSize: 18, color: '#94a3b8' }).setOrigin(0.5);
       const effectLine = getItemEffectLine(item);
       if (effectLine) this.add.text(w / 2, h / 2 + 10, effectLine, { fontSize: 14, color: '#a5b4fc' }).setOrigin(0.5);
-
-      const takeBtn = this.add.rectangle(w / 2 - 70, h / 2 + 60, 120, 48, 0x4ade80);
-      takeBtn.setInteractive({ useHandCursor: true });
-      this.add.text(w / 2 - 70, h / 2 + 60, 'Take', { fontSize: 18, color: '#fff' }).setOrigin(0.5);
-      takeBtn.on('pointerdown', () => {
-        InventorySystem.add(hero, itemId);
-        this.finishLoot();
-      });
-
-      const skipBtn = this.add.rectangle(w / 2 + 70, h / 2 + 60, 120, 48, 0x64748b);
-      skipBtn.setInteractive({ useHandCursor: true });
-      this.add.text(w / 2 + 70, h / 2 + 60, 'Skip', { fontSize: 18, color: '#fff' }).setOrigin(0.5);
-      skipBtn.on('pointerdown', () => this.finishLoot());
     } else {
       this.add.text(w / 2, h / 2 - 20, 'No loot this time.', { fontSize: 18, color: '#94a3b8' }).setOrigin(0.5);
-      const contBtn = this.add.rectangle(w / 2, h / 2 + 30, 140, 48, 0x4ade80);
-      contBtn.setInteractive({ useHandCursor: true });
-      this.add.text(w / 2, h / 2 + 30, 'Continue', { fontSize: 18, color: '#fff' }).setOrigin(0.5);
-      contBtn.on('pointerdown', () => this.finishLoot());
+    }
+
+    if (continueHotspot) {
+      this.createLootHotspot(continueHotspot, handleContinue);
+    } else {
+      this.createFallbackContinueButton(w / 2, h - 92, handleContinue);
     }
   }
 

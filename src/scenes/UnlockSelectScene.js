@@ -68,12 +68,18 @@ class UnlockSelectScene extends Phaser.Scene {
       });
     });
 
-    const contBtn = this.add.rectangle(w / 2, h - 50, 160, 48, 0x4ade80);
-    contBtn.setInteractive({ useHandCursor: true });
-    this.add.text(w / 2, h - 50, 'Continue', { fontSize: 18, color: '#fff' }).setOrigin(0.5);
-    contBtn.on('pointerdown', () => {
+    createUiArtButton(this, w / 2, h - 50, 'continue-button', () => {
       setRunUnlockSelection && setRunUnlockSelection(this.selectedIds);
       this.scene.start('ClassOrigin', { classId: this.classId });
+    }, {
+      width: 180,
+      height: 52,
+      fallbackLabel: 'Continue',
+      fallbackWidth: 160,
+      fallbackHeight: 48,
+      bgColor: 0x4ade80,
+      fontSize: 18,
+      textColor: '#fff',
     });
   }
 }

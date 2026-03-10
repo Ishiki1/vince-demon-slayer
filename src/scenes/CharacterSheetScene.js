@@ -13,6 +13,10 @@ class CharacterSheetScene extends Phaser.Scene {
       this.scene.start('Menu');
       return;
     }
+    const data = this.scene.settings.data || {};
+    const returnScene = data.from === 'Town' ? 'Town' : 'Overworld';
+    const skillTreeFrom = returnScene === 'Town' ? 'town' : 'overworld';
+    const backLabel = returnScene === 'Town' ? 'Back to Town' : 'Back to Map';
     const w = CONFIG.WIDTH;
     const h = CONFIG.HEIGHT;
     const hero = GAME_STATE.hero;
@@ -141,11 +145,11 @@ class CharacterSheetScene extends Phaser.Scene {
     const skillTreeBtn = this.add.rectangle(w / 2 - 90, h - 60, 140, 48, 0x8b5cf6);
     skillTreeBtn.setInteractive({ useHandCursor: true });
     this.add.text(w / 2 - 90, h - 60, 'Skill Tree', { fontSize: 14, color: '#fff' }).setOrigin(0.5);
-    skillTreeBtn.on('pointerdown', () => this.scene.start('SkillTree', { from: 'overworld' }));
+    skillTreeBtn.on('pointerdown', () => this.scene.start('SkillTree', { from: skillTreeFrom }));
 
     const backBtn = this.add.rectangle(w / 2 + 90, h - 60, 160, 48, 0x475569);
     backBtn.setInteractive({ useHandCursor: true });
-    this.add.text(w / 2 + 90, h - 60, 'Back to Map', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
-    backBtn.on('pointerdown', () => this.scene.start('Overworld'));
+    this.add.text(w / 2 + 90, h - 60, backLabel, { fontSize: 16, color: '#fff' }).setOrigin(0.5);
+    backBtn.on('pointerdown', () => this.scene.start(returnScene));
   }
 }

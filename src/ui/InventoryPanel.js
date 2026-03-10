@@ -44,8 +44,9 @@ const COMBAT_INVENTORY_LAYOUT = {
     accessory2: { x: 286, y: 342, width: 100, height: 84 },
   },
   bag: {
-    iconWidth: 54,
-    iconHeight: 54,
+    iconWidth: 49,
+    iconHeight: 49,
+    columnXOffsets: [10, 10, 0, 0, 0],
     durabilityXOffset: -2,
     durabilityYOffset: 0,
   },
@@ -447,12 +448,14 @@ function createInventoryPanel(scene, hero, onEquipOrUse) {
       if (!slot) return;
       const item = ITEMS[slot.itemId];
       if (!item) return;
-      const icon = createItemIcon(cellData.centerX, cellData.centerY, slot, {
+      const col = index % COMBAT_INVENTORY_GRID.cols;
+      const columnXOffset = (COMBAT_INVENTORY_LAYOUT.bag.columnXOffsets && COMBAT_INVENTORY_LAYOUT.bag.columnXOffsets[col]) || 0;
+      const icon = createItemIcon(cellData.centerX + columnXOffset, cellData.centerY, slot, {
         width: COMBAT_INVENTORY_LAYOUT.bag.iconWidth,
         height: COMBAT_INVENTORY_LAYOUT.bag.iconHeight,
       });
       const hitArea = scene.add.rectangle(
-        cellData.x + COMBAT_INVENTORY_GRID.cellSize / 2,
+        cellData.x + COMBAT_INVENTORY_GRID.cellSize / 2 + columnXOffset,
         cellData.y + COMBAT_INVENTORY_GRID.cellSize / 2,
         COMBAT_INVENTORY_GRID.cellSize,
         COMBAT_INVENTORY_GRID.cellSize,
@@ -477,7 +480,7 @@ function createInventoryPanel(scene, hero, onEquipOrUse) {
       pushDynamic(hitArea);
       renderDurability(
         slot,
-        cellData.x + COMBAT_INVENTORY_GRID.cellSize - 2 + COMBAT_INVENTORY_LAYOUT.bag.durabilityXOffset,
+        cellData.x + COMBAT_INVENTORY_GRID.cellSize - 2 + columnXOffset + COMBAT_INVENTORY_LAYOUT.bag.durabilityXOffset,
         cellData.y + COMBAT_INVENTORY_GRID.cellSize - 4 + COMBAT_INVENTORY_LAYOUT.bag.durabilityYOffset
       );
     });

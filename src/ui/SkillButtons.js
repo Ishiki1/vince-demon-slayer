@@ -23,11 +23,9 @@ function createSkillButtons(scene, hero, onSkillClick) {
 
   const applyVisualState = (button) => {
     const canUse = hero.currentMana >= button.skill.manaCost;
-    const isHovered = button.isHovered === true;
-    const borderColor = isHovered ? 0xfbbf24 : (canUse ? 0x60a5fa : 0x64748b);
-    button.slotBg.setFillStyle(canUse ? 0x0f172a : 0x1e293b);
-    button.slotBg.setStrokeStyle(2, borderColor, enabled ? 0.95 : 0.45);
-    button.slotBg.setAlpha(enabled ? 1 : 0.7);
+    button.slotBg.setFillStyle(0x0f172a, 0);
+    button.slotBg.setStrokeStyle(0, 0x000000, 0);
+    button.slotBg.setAlpha(0);
     button.manaBg.setFillStyle(canUse ? 0x1d4ed8 : 0x475569);
     button.manaBg.setAlpha(enabled ? 1 : 0.5);
     button.manaText.setAlpha(enabled ? 1 : 0.5);
@@ -53,7 +51,8 @@ function createSkillButtons(scene, hero, onSkillClick) {
     const centerX = x + SKILL_CELL_WIDTH / 2;
     const slotY = y + SKILL_SLOT_SIZE / 2;
     const hitArea = scene.add.rectangle(centerX, y + SKILL_CELL_HEIGHT / 2, SKILL_CELL_WIDTH, SKILL_CELL_HEIGHT, 0x0f172a, 0.001);
-    const slotBg = scene.add.rectangle(centerX, slotY, SKILL_SLOT_SIZE, SKILL_SLOT_SIZE, 0x0f172a).setStrokeStyle(2, 0x60a5fa, 0.95);
+    const slotBg = scene.add.rectangle(centerX, slotY, SKILL_SLOT_SIZE, SKILL_SLOT_SIZE, 0x0f172a, 0)
+      .setStrokeStyle(0, 0x000000, 0);
     const iconKey = skill.assetKey;
     const icon = iconKey && scene.textures.exists(iconKey)
       ? scene.add.image(centerX, slotY - 4, iconKey).setDisplaySize(SKILL_ICON_SIZE, SKILL_ICON_SIZE)

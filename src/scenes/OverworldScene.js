@@ -247,13 +247,13 @@ class OverworldScene extends Phaser.Scene {
     const topRightRightX = w - 72;
     const topRightY = 58;
     const bottomRightY = btnY;
-    const bottomRightRightX = topRightRightX;
+    const bottomRightRightX = topRightRightX + 30;
 
-    this.createUiIconButton(bottomRightRightX - uiIconSpacing, bottomRightY, 'inventory-icon', 'Inventory', () => this.scene.start('InventoryOverworld'), {
+    this.createUiIconButton(bottomRightRightX - uiIconSpacing, bottomRightY, 'inventory-icon', 'Inventory', () => this.scene.start('InventoryOverworld', { from: 'Overworld' }), {
       size: 52,
       tooltipY: bottomRightY - 42,
     });
-    this.createUiIconButton(bottomRightRightX, bottomRightY, 'character-sheet-icon', 'Character Sheet', () => this.scene.start('CharacterSheet'), {
+    this.createUiIconButton(bottomRightRightX, bottomRightY, 'character-sheet-icon', 'Character Sheet', () => this.scene.start('CharacterSheet', { from: 'Overworld' }), {
       size: 52,
       tooltipY: bottomRightY - 42,
     });
