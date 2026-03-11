@@ -135,6 +135,7 @@ function createItemIconSprite(scene, item, x, y, options) {
     : createFallbackItemIcon(scene, item, x, y, { width, height });
   const shouldHover = !options || options.hover !== false;
   if (hasTexture && shouldHover && typeof attachHoverSpriteAnimationToItem === 'function') {
+    if (typeof ensureItemHoverAnimations === 'function') ensureItemHoverAnimations(scene);
     attachHoverSpriteAnimationToItem(icon, item, options);
   }
   return icon;

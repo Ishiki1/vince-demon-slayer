@@ -59,12 +59,17 @@ class CombatScene extends Phaser.Scene {
         return classVisual;
       }
     }
-    return { sheetKey: 'hero_sheet', animKey: 'hero_idle' };
+    if (this.textures.exists('hero_sheet') && this.anims.exists('hero_idle')) {
+      return { sheetKey: 'hero_sheet', animKey: 'hero_idle' };
+    }
+    return null;
   }
 
   playCurrentHeroIdle() {
     if (!this.heroSprite) return;
-    const { sheetKey, animKey } = this.getHeroIdleVisual();
+    const heroIdleVisual = this.getHeroIdleVisual();
+    if (!heroIdleVisual || typeof this.heroSprite.setTexture !== 'function' || typeof this.heroSprite.play !== 'function') return;
+    const { sheetKey, animKey } = heroIdleVisual;
     this.heroSprite.setTexture(sheetKey);
     this.heroSprite.setFrame(0);
     this.heroSprite.play(animKey);
@@ -227,6 +232,7 @@ class CombatScene extends Phaser.Scene {
       return;
     }
     if (typeof applyAnimationSettings === 'function') applyAnimationSettings(this);
+    if (typeof ensureCombatAnimations === 'function') ensureCombatAnimations(this);
     const hero = GAME_STATE.hero;
     const forcedEncounter = GAME_STATE.forcedEncounter;
     const isForcedDay10Reaper = forcedEncounter && forcedEncounter.type === 'day10Reaper';
@@ -329,18 +335,22 @@ class CombatScene extends Phaser.Scene {
     const heroW = CONFIG.HERO_SPRITE_DISPLAY_WIDTH;
     const heroH = CONFIG.HERO_SPRITE_DISPLAY_HEIGHT;
     const heroIdleVisual = this.getHeroIdleVisual();
-    this.heroSprite = this.add.sprite(150, h / 2, heroIdleVisual.sheetKey)
-      .setDisplaySize(heroW, heroH)
-      .setOrigin(0.5, 0.5);
-    this.heroSprite.setFrame(0);
-    this.heroSprite.play(heroIdleVisual.animKey);
-    this.heroSprite.on('animationcomplete', (anim) => {
-      if (anim.key === 'hero_slash' || anim.key === 'hero_heavy_strike' || anim.key === 'hero_execute' || anim.key === 'hero_whirlwind' || anim.key === 'hero_life_drain' || anim.key === 'hero_evade' || anim.key === 'hero_iron_skin' || anim.key === 'hero_healing' || anim.key === 'hero_thorncape' || anim.key === 'hero_iron_evasion') {
-        this.playCurrentHeroIdle();
-      } else if (this.isHeroIdleAnimKey(anim.key)) {
-        this.playCurrentHeroIdle();
-      }
-    });
+    if (heroIdleVisual) {
+      this.heroSprite = this.add.sprite(150, h / 2, heroIdleVisual.sheetKey)
+        .setDisplaySize(heroW, heroH)
+        .setOrigin(0.5, 0.5);
+      this.heroSprite.setFrame(0);
+      this.heroSprite.play(heroIdleVisual.animKey);
+      this.heroSprite.on('animationcomplete', (anim) => {
+        if (anim.key === 'hero_slash' || anim.key === 'hero_heavy_strike' || anim.key === 'hero_execute' || anim.key === 'hero_whirlwind' || anim.key === 'hero_life_drain' || anim.key === 'hero_evade' || anim.key === 'hero_iron_skin' || anim.key === 'hero_healing' || anim.key === 'hero_thorncape' || anim.key === 'hero_iron_evasion') {
+          this.playCurrentHeroIdle();
+        } else if (this.isHeroIdleAnimKey(anim.key)) {
+          this.playCurrentHeroIdle();
+        }
+      });
+    } else {
+      this.heroSprite = this.add.rectangle(150, h / 2, heroW, heroH, 0x2563eb).setOrigin(0.5, 0.5);
+    }
     this.add.text(150, h / 2 - heroH / 2 - 24, this.hero.name || 'Hero', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
 
     const enemyW = CONFIG.ENEMY_SPRITE_WIDTH;
@@ -525,7 +535,7 @@ class CombatScene extends Phaser.Scene {
   }
 
   playHeroAnimThen(sheetKey, animKey, callback) {
-    if (this.heroSprite && this.anims.exists(animKey)) {
+    if (this.heroSprite && typeof this.heroSprite.stop === 'function' && typeof this.heroSprite.setTexture === 'function' && typeof this.heroSprite.play === 'function' && this.anims.exists(animKey)) {
       this.heroSprite.stop();
       this.heroSprite.setTexture(sheetKey);
       this.heroSprite.play(animKey);
@@ -544,7 +554,7 @@ class CombatScene extends Phaser.Scene {
     if (!enemy || enemy.hp <= 0) return;
     this.hero.currentMana -= skill.manaCost;
 
-    if (this.heroSprite) {
+    if (this.heroSprite && typeof this.heroSprite.stop === 'function' && typeof this.heroSprite.setTexture === 'function' && typeof this.heroSprite.play === 'function') {
       if (skillId === 'slash' && this.anims.exists('hero_slash')) {
         this.heroSprite.stop();
         this.heroSprite.setTexture('hero_slash_sheet');

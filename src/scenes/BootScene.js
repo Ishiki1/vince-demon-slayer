@@ -5,6 +5,107 @@
  */
 
 let GAMEPLAY_ASSETS_READY = false;
+let COMBAT_ANIMATIONS_READY = false;
+let ITEM_HOVER_ANIMATIONS_READY = false;
+
+const HERO_SET_IDLE_ANIMATIONS = [
+  { sheetKey: 'hero_lightning_set_idle_sheet', animKey: 'hero_lightning_set_idle' },
+  { sheetKey: 'hero_wind_set_idle_sheet', animKey: 'hero_wind_set_idle' },
+  { sheetKey: 'hero_fire_set_idle_sheet', animKey: 'hero_fire_set_idle' },
+  { sheetKey: 'hero_water_set_idle_sheet', animKey: 'hero_water_set_idle' },
+  { sheetKey: 'hero_ice_set_idle_sheet', animKey: 'hero_ice_set_idle' },
+];
+
+const HERO_ONE_SHOT_ANIMATIONS = [
+  { sheetKey: 'hero_slash_sheet', animKey: 'hero_slash' },
+  { sheetKey: 'hero_heavy_strike_sheet', animKey: 'hero_heavy_strike' },
+  { sheetKey: 'hero_healing_sheet', animKey: 'hero_healing' },
+  { sheetKey: 'hero_execute_sheet', animKey: 'hero_execute' },
+  { sheetKey: 'hero_whirlwind_sheet', animKey: 'hero_whirlwind' },
+  { sheetKey: 'hero_evade_sheet', animKey: 'hero_evade' },
+  { sheetKey: 'hero_iron_skin_sheet', animKey: 'hero_iron_skin' },
+  { sheetKey: 'hero_life_drain_sheet', animKey: 'hero_life_drain' },
+  { sheetKey: 'hero_thorncape_sheet', animKey: 'hero_thorncape' },
+  { sheetKey: 'hero_iron_evasion_sheet', animKey: 'hero_iron_evasion' },
+];
+
+const ENEMY_ANIMATIONS = [
+  { sheetKey: 'skeleton_idle_sheet', animKey: 'skeleton_idle', frameRate: 20, repeat: -1 },
+  { sheetKey: 'skeleton_attack_sheet', animKey: 'skeleton_attack', frameRate: 24, repeat: 0 },
+  { sheetKey: 'imp_idle_sheet', animKey: 'imp_idle', frameRate: 20, repeat: -1 },
+  { sheetKey: 'imp_attack_sheet', animKey: 'imp_attack', frameRate: 24, repeat: 0 },
+  { sheetKey: 'bat_idle_sheet', animKey: 'bat_idle', frameRate: 20, repeat: -1 },
+  { sheetKey: 'bat_attack_sheet', animKey: 'bat_attack', frameRate: 24, repeat: 0 },
+  { sheetKey: 'reaper_idle_sheet', animKey: 'reaper_idle', frameRate: 20, repeat: -1 },
+  { sheetKey: 'reaper_attack_sheet', animKey: 'reaper_attack', frameRate: 24, repeat: 0 },
+  { sheetKey: 'vampire_idle_sheet', animKey: 'vampire_idle', frameRate: 20, repeat: -1 },
+  { sheetKey: 'vampire_attack_sheet', animKey: 'vampire_attack', frameRate: 24, repeat: 0 },
+];
+
+function getTextureFrameCount(scene, sheetKey) {
+  if (!scene || !scene.textures || !scene.textures.exists(sheetKey)) return 0;
+  const frameNames = scene.textures.get(sheetKey).getFrameNames();
+  return frameNames ? frameNames.length : 0;
+}
+
+function ensureGeneratedAnimation(scene, sheetKey, animKey, frameRate, repeat, options) {
+  if (!scene || !scene.anims || scene.anims.exists(animKey)) return true;
+  const count = getTextureFrameCount(scene, sheetKey);
+  if (count === 0) return false;
+  const endFrame = options && options.maxFrame != null ? Math.min(options.maxFrame, count - 1) : count - 1;
+  const frames = options && options.pingPong
+    ? [0, 1, 2, 3, 2, 1].filter((frame) => frame <= endFrame).map((frame) => ({ key: sheetKey, frame }))
+    : scene.anims.generateFrameNumbers(sheetKey, { start: 0, end: endFrame });
+  if (!frames || frames.length === 0) return false;
+  if (options && options.seamlessLoop) frames.push(frames[0]);
+  scene.anims.create({
+    key: animKey,
+    frames,
+    frameRate,
+    repeat,
+  });
+  return true;
+}
+
+function ensureHeroIdleAnimation(scene, warningPrefix) {
+  const registered = ensureGeneratedAnimation(scene, 'hero_sheet', 'hero_idle', 30, 0, {
+    maxFrame: 72,
+    seamlessLoop: true,
+  });
+  if (!registered && warningPrefix) {
+    console.warn(`${warningPrefix} hero_sheet missing or invalid; skipping hero_idle registration.`);
+  }
+  return registered;
+}
+
+function ensureCombatAnimations(scene) {
+  if (!scene || COMBAT_ANIMATIONS_READY) return;
+  ensureHeroIdleAnimation(scene, '[Combat]');
+  HERO_SET_IDLE_ANIMATIONS.forEach(({ sheetKey, animKey }) => {
+    ensureGeneratedAnimation(scene, sheetKey, animKey, 30, 0, { seamlessLoop: true });
+  });
+  HERO_ONE_SHOT_ANIMATIONS.forEach(({ sheetKey, animKey }) => {
+    ensureGeneratedAnimation(scene, sheetKey, animKey, 24, 0);
+  });
+  ENEMY_ANIMATIONS.forEach(({ sheetKey, animKey, frameRate, repeat }) => {
+    ensureGeneratedAnimation(scene, sheetKey, animKey, frameRate, repeat);
+  });
+  COMBAT_ANIMATIONS_READY = true;
+}
+
+function ensureItemHoverAnimations(scene) {
+  if (!scene || ITEM_HOVER_ANIMATIONS_READY) return;
+  const itemVisuals = typeof getPreloadItemVisuals === 'function' ? getPreloadItemVisuals() : [];
+  itemVisuals.forEach((visual) => {
+    if (!visual.hover) return;
+    if (visual.hover.style === 'pingPong') {
+      ensureGeneratedAnimation(scene, visual.hover.sheetKey, visual.hover.animKey, 10, -1, { pingPong: true });
+      return;
+    }
+    ensureGeneratedAnimation(scene, visual.hover.sheetKey, visual.hover.animKey, visual.hover.frameRate || 16, -1);
+  });
+  ITEM_HOVER_ANIMATIONS_READY = true;
+}
 
 function preloadBootMenuAssets(scene) {
   if (!scene || !scene.load) return;
@@ -305,258 +406,10 @@ class GamePreloadScene extends Phaser.Scene {
   }
 
   registerHeroIdleAnim() {
-    if (this.anims.exists('hero_idle')) return true;
-    if (!this.textures.exists('hero_sheet')) {
-      console.warn('[GamePreload] hero_sheet missing; skipping hero_idle registration.');
-      return false;
-    }
-    const heroFrameNames = this.textures.get('hero_sheet').getFrameNames();
-    const heroFrameCount = heroFrameNames ? heroFrameNames.length : 0;
-    if (heroFrameCount === 0) {
-      console.warn('[GamePreload] hero_sheet has no frames; skipping hero_idle registration.');
-      return false;
-    }
-    const idleFrames = this.anims.generateFrameNumbers('hero_sheet', { start: 0, end: Math.min(72, heroFrameCount - 1) });
-    if (idleFrames.length === 0) {
-      console.warn('[GamePreload] hero_sheet frame generation failed; skipping hero_idle registration.');
-      return false;
-    }
-    idleFrames.push(idleFrames[0]);
-    this.anims.create({
-      key: 'hero_idle',
-      frames: idleFrames,
-      frameRate: 30,
-      repeat: 0,
-    });
-    return true;
+    return ensureHeroIdleAnimation(this, '[GamePreload]');
   }
 
   create() {
-    this.registerHeroIdleAnim();
-    if (this.textures.exists('hero_lightning_set_idle_sheet')) {
-      const lightningIdleFrameNames = this.textures.get('hero_lightning_set_idle_sheet').getFrameNames();
-      const lightningIdleCount = lightningIdleFrameNames ? lightningIdleFrameNames.length : 0;
-      if (lightningIdleCount > 0) {
-        const lightningIdleFrames = this.anims.generateFrameNumbers('hero_lightning_set_idle_sheet', { start: 0, end: lightningIdleCount - 1 });
-        lightningIdleFrames.push(lightningIdleFrames[0]);
-        this.anims.create({
-          key: 'hero_lightning_set_idle',
-          frames: lightningIdleFrames,
-          frameRate: 30,
-          repeat: 0,
-        });
-      }
-    }
-    if (this.textures.exists('hero_wind_set_idle_sheet')) {
-      const windIdleFrameNames = this.textures.get('hero_wind_set_idle_sheet').getFrameNames();
-      const windIdleCount = windIdleFrameNames ? windIdleFrameNames.length : 0;
-      if (windIdleCount > 0) {
-        const windIdleFrames = this.anims.generateFrameNumbers('hero_wind_set_idle_sheet', { start: 0, end: windIdleCount - 1 });
-        windIdleFrames.push(windIdleFrames[0]);
-        this.anims.create({
-          key: 'hero_wind_set_idle',
-          frames: windIdleFrames,
-          frameRate: 30,
-          repeat: 0,
-        });
-      }
-    }
-    if (this.textures.exists('hero_fire_set_idle_sheet')) {
-      const fireIdleFrameNames = this.textures.get('hero_fire_set_idle_sheet').getFrameNames();
-      const fireIdleCount = fireIdleFrameNames ? fireIdleFrameNames.length : 0;
-      if (fireIdleCount > 0) {
-        const fireIdleFrames = this.anims.generateFrameNumbers('hero_fire_set_idle_sheet', { start: 0, end: fireIdleCount - 1 });
-        fireIdleFrames.push(fireIdleFrames[0]);
-        this.anims.create({
-          key: 'hero_fire_set_idle',
-          frames: fireIdleFrames,
-          frameRate: 30,
-          repeat: 0,
-        });
-      }
-    }
-    if (this.textures.exists('hero_water_set_idle_sheet')) {
-      const waterIdleFrameNames = this.textures.get('hero_water_set_idle_sheet').getFrameNames();
-      const waterIdleCount = waterIdleFrameNames ? waterIdleFrameNames.length : 0;
-      if (waterIdleCount > 0) {
-        const waterIdleFrames = this.anims.generateFrameNumbers('hero_water_set_idle_sheet', { start: 0, end: waterIdleCount - 1 });
-        waterIdleFrames.push(waterIdleFrames[0]);
-        this.anims.create({
-          key: 'hero_water_set_idle',
-          frames: waterIdleFrames,
-          frameRate: 30,
-          repeat: 0,
-        });
-      }
-    }
-    if (this.textures.exists('hero_ice_set_idle_sheet')) {
-      const iceIdleFrameNames = this.textures.get('hero_ice_set_idle_sheet').getFrameNames();
-      const iceIdleCount = iceIdleFrameNames ? iceIdleFrameNames.length : 0;
-      if (iceIdleCount > 0) {
-        const iceIdleFrames = this.anims.generateFrameNumbers('hero_ice_set_idle_sheet', { start: 0, end: iceIdleCount - 1 });
-        iceIdleFrames.push(iceIdleFrames[0]);
-        this.anims.create({
-          key: 'hero_ice_set_idle',
-          frames: iceIdleFrames,
-          frameRate: 30,
-          repeat: 0,
-        });
-      }
-    }
-    const oneShotAnims = [
-      { sheetKey: 'hero_slash_sheet', animKey: 'hero_slash' },
-      { sheetKey: 'hero_heavy_strike_sheet', animKey: 'hero_heavy_strike' },
-      { sheetKey: 'hero_healing_sheet', animKey: 'hero_healing' },
-      { sheetKey: 'hero_execute_sheet', animKey: 'hero_execute' },
-      { sheetKey: 'hero_whirlwind_sheet', animKey: 'hero_whirlwind' },
-      { sheetKey: 'hero_evade_sheet', animKey: 'hero_evade' },
-      { sheetKey: 'hero_iron_skin_sheet', animKey: 'hero_iron_skin' },
-      { sheetKey: 'hero_life_drain_sheet', animKey: 'hero_life_drain' },
-      { sheetKey: 'hero_thorncape_sheet', animKey: 'hero_thorncape' },
-      { sheetKey: 'hero_iron_evasion_sheet', animKey: 'hero_iron_evasion' },
-    ];
-    oneShotAnims.forEach(({ sheetKey, animKey }) => this.registerOneShotHeroAnim(sheetKey, animKey));
-
-    // Skeleton idle: loop for combat display
-    if (this.textures.exists('skeleton_idle_sheet')) {
-      const skeletonFrameNames = this.textures.get('skeleton_idle_sheet').getFrameNames();
-      const skeletonCount = skeletonFrameNames ? skeletonFrameNames.length : 0;
-      if (skeletonCount > 0) {
-        this.anims.create({
-          key: 'skeleton_idle',
-          frames: this.anims.generateFrameNumbers('skeleton_idle_sheet', { start: 0, end: skeletonCount - 1 }),
-          frameRate: 20,
-          repeat: -1,
-        });
-      }
-    }
-    // Skeleton attack: one-shot for when skeleton attacks in combat
-    if (this.textures.exists('skeleton_attack_sheet')) {
-      const skeletonAttackFrames = this.textures.get('skeleton_attack_sheet').getFrameNames();
-      const skeletonAttackCount = skeletonAttackFrames ? skeletonAttackFrames.length : 0;
-      if (skeletonAttackCount > 0) {
-        this.anims.create({
-          key: 'skeleton_attack',
-          frames: this.anims.generateFrameNumbers('skeleton_attack_sheet', { start: 0, end: skeletonAttackCount - 1 }),
-          frameRate: 24,
-          repeat: 0,
-        });
-      }
-    }
-    if (this.textures.exists('imp_idle_sheet')) {
-      const impIdleFrameNames = this.textures.get('imp_idle_sheet').getFrameNames();
-      const impIdleCount = impIdleFrameNames ? impIdleFrameNames.length : 0;
-      if (impIdleCount > 0) {
-        this.anims.create({
-          key: 'imp_idle',
-          frames: this.anims.generateFrameNumbers('imp_idle_sheet', { start: 0, end: impIdleCount - 1 }),
-          frameRate: 20,
-          repeat: -1,
-        });
-      }
-    }
-    // Imp attack: one-shot for when imp attacks in combat
-    if (this.textures.exists('imp_attack_sheet')) {
-      const impAttackFrames = this.textures.get('imp_attack_sheet').getFrameNames();
-      const impAttackCount = impAttackFrames ? impAttackFrames.length : 0;
-      if (impAttackCount > 0) {
-        this.anims.create({
-          key: 'imp_attack',
-          frames: this.anims.generateFrameNumbers('imp_attack_sheet', { start: 0, end: impAttackCount - 1 }),
-          frameRate: 24,
-          repeat: 0,
-        });
-      }
-    }
-    // Bat idle: loop for combat display
-    if (this.textures.exists('bat_idle_sheet')) {
-      const batFrameNames = this.textures.get('bat_idle_sheet').getFrameNames();
-      const batCount = batFrameNames ? batFrameNames.length : 0;
-      if (batCount > 0) {
-        this.anims.create({
-          key: 'bat_idle',
-          frames: this.anims.generateFrameNumbers('bat_idle_sheet', { start: 0, end: batCount - 1 }),
-          frameRate: 20,
-          repeat: -1,
-        });
-      }
-    }
-    // Bat attack: one-shot for when bat attacks in combat
-    if (this.textures.exists('bat_attack_sheet')) {
-      const batAttackFrames = this.textures.get('bat_attack_sheet').getFrameNames();
-      const batAttackCount = batAttackFrames ? batAttackFrames.length : 0;
-      if (batAttackCount > 0) {
-        this.anims.create({
-          key: 'bat_attack',
-          frames: this.anims.generateFrameNumbers('bat_attack_sheet', { start: 0, end: batAttackCount - 1 }),
-          frameRate: 24,
-          repeat: 0,
-        });
-      }
-    }
-    // Reaper idle: loop for combat display
-    if (this.textures.exists('reaper_idle_sheet')) {
-      const reaperFrameNames = this.textures.get('reaper_idle_sheet').getFrameNames();
-      const reaperCount = reaperFrameNames ? reaperFrameNames.length : 0;
-      if (reaperCount > 0) {
-        this.anims.create({
-          key: 'reaper_idle',
-          frames: this.anims.generateFrameNumbers('reaper_idle_sheet', { start: 0, end: reaperCount - 1 }),
-          frameRate: 20,
-          repeat: -1,
-        });
-      }
-    }
-    // Reaper attack: one-shot for when reaper attacks in combat
-    if (this.textures.exists('reaper_attack_sheet')) {
-      const attackFrameNames = this.textures.get('reaper_attack_sheet').getFrameNames();
-      const attackCount = attackFrameNames ? attackFrameNames.length : 0;
-      if (attackCount > 0) {
-        this.anims.create({
-          key: 'reaper_attack',
-          frames: this.anims.generateFrameNumbers('reaper_attack_sheet', { start: 0, end: attackCount - 1 }),
-          frameRate: 24,
-          repeat: 0,
-        });
-      }
-    }
-    // Vampire idle: loop for standard boss combat display
-    if (this.textures.exists('vampire_idle_sheet')) {
-      const vampireFrameNames = this.textures.get('vampire_idle_sheet').getFrameNames();
-      const vampireCount = vampireFrameNames ? vampireFrameNames.length : 0;
-      if (vampireCount > 0) {
-        this.anims.create({
-          key: 'vampire_idle',
-          frames: this.anims.generateFrameNumbers('vampire_idle_sheet', { start: 0, end: vampireCount - 1 }),
-          frameRate: 20,
-          repeat: -1,
-        });
-      }
-    }
-    // Vampire attack: one-shot for standard boss attacks in combat
-    if (this.textures.exists('vampire_attack_sheet')) {
-      const vampireAttackFrameNames = this.textures.get('vampire_attack_sheet').getFrameNames();
-      const vampireAttackCount = vampireAttackFrameNames ? vampireAttackFrameNames.length : 0;
-      if (vampireAttackCount > 0) {
-        this.anims.create({
-          key: 'vampire_attack',
-          frames: this.anims.generateFrameNumbers('vampire_attack_sheet', { start: 0, end: vampireAttackCount - 1 }),
-          frameRate: 24,
-          repeat: 0,
-        });
-      }
-    }
-    const itemVisuals = typeof getPreloadItemVisuals === 'function' ? getPreloadItemVisuals() : [];
-    itemVisuals.forEach((visual) => {
-      if (!visual.hover) return;
-      if (visual.hover.style === 'pingPong') {
-        this.registerHoverIconAnim(visual.hover.sheetKey, visual.hover.animKey);
-        return;
-      }
-      this.registerFullCycleHoverIconAnim(visual.hover.sheetKey, visual.hover.animKey, visual.hover.frameRate || 16);
-    });
-    if (typeof applyAnimationSettings === 'function') applyAnimationSettings(this);
-
     GAMEPLAY_ASSETS_READY = true;
     this.scene.start(this.nextTarget || 'Overworld', this.nextTargetData || {});
   }
