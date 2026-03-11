@@ -32,7 +32,7 @@ Use this file when adding or changing sprites and animations. It documents the c
 
 | Purpose | Path | Texture key |
 |---------|------|-------------|
-| Idle | `assets/hero/Vince-idle.png` | `hero_sheet` |
+| Idle | `assets/hero/vince-idle.png` | `hero_sheet` |
 | Slash | `assets/hero/vince-regular-attack1.png` | `hero_slash_sheet` |
 | Heavy Strike | `assets/hero/heavy_strike_512x512_sheet.png` | `hero_heavy_strike_sheet` |
 | Healing (Holy Light) | `assets/hero/healing_512x512_sheet.png` | `hero_healing_sheet` |

@@ -4,6 +4,13 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.51 – 2026-03-11
+
+### Fixed
+- **GitHub Pages hero idle preload:** `BootScene` now loads `assets/hero/vince-idle.png` with the file's real lowercase name, preventing 404s on case-sensitive hosts such as GitHub Pages. (`BootScene.js`, `spritework.md`)
+
+---
+
 ## Version 3.2.50 – 2026-03-10
 
 ### Changed

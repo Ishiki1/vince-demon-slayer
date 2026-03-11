@@ -10,7 +10,7 @@ class BootScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.spritesheet('hero_sheet', 'assets/hero/Vince-idle.png', {
+    this.load.spritesheet('hero_sheet', 'assets/hero/vince-idle.png', {
       frameWidth: 512,
       frameHeight: 512,
     });
