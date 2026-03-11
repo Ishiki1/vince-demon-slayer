@@ -304,9 +304,23 @@ class GamePreloadScene extends Phaser.Scene {
     });
   }
 
-  create() {
-    // Sheet has 73 frames (0-72); last row is incomplete. Duplicate frame 0 at end for seamless loop.
-    const idleFrames = this.anims.generateFrameNumbers('hero_sheet', { start: 0, end: 72 });
+  registerHeroIdleAnim() {
+    if (this.anims.exists('hero_idle')) return true;
+    if (!this.textures.exists('hero_sheet')) {
+      console.warn('[GamePreload] hero_sheet missing; skipping hero_idle registration.');
+      return false;
+    }
+    const heroFrameNames = this.textures.get('hero_sheet').getFrameNames();
+    const heroFrameCount = heroFrameNames ? heroFrameNames.length : 0;
+    if (heroFrameCount === 0) {
+      console.warn('[GamePreload] hero_sheet has no frames; skipping hero_idle registration.');
+      return false;
+    }
+    const idleFrames = this.anims.generateFrameNumbers('hero_sheet', { start: 0, end: Math.min(72, heroFrameCount - 1) });
+    if (idleFrames.length === 0) {
+      console.warn('[GamePreload] hero_sheet frame generation failed; skipping hero_idle registration.');
+      return false;
+    }
     idleFrames.push(idleFrames[0]);
     this.anims.create({
       key: 'hero_idle',
@@ -314,6 +328,11 @@ class GamePreloadScene extends Phaser.Scene {
       frameRate: 30,
       repeat: 0,
     });
+    return true;
+  }
+
+  create() {
+    this.registerHeroIdleAnim();
     if (this.textures.exists('hero_lightning_set_idle_sheet')) {
       const lightningIdleFrameNames = this.textures.get('hero_lightning_set_idle_sheet').getFrameNames();
       const lightningIdleCount = lightningIdleFrameNames ? lightningIdleFrameNames.length : 0;
