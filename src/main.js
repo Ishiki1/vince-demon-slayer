@@ -42,6 +42,7 @@ function resetRun() {
   GAME_STATE.freeMineWeekUsed = null;
   GAME_STATE.levelJustCompleted = false;
   if (typeof clearRunUnlockSelection === 'function') clearRunUnlockSelection();
+  if (typeof clearPendingRunBootstrap === 'function') clearPendingRunBootstrap();
 }
 
 // Global game state shared by all scenes (reset on new run or game over)

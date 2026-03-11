@@ -112,6 +112,7 @@ class MenuScene extends Phaser.Scene {
   create() {
     const w = CONFIG.WIDTH;
     const h = CONFIG.HEIGHT;
+    const data = this.scene.settings.data || {};
     if (typeof applyAnimationSettings === 'function') applyAnimationSettings(this);
 
     if (typeof playGameMusicLoop === 'function') playGameMusicLoop(this);
@@ -127,6 +128,15 @@ class MenuScene extends Phaser.Scene {
       stroke: '#0f172a',
       strokeThickness: 6,
     }).setOrigin(0.5);
+    if (data.pendingRunLost) {
+      this.add.text(w / 2, hasArt ? 112 : (h / 2 - 18), 'Run interrupted during loading. Start or load again.', {
+        fontSize: hasArt ? 16 : 18,
+        color: '#f87171',
+        stroke: '#0f172a',
+        strokeThickness: hasArt ? 3 : 0,
+        align: 'center',
+      }).setOrigin(0.5).setWordWrapWidth(560);
+    }
 
     const openSettings = () => this.scene.start('Settings', { from: 'Menu' });
 

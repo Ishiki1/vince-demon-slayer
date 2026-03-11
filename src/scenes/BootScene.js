@@ -122,6 +122,9 @@ function startSceneWithGameplayPreload(scene, targetKey, targetData) {
     scene.scene.start(targetKey, targetData || {});
     return;
   }
+  if (GAME_STATE && GAME_STATE.hero && typeof persistPendingRunBootstrap === 'function') {
+    persistPendingRunBootstrap(targetKey, targetData || {});
+  }
   scene.scene.start('GamePreload', {
     target: targetKey,
     targetData: targetData || {},
@@ -138,6 +141,13 @@ class BootScene extends Phaser.Scene {
   }
 
   create() {
+    if (typeof restorePendingRunBootstrap === 'function') {
+      const pendingRun = restorePendingRunBootstrap();
+      if (pendingRun && pendingRun.targetKey && GAME_STATE && GAME_STATE.hero) {
+        startSceneWithGameplayPreload(this, pendingRun.targetKey, pendingRun.targetData || {});
+        return;
+      }
+    }
     this.scene.start('Menu');
   }
 }

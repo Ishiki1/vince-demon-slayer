@@ -216,9 +216,22 @@ class OverworldScene extends Phaser.Scene {
 
   create() {
     if (!GAME_STATE.hero) {
-      this.scene.start('Menu');
+      if (typeof restorePendingRunBootstrap === 'function') {
+        const pendingRun = restorePendingRunBootstrap();
+        if (pendingRun && GAME_STATE.hero) {
+          if (typeof startSceneWithGameplayPreload === 'function') {
+            startSceneWithGameplayPreload(this, pendingRun.targetKey || 'Overworld', pendingRun.targetData || {});
+          } else {
+            this.scene.start(pendingRun.targetKey || 'Overworld', pendingRun.targetData || {});
+          }
+          return;
+        }
+      }
+      if (typeof clearPendingRunBootstrap === 'function') clearPendingRunBootstrap();
+      this.scene.start('Menu', { pendingRunLost: true });
       return;
     }
+    if (typeof clearPendingRunBootstrap === 'function') clearPendingRunBootstrap();
     if (typeof applyAnimationSettings === 'function') applyAnimationSettings(this);
     const w = CONFIG.WIDTH;
     const h = CONFIG.HEIGHT;
