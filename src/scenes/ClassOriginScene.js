@@ -26,7 +26,11 @@ class ClassOriginScene extends Phaser.Scene {
       if (GAME_STATE.runUnlocks && GAME_STATE.runUnlocks.includes('growthSpurt')) {
         GAME_STATE.hero.runStatGrowthBonus = 1;
       }
-      this.scene.start('Overworld');
+      if (typeof startSceneWithGameplayPreload === 'function') {
+        startSceneWithGameplayPreload(this, 'Overworld');
+      } else {
+        this.scene.start('Overworld');
+      }
     }, {
       width: 180,
       height: 52,

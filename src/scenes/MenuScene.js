@@ -30,7 +30,11 @@ class MenuScene extends Phaser.Scene {
 
   tryLoadExistingGame(errorY) {
     if (typeof loadGame === 'function' && loadGame()) {
-      this.scene.start('Overworld');
+      if (typeof startSceneWithGameplayPreload === 'function') {
+        startSceneWithGameplayPreload(this, 'Overworld');
+      } else {
+        this.scene.start('Overworld');
+      }
       return true;
     }
     this.showLoadError(errorY);

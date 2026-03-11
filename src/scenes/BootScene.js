@@ -1,8 +1,31 @@
 /**
  * BootScene.js
- * Loads minimal assets and starts Menu.
+ * Minimal boot for menu/settings, plus deferred gameplay preload for the heavy bundle.
  * Use createSeamlessLoop() for any looping sprite animation to avoid a blink when the animation repeats.
  */
+
+let GAMEPLAY_ASSETS_READY = false;
+
+function preloadBootMenuAssets(scene) {
+  if (!scene || !scene.load) return;
+  scene.load.image('startgame-ui-background', 'assets/overworld/startgame-bg.png');
+  scene.load.image('settingsscene-ui-background', 'assets/ui/SettingsScene-bg.png');
+  scene.load.json('settingsscene-hotspots', 'assets/ui/SettingsScene-bg-hotspots-800x600.json');
+  scene.load.image('continue-button', 'assets/ui/continue-button.png');
+  scene.load.audio('game-music', 'assets/sounds/game-music.mp3');
+}
+
+function startSceneWithGameplayPreload(scene, targetKey, targetData) {
+  if (!scene || !scene.scene || !targetKey) return;
+  if (GAMEPLAY_ASSETS_READY) {
+    scene.scene.start(targetKey, targetData || {});
+    return;
+  }
+  scene.scene.start('GamePreload', {
+    target: targetKey,
+    targetData: targetData || {},
+  });
+}
 
 class BootScene extends Phaser.Scene {
   constructor() {
@@ -10,6 +33,44 @@ class BootScene extends Phaser.Scene {
   }
 
   preload() {
+    preloadBootMenuAssets(this);
+  }
+
+  create() {
+    this.scene.start('Menu');
+  }
+}
+
+class GamePreloadScene extends Phaser.Scene {
+  constructor() {
+    super({ key: 'GamePreload' });
+  }
+
+  init(data) {
+    this.nextTarget = data && data.target ? data.target : 'Overworld';
+    this.nextTargetData = data && data.targetData ? data.targetData : {};
+  }
+
+  preload() {
+    const w = CONFIG.WIDTH;
+    const h = CONFIG.HEIGHT;
+    this.add.rectangle(w / 2, h / 2, w, h, 0x0f172a);
+    this.add.text(w / 2, h / 2 - 42, 'Loading game assets...', {
+      fontSize: 28,
+      color: '#fbbf24',
+    }).setOrigin(0.5);
+    const progressText = this.add.text(w / 2, h / 2 + 8, '0%', {
+      fontSize: 18,
+      color: '#e5e7eb',
+    }).setOrigin(0.5);
+    this.add.rectangle(w / 2, h / 2 + 58, 320, 18, 0x1e293b).setOrigin(0.5);
+    const progressBar = this.add.rectangle(w / 2 - 156, h / 2 + 58, 0, 10, 0x22c55e).setOrigin(0, 0.5);
+    this.load.on('progress', (value) => {
+      const pct = Math.max(0, Math.min(100, Math.round(value * 100)));
+      progressText.setText(pct + '%');
+      progressBar.width = 312 * value;
+    });
+
     this.load.spritesheet('hero_sheet', 'assets/hero/vince-idle.png', {
       frameWidth: 512,
       frameHeight: 512,
@@ -131,12 +192,10 @@ class BootScene extends Phaser.Scene {
     ].forEach((key) => {
       this.load.image(key, `assets/ui/${key}.png`);
     });
-    this.load.image('continue-button', 'assets/ui/continue-button.png');
     this.load.image('inventory-ui-layout', 'assets/ui/Inventory.png');
     for (let n = 1; n <= 10; n++) {
       this.load.image(`level${n}-ui-background`, `assets/overworld/level${n}-bg.png`);
     }
-    this.load.image('startgame-ui-background', 'assets/overworld/startgame-bg.png');
     this.load.image('town-ui-background', 'assets/overworld/town-bg.png');
     this.load.image('blacksmith-ui-background', 'assets/overworld/blacksmith-bg.png');
     this.load.image('shop-ui-background', 'assets/overworld/shop-with-buttons-bg.png');
@@ -146,8 +205,6 @@ class BootScene extends Phaser.Scene {
     this.load.image('eventscene-ui-background', 'assets/ui/EventScene-bg.png');
     this.load.image('lootscene-ui-background', 'assets/ui/LootScene-bg.png');
     this.load.json('lootscene-hotspots', 'assets/ui/LootScene-bg-hotspots-800x600.json');
-    this.load.image('settingsscene-ui-background', 'assets/ui/SettingsScene-bg.png');
-    this.load.json('settingsscene-hotspots', 'assets/ui/SettingsScene-bg-hotspots-800x600.json');
     this.load.image('overworld-ui-background', 'assets/overworld/overworld-bg-800x600-hotspots.png');
     [
       'button-slash',
@@ -189,7 +246,10 @@ class BootScene extends Phaser.Scene {
     });
 
     const soundEntries = typeof getAllSoundEntries === 'function' ? getAllSoundEntries() : [];
-    soundEntries.forEach((e) => this.load.audio(e.key, e.path));
+    soundEntries.forEach((e) => {
+      if (this.cache && this.cache.audio && this.cache.audio.exists(e.key)) return;
+      this.load.audio(e.key, e.path);
+    });
   }
 
   /**
@@ -478,6 +538,7 @@ class BootScene extends Phaser.Scene {
     });
     if (typeof applyAnimationSettings === 'function') applyAnimationSettings(this);
 
-    this.scene.start('Menu');
+    GAMEPLAY_ASSETS_READY = true;
+    this.scene.start(this.nextTarget || 'Overworld', this.nextTargetData || {});
   }
 }
