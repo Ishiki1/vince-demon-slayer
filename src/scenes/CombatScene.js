@@ -335,8 +335,9 @@ class CombatScene extends Phaser.Scene {
     const heroW = CONFIG.HERO_SPRITE_DISPLAY_WIDTH;
     const heroH = CONFIG.HERO_SPRITE_DISPLAY_HEIGHT;
     const heroIdleVisual = this.getHeroIdleVisual();
+    const spriteY = h / 2 + 100;
     if (heroIdleVisual) {
-      this.heroSprite = this.add.sprite(150, h / 2, heroIdleVisual.sheetKey)
+      this.heroSprite = this.add.sprite(150, spriteY, heroIdleVisual.sheetKey)
         .setDisplaySize(heroW, heroH)
         .setOrigin(0.5, 0.5);
       this.heroSprite.setFrame(0);
@@ -349,9 +350,9 @@ class CombatScene extends Phaser.Scene {
         }
       });
     } else {
-      this.heroSprite = this.add.rectangle(150, h / 2, heroW, heroH, 0x2563eb).setOrigin(0.5, 0.5);
+      this.heroSprite = this.add.rectangle(150, spriteY, heroW, heroH, 0x2563eb).setOrigin(0.5, 0.5);
     }
-    this.add.text(150, h / 2 - heroH / 2 - 24, this.hero.name || 'Hero', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
+    this.add.text(150, spriteY - heroH / 2 - 24, this.hero.name || 'Hero', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
 
     const enemyW = CONFIG.ENEMY_SPRITE_WIDTH;
     const enemyH = CONFIG.ENEMY_SPRITE_HEIGHT;
@@ -362,30 +363,30 @@ class CombatScene extends Phaser.Scene {
       const enemy = this.enemies[i];
       let displayObj;
       if (enemy.name === 'The Reaper' && this.textures.exists('reaper_idle_sheet') && this.anims.exists('reaper_idle')) {
-        const sprite = this.add.sprite(x, h / 2, 'reaper_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
+        const sprite = this.add.sprite(x, spriteY, 'reaper_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
         sprite.play('reaper_idle');
         displayObj = sprite;
       } else if (this.isVampireBossEnemy(enemy) && this.textures.exists('vampire_idle_sheet') && this.anims.exists('vampire_idle')) {
-        const sprite = this.add.sprite(x, h / 2, 'vampire_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
+        const sprite = this.add.sprite(x, spriteY, 'vampire_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
         sprite.play('vampire_idle');
         displayObj = sprite;
       } else if (enemy.goonType === 'skeleton' && this.textures.exists('skeleton_idle_sheet') && this.anims.exists('skeleton_idle')) {
-        const sprite = this.add.sprite(x, h / 2, 'skeleton_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
+        const sprite = this.add.sprite(x, spriteY, 'skeleton_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
         sprite.play('skeleton_idle');
         displayObj = sprite;
       } else if (enemy.goonType === 'bat' && this.textures.exists('bat_idle_sheet') && this.anims.exists('bat_idle')) {
-        const sprite = this.add.sprite(x, h / 2, 'bat_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
+        const sprite = this.add.sprite(x, spriteY, 'bat_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
         sprite.play('bat_idle');
         displayObj = sprite;
       } else if (enemy.goonType === 'imp' && this.textures.exists('imp_idle_sheet') && this.anims.exists('imp_idle')) {
-        const sprite = this.add.sprite(x, h / 2, 'imp_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
+        const sprite = this.add.sprite(x, spriteY, 'imp_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
         sprite.play('imp_idle');
         displayObj = sprite;
       } else {
-        displayObj = this.add.rectangle(x, h / 2, enemyW, enemyH, enemyColor);
+        displayObj = this.add.rectangle(x, spriteY, enemyW, enemyH, enemyColor);
       }
-      const nameText = this.add.text(x, h / 2 - enemyH / 2 - 28, enemy.name, { fontSize: 12, color: '#fff' }).setOrigin(0.5);
-      const hpText = this.add.text(x, h / 2 - enemyH / 2 - 12, `HP: ${enemy.hp}/${enemy.maxHp}`, { fontSize: 12, color: '#fff' }).setOrigin(0.5);
+      const nameText = this.add.text(x, spriteY - enemyH / 2 - 28, enemy.name, { fontSize: 12, color: '#fff' }).setOrigin(0.5);
+      const hpText = this.add.text(x, spriteY - enemyH / 2 - 12, `HP: ${enemy.hp}/${enemy.maxHp}`, { fontSize: 12, color: '#fff' }).setOrigin(0.5);
       displayObj.setInteractive({ useHandCursor: true });
       const enemyIndex = i;
       displayObj.on('pointerdown', () => this.onEnemyClicked(enemyIndex));
@@ -412,29 +413,30 @@ class CombatScene extends Phaser.Scene {
     this.combatLogText.setOrigin(0, 0);
 
     this.skillButtons = createSkillButtons(this, hero, (skillId) => this.useSkill(skillId));
-    const inventoryButton = typeof createIconButton === 'function'
-      ? createIconButton(this, w - 80, h - 40, 'inventory-icon', 'Inventory', () => this.openInventoryScene(), {
+    const inventoryButton = typeof createUiIconButton === 'function'
+      ? createUiIconButton(this, w - 44, h - 100, 'inventory-icon', 'Inventory', () => this.openInventoryScene(), {
           size: 52,
-          tooltipY: h - 82,
+          tooltipY: h - 68,
+          tooltipOriginY: 0,
         })
       : null;
     if (!inventoryButton) {
-      const invBtn = this.add.rectangle(w - 80, h - 40, 120, 44, 0x475569);
+      const invBtn = this.add.rectangle(w - 44, h - 100, 52, 52, 0x475569);
       invBtn.setInteractive({ useHandCursor: true });
-      this.add.text(w - 80, h - 40, 'Inventory', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
+      this.add.text(w - 44, h - 100, 'Inv', { fontSize: 14, color: '#fff' }).setOrigin(0.5);
       invBtn.on('pointerdown', () => this.openInventoryScene());
     }
 
-    const fleeButton = typeof createIconButton === 'function'
-      ? createIconButton(this, w - 80, h - 95, 'flee-icon', 'Flee', () => this.showFleeConfirmModal(), {
+    const fleeButton = typeof createUiIconButton === 'function'
+      ? createUiIconButton(this, w - 44, h - 156, 'flee-icon', 'Flee', () => this.showFleeConfirmModal(), {
           size: 52,
-          tooltipY: h - 137,
+          tooltipY: h - 198,
         })
       : null;
     if (!fleeButton) {
-      const fleeBtn = this.add.rectangle(w - 80, h - 95, 120, 40, 0x7f1d1d);
+      const fleeBtn = this.add.rectangle(w - 44, h - 156, 52, 52, 0x7f1d1d);
       fleeBtn.setInteractive({ useHandCursor: true });
-      this.add.text(w - 80, h - 95, 'Flee', { fontSize: 14, color: '#fecaca' }).setOrigin(0.5);
+      this.add.text(w - 44, h - 156, 'Flee', { fontSize: 14, color: '#fecaca' }).setOrigin(0.5);
       fleeBtn.on('pointerdown', () => this.showFleeConfirmModal());
     }
 

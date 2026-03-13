@@ -106,9 +106,9 @@ class OverworldScene extends Phaser.Scene {
     return interactive;
   }
 
-  createUiIconButton(x, y, textureKey, tooltip, onClick, options) {
-    if (typeof createIconButton === 'function') {
-      return createIconButton(this, x, y, textureKey, tooltip, onClick, options);
+  createSceneIconButton(x, y, textureKey, tooltip, onClick, options) {
+    if (typeof createUiIconButton === 'function') {
+      return createUiIconButton(this, x, y, textureKey, tooltip, onClick, options);
     }
     return null;
   }
@@ -241,40 +241,49 @@ class OverworldScene extends Phaser.Scene {
     }
 
     const uiIconSpacing = 72;
-    const topRightRightX = w - 72;
-    const topRightY = 58;
+    const bottomRightRightX = w - 42;
     const bottomRightY = btnY;
-    const bottomRightRightX = topRightRightX + 30;
 
-    this.createUiIconButton(bottomRightRightX - uiIconSpacing, bottomRightY, 'inventory-icon', 'Inventory', () => this.scene.start('InventoryOverworld', { from: 'Overworld' }), {
+    this.createSceneIconButton(bottomRightRightX - uiIconSpacing, bottomRightY, 'inventory-icon', 'Inventory', () => this.scene.start('InventoryOverworld', { from: 'Overworld' }), {
       size: 52,
       tooltipY: bottomRightY - 42,
     });
-    this.createUiIconButton(bottomRightRightX, bottomRightY, 'character-sheet-icon', 'Character Sheet', () => this.scene.start('CharacterSheet', { from: 'Overworld' }), {
+    this.createSceneIconButton(bottomRightRightX, bottomRightY, 'character-sheet-icon', 'Character Sheet', () => this.scene.start('CharacterSheet', { from: 'Overworld' }), {
       size: 52,
       tooltipY: bottomRightY - 42,
     });
-    this.createUiIconButton(topRightRightX - uiIconSpacing * 2, topRightY, 'settings-icon', 'Settings', () => this.scene.start('Settings', { from: 'Overworld' }), {
+
+    const topRightX = w - 42;
+    const topRightY = 30;
+    const topRightSpacing = 56;
+    this.createSceneIconButton(topRightX - topRightSpacing * 2, topRightY, 'settings-icon', 'Settings', () => this.scene.start('Settings', { from: 'Overworld' }), {
       size: 42,
-      tooltipY: 98,
+      tooltipX: topRightX - topRightSpacing * 2,
+      tooltipY: topRightY + 34,
+      tooltipOriginY: 0,
     });
-    this.createUiIconButton(topRightRightX - uiIconSpacing, topRightY, 'save-game-icon', 'Save Game', () => {
+    this.createSceneIconButton(topRightX - topRightSpacing, topRightY, 'save-game-icon', 'Save Game', () => {
       if (GAME_STATE.hero && typeof saveGame === 'function' && saveGame()) {
         const msg = this.add.text(w / 2, 100, 'Game saved.', { fontSize: 16, color: '#86efac' }).setOrigin(0.5);
         this.time.delayedCall(1500, () => msg.destroy());
       }
     }, {
       size: 42,
-      tooltipY: 98,
+      tooltipX: topRightX - topRightSpacing,
+      tooltipY: topRightY + 34,
+      tooltipOriginY: 0,
     });
-    this.createUiIconButton(topRightRightX, topRightY, 'abandon-run-icon', 'Abandon Run', () => {
+    this.createSceneIconButton(topRightX, topRightY, 'abandon-run-icon', 'Abandon Run', () => {
       const runPoints = GAME_STATE.points || 0;
       addTotalPoints(runPoints);
       resetRun();
       this.scene.start('RunEnded', { runPoints, title: 'Run ended' });
     }, {
       size: 42,
-      tooltipY: 98,
+      tooltipX: topRightX,
+      tooltipY: topRightY + 34,
+      tooltipOriginX: 1,
+      tooltipOriginY: 0,
     });
 
     const levelsToShow = GAME_STATE.act === 2 ? LEVELS_ACT2 : LEVELS_ACT1;

@@ -4,6 +4,27 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.56 – 2026-03-13
+
+### Changed
+- **Warrior passive skill icons:** Finalized `passive-brutal-might.png` and `passive-combat-reflexes.png` by cropping the approved framed raw proofs down to square `256x256` skill icons for the shared skills UI. (`assets/ui/skills/passive-brutal-might.png`, `assets/ui/skills/passive-combat-reflexes.png`)
+
+---
+
+## Version 3.2.55 – 2026-03-13
+
+### Changed
+- **Warrior passive skill icons:** Replaced the tiny placeholder `passive-mana2.png`, `passive-def1.png`, and `passive-str2.png` with new framed dark-fantasy pixel-art icons that match the regenerated Warrior passive style. (`assets/ui/skills/passive-mana2.png`, `assets/ui/skills/passive-def1.png`, `assets/ui/skills/passive-str2.png`)
+
+---
+
+## Version 3.2.54 – 2026-03-13
+
+### Changed
+- **Warrior Slash skill icon:** Replaced the tiny placeholder `button-slash.png` with a new framed dark-fantasy pixel-art icon that matches the regenerated Warrior skill set. (`assets/ui/skills/button-slash.png`)
+
+---
+
 ## Version 3.2.52 – 2026-03-13
 
 ### Fixed

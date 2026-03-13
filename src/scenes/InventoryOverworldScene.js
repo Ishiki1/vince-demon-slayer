@@ -27,23 +27,23 @@ const INVENTORY_GRID = {
 // These coordinates mirror inventory-layout-redesign-guide.svg on the fixed 800x600 canvas.
 const INVENTORY_LAYOUT = {
   slots: {
-    character: { x: 116, y: 96, width: 100, height: 180 },
-    weapon: { x: 236, y: 96, width: 100, height: 84 },
-    armor: { x: 236, y: 192, width: 100, height: 84 },
-    accessory1: { x: 116, y: 300, width: 100, height: 84 },
-    accessory2: { x: 236, y: 300, width: 100, height: 84 },
+    character: { x: 136, y: 96, width: 100, height: 180 },
+    weapon: { x: 256, y: 96, width: 100, height: 84 },
+    armor: { x: 256, y: 192, width: 100, height: 84 },
+    accessory1: { x: 136, y: 300, width: 100, height: 84 },
+    accessory2: { x: 256, y: 300, width: 100, height: 84 },
   },
   hero: {
-    x: 166,
+    x: 186,
     y: 186,
-    width: 84,
-    height: 128,
+    width: 105,
+    height: 160,
   },
   equipped: {
-    weapon: { x: 286, y: 138, width: 100, height: 84 },
-    armor: { x: 286, y: 234, width: 100, height: 84 },
-    accessory1: { x: 166, y: 342, width: 100, height: 84 },
-    accessory2: { x: 286, y: 342, width: 100, height: 84 },
+    weapon: { x: 306, y: 138, width: 100, height: 84 },
+    armor: { x: 306, y: 234, width: 100, height: 84 },
+    accessory1: { x: 186, y: 342, width: 100, height: 84 },
+    accessory2: { x: 306, y: 342, width: 100, height: 84 },
   },
   bag: {
     iconWidth: 49,
@@ -313,7 +313,7 @@ class InventoryOverworldScene extends Phaser.Scene {
       onHoverChanged: (hovered) => this.setInventoryUniqueHoverState(icon, item, hovered),
     });
     this.dynamicEls.push(hitArea);
-    this.renderDurability(slot, bounds.x + bounds.width - 8, bounds.y + bounds.height - 14);
+    this.renderDurability(slot, equippedLayout.x, equippedLayout.y + equippedLayout.height / 2 - 2);
   }
 
   renderGeneralInventory() {
@@ -400,7 +400,7 @@ class InventoryOverworldScene extends Phaser.Scene {
       fontSize: 10,
       color: '#e5e7eb',
       backgroundColor: '#0f172a',
-    }).setOrigin(1, 1);
+    }).setOrigin(0.5, 1).setDepth(5);
     this.dynamicEls.push(text);
   }
 

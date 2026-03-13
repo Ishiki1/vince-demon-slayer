@@ -293,6 +293,7 @@ class GamePreloadScene extends Phaser.Scene {
       'save-game-icon',
       'abandon-run-icon',
       'inventory-icon',
+      'flee-icon',
       'character-sheet-icon',
       'inn-icon',
       'shop-icon',

@@ -1,23 +1,22 @@
 /**
  * SkillButtons.js
- * Creates clickable skill buttons (shape + text) for combat.
- * Shows skill name and mana cost; disables when not enough mana.
+ * Creates clickable skill buttons (icon-only, single row) for combat.
+ * Dynamically centres the row based on visible skill count.
  */
 
-const SKILLS_PER_ROW = 5;
 const SKILL_SLOT_SIZE = 58;
 const SKILL_ICON_SIZE = 42;
-const SKILL_CELL_WIDTH = 72;
-const SKILL_CELL_HEIGHT = 78;
-const SKILL_PADDING = 12;
+const SKILL_CELL_SIZE = 58;
+const SKILL_PADDING = 6;
 
 function createSkillButtons(scene, hero, onSkillClick) {
   const buttons = [];
-  const totalWidth = SKILLS_PER_ROW * SKILL_CELL_WIDTH + (SKILLS_PER_ROW - 1) * SKILL_PADDING;
-  const startX = Math.max(28, Math.floor((CONFIG.WIDTH - totalWidth) / 2));
-  const startY = 396;
   const skillMap = getSkillsForClass(hero);
   const visibleSkills = hero.skills.filter(skillId => hero.lockedSkillId !== skillId);
+
+  const totalWidth = visibleSkills.length * SKILL_CELL_SIZE + Math.max(0, visibleSkills.length - 1) * SKILL_PADDING;
+  const startX = Math.max(8, Math.floor((CONFIG.WIDTH - totalWidth) / 2));
+  const startY = CONFIG.HEIGHT - SKILL_CELL_SIZE - 8;
 
   let enabled = true;
 
@@ -26,10 +25,6 @@ function createSkillButtons(scene, hero, onSkillClick) {
     button.slotBg.setFillStyle(0x0f172a, 0);
     button.slotBg.setStrokeStyle(0, 0x000000, 0);
     button.slotBg.setAlpha(0);
-    button.manaBg.setFillStyle(canUse ? 0x1d4ed8 : 0x475569);
-    button.manaBg.setAlpha(enabled ? 1 : 0.5);
-    button.manaText.setAlpha(enabled ? 1 : 0.5);
-    button.manaText.setColor(canUse ? '#e5e7eb' : '#cbd5e1');
     if (button.icon) button.icon.setAlpha(enabled ? (canUse ? 1 : 0.55) : 0.35);
     if (button.fallbackLabel) {
       button.fallbackLabel.setAlpha(enabled ? (canUse ? 1 : 0.7) : 0.45);
@@ -39,37 +34,28 @@ function createSkillButtons(scene, hero, onSkillClick) {
 
   const tipStyle = { fontSize: 14, color: '#e5e7eb', fontFamily: 'Arial' };
   const tipX = CONFIG.WIDTH / 2;
-  const tipY = CONFIG.HEIGHT - 100;
+  const tipY = startY - 12;
 
   visibleSkills.forEach((skillId, i) => {
     const skill = skillMap[skillId];
     if (!skill) return;
-    const row = Math.floor(i / SKILLS_PER_ROW);
-    const col = i % SKILLS_PER_ROW;
-    const x = startX + col * (SKILL_CELL_WIDTH + SKILL_PADDING);
-    const y = startY + row * (SKILL_CELL_HEIGHT + SKILL_PADDING);
-    const centerX = x + SKILL_CELL_WIDTH / 2;
-    const slotY = y + SKILL_SLOT_SIZE / 2;
-    const hitArea = scene.add.rectangle(centerX, y + SKILL_CELL_HEIGHT / 2, SKILL_CELL_WIDTH, SKILL_CELL_HEIGHT, 0x0f172a, 0.001);
-    const slotBg = scene.add.rectangle(centerX, slotY, SKILL_SLOT_SIZE, SKILL_SLOT_SIZE, 0x0f172a, 0)
+    const x = startX + i * (SKILL_CELL_SIZE + SKILL_PADDING);
+    const centerX = x + SKILL_CELL_SIZE / 2;
+    const centerY = startY + SKILL_CELL_SIZE / 2;
+    const hitArea = scene.add.rectangle(centerX, centerY, SKILL_CELL_SIZE, SKILL_CELL_SIZE, 0x0f172a, 0.001);
+    const slotBg = scene.add.rectangle(centerX, centerY, SKILL_SLOT_SIZE, SKILL_SLOT_SIZE, 0x0f172a, 0)
       .setStrokeStyle(0, 0x000000, 0);
     const iconKey = skill.assetKey;
     const icon = iconKey && scene.textures.exists(iconKey)
-      ? scene.add.image(centerX, slotY - 4, iconKey).setDisplaySize(SKILL_ICON_SIZE, SKILL_ICON_SIZE)
+      ? scene.add.image(centerX, centerY, iconKey).setDisplaySize(SKILL_ICON_SIZE, SKILL_ICON_SIZE)
       : null;
     const fallbackLabel = icon
       ? null
-      : scene.add.text(centerX, slotY - 5, skill.name, {
+      : scene.add.text(centerX, centerY, skill.name, {
           fontSize: 10,
           color: '#fff',
           align: 'center',
         }).setOrigin(0.5).setWordWrapWidth(SKILL_SLOT_SIZE - 10);
-    const manaBg = scene.add.rectangle(centerX, y + 66, 34, 15, 0x1d4ed8);
-    const manaText = scene.add.text(centerX, y + 66, `M${skill.manaCost}`, {
-      fontSize: 10,
-      color: '#e5e7eb',
-      fontFamily: 'Arial',
-    }).setOrigin(0.5);
 
     hitArea.setInteractive({ useHandCursor: true });
 
@@ -78,8 +64,6 @@ function createSkillButtons(scene, hero, onSkillClick) {
       slotBg,
       icon,
       fallbackLabel,
-      manaBg,
-      manaText,
       skillId,
       skill,
       isHovered: false,
@@ -150,8 +134,6 @@ function createSkillButtons(scene, hero, onSkillClick) {
         b.slotBg.destroy();
         if (b.icon) b.icon.destroy();
         if (b.fallbackLabel) b.fallbackLabel.destroy();
-        b.manaBg.destroy();
-        b.manaText.destroy();
       });
     },
   };

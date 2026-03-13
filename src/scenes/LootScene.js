@@ -94,26 +94,26 @@ class LootScene extends Phaser.Scene {
       this.add.rectangle(w / 2, h / 2, w, h, 0x1a1a2e).setDepth(-30);
     }
 
-    this.add.text(w / 2, 60, 'Loot', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
+    this.add.text(w / 2, 160, 'Loot', { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
     if (goldEarned > 0) {
-      this.add.text(w / 2, 100, `+${goldEarned} Gold`, { fontSize: 20, color: '#fbbf24' }).setOrigin(0.5);
+      this.add.text(w / 2, 200, `+${goldEarned} Gold`, { fontSize: 20, color: '#fbbf24' }).setOrigin(0.5);
     }
 
     if (itemId && ITEMS[itemId]) {
       const item = ITEMS[itemId];
-      createItemIconSprite(this, item, w / 2, h / 2 - 120, { width: 96, height: 96 });
-      this.add.text(w / 2, h / 2 - 50, item.name, { fontSize: 24, color: '#e5e7eb' }).setOrigin(0.5);
-      this.add.text(w / 2, h / 2 - 20, `(${item.rarity})`, { fontSize: 18, color: '#94a3b8' }).setOrigin(0.5);
+      createItemIconSprite(this, item, w / 2, h / 2 - 20, { width: 96, height: 96 });
+      this.add.text(w / 2, h / 2 + 50, item.name, { fontSize: 24, color: '#e5e7eb' }).setOrigin(0.5);
+      this.add.text(w / 2, h / 2 + 80, `(${item.rarity})`, { fontSize: 18, color: '#94a3b8' }).setOrigin(0.5);
       const effectLine = getItemEffectLine(item);
-      if (effectLine) this.add.text(w / 2, h / 2 + 10, effectLine, { fontSize: 14, color: '#a5b4fc' }).setOrigin(0.5);
+      if (effectLine) this.add.text(w / 2, h / 2 + 110, effectLine, { fontSize: 14, color: '#a5b4fc' }).setOrigin(0.5);
     } else {
-      this.add.text(w / 2, h / 2 - 20, 'No loot this time.', { fontSize: 18, color: '#94a3b8' }).setOrigin(0.5);
+      this.add.text(w / 2, h / 2 + 80, 'No loot this time.', { fontSize: 18, color: '#94a3b8' }).setOrigin(0.5);
     }
 
     if (continueHotspot) {
       this.createLootHotspot(continueHotspot, handleContinue);
     } else {
-      this.createFallbackContinueButton(w / 2, h - 92, handleContinue);
+      this.createFallbackContinueButton(w / 2, h + 8, handleContinue);
     }
   }
 

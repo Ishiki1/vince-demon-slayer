@@ -63,6 +63,25 @@ class TownScene extends Phaser.Scene {
       }
     );
 
+    const bottomLeftX = 42;
+    const bottomLeftSpacing = 56;
+    createUiIconButton(this, bottomLeftX, bottomUtilityY, 'settings-icon', 'Settings',
+      () => this.scene.start('Settings', { from: 'Town' }),
+      { size: 42, tooltipX: bottomLeftX, tooltipY: bottomUtilityY - 34 }
+    );
+    createUiIconButton(this, bottomLeftX + bottomLeftSpacing, bottomUtilityY, 'save-game-icon', 'Save Game', () => {
+      if (GAME_STATE.hero && typeof saveGame === 'function' && saveGame()) {
+        const msg = this.add.text(w / 2, h - 120, 'Game saved.', { fontSize: 16, color: '#86efac' }).setOrigin(0.5);
+        this.time.delayedCall(1500, () => msg.destroy());
+      }
+    }, { size: 42, tooltipX: bottomLeftX + bottomLeftSpacing, tooltipY: bottomUtilityY - 34 });
+    createUiIconButton(this, bottomLeftX + bottomLeftSpacing * 2, bottomUtilityY, 'abandon-run-icon', 'Abandon Run', () => {
+      const runPoints = GAME_STATE.points || 0;
+      addTotalPoints(runPoints);
+      resetRun();
+      this.scene.start('RunEnded', { runPoints, title: 'Run ended' });
+    }, { size: 42, tooltipX: bottomLeftX + bottomLeftSpacing * 2, tooltipY: bottomUtilityY - 34 });
+
     if (!hasArt) {
       createButton(this, w / 2, h / 2 - 20, 220, 48, `Rest (Full HP & Mana) - ${this.restPrice}g`, { bgColor: 0x4ade80, fontSize: 15 }, () => {
         this.handleLandingAction('rest');
