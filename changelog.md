@@ -17,6 +17,13 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.53 – 2026-03-13
+
+### Technical
+- **Repo guidance refresh:** `cursor.md` now reflects the current Cloud workflow, source-of-truth files, save/storage keys, hotspot/art guidance, and gameplay preload flow, and removes stale machine-specific and browser-playthrough-first instructions. (`cursor.md`)
+
+---
+
 ## Version 3.2.51 – 2026-03-11
 
 ### Fixed
