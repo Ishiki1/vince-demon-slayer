@@ -24,6 +24,15 @@ Use this file as the source of additional rules when working on **Demon Slayer (
 
 ---
 
+## Branch / PR Workflow
+
+- **Persistent AI branch:** Use `cursorai` for AI-authored follow-up work when a long-lived AI branch is preferred.
+- **Before starting AI work:** Sync the chosen AI branch with the latest intended base before editing so stale merged history does not accumulate.
+- **After merging AI work to `main`:** Sync the AI branch back to the latest `main` before the next task.
+- **Cleanup preference:** Once the needed commits are safely merged to `main`, delete old `cursor/...` follow-up branches locally and remotely.
+
+---
+
 ## Learnings (consider on future changes)
 
 - **Hero and scenes:** Scenes that assume `GAME_STATE.hero` should guard at the start of `create()` with `if (!GAME_STATE.hero) { this.scene.start('Menu'); return; }` so missing hero (e.g. after reset) does not cause errors. Applied in CombatScene, TownScene, ShopScene, BlacksmithScene, MineScene, LootScene, CharacterSheetScene, InventoryOverworldScene.
