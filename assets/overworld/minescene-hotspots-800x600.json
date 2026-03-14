@@ -1,0 +1,21 @@
+{
+  "canvas": { "width": 800, "height": 600 },
+  "background": {
+    "path": "mine-bg.png",
+    "sourceWidth": 1536,
+    "sourceHeight": 1024,
+    "fit": "stretch-to-runtime"
+  },
+  "hotspots": [
+    {
+      "id": "minecart",
+      "x": 100,
+      "y": 95,
+      "width": 600,
+      "height": 440,
+      "centerX": 400,
+      "centerY": 315,
+      "note": "Huge clickable area covering the minecart, tracks, and cave entrance"
+    }
+  ]
+}

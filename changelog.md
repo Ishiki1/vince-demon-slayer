@@ -4,6 +4,34 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.63 – 2026-03-14
+
+### Changed
+- **Mine scene — minecart hotspot:** Replaced the visible "Rent pickaxe" / "Mine for free" button with a large invisible hotspot over the minecart and cave entrance. Hovering the minecart shows a tooltip with the same label the button had. Clicking it triggers mining as before.
+
+### Fixed
+- **Mine scene — inventory-full guard:** Mining is now blocked upfront when inventory is full, not after clicking. The tooltip and status message both reflect the full-inventory state instead of only showing it as a post-click error.
+
+### Technical
+- Added `minescene-hotspots-800x600.json` manifest with a single `minecart` hotspot (100,95 600x440). Loaded in `BootScene` as `mine-hotspots`.
+- `MineScene` now reads the manifest via `getHotspotManifest()` / `getHotspot()` helpers, matching the pattern used by `BlacksmithScene`.
+- Removed the rectangle button, button label text, and standalone info text; informational state (cost, "not enough gold") uses the tooltip and a bottom message text.
+- `canMine` now checks `inventoryFull` alongside gold/free-mine status so the hotspot cursor and click handler are disabled before the player can click.
+
+---
+
+## Version 3.2.62 – 2026-03-14
+
+### Changed
+- **Combined Blacksmith scene:** Repair, Craft, and Upgrade are now displayed simultaneously in a single three-column view using the painted `blacksmith-bg.png` background. Each column shows up to 5 item slots with icon-only display, hover tooltips for full decision info (cost, durability, effects), and click-to-act. Removed the landing menu, mode tabs, and the separate UpgradeScene.
+
+### Technical
+- Rewrote `BlacksmithScene.js` as a combined view with `populateRepairColumn`, `populateCraftColumn`, and `populateUpgradeColumn` methods. Ported `UPGRADE_GOLD_BASE` constant from deleted `UpgradeScene.js`.
+- Updated hotspot manifest to 19 hotspots (15 item rows, 3 panel zones, 1 back button). Upgrade rows adjusted to x=560, w=201.
+- Deleted `UpgradeScene.js`, removed from `index.html` and `main.js` scene list.
+
+---
+
 ## Version 3.2.61 – 2026-03-14
 
 ### Changed

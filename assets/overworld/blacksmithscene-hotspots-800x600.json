@@ -3,49 +3,199 @@
   "background": {
     "path": "blacksmith-bg.png",
     "sourceWidth": 1536,
-    "sourceHeight": 1024,
+    "sourceHeight": 1058,
     "fit": "stretch-to-runtime"
   },
   "hotspots": [
     {
-      "id": "repair",
-      "x": 62,
-      "y": 28,
-      "width": 190,
-      "height": 85,
-      "centerX": 157,
-      "centerY": 70,
-      "note": "Repair sign (left wooden plaque)"
+      "id": "repair-panel",
+      "x": 26,
+      "y": 128,
+      "width": 219,
+      "height": 337,
+      "centerX": 135,
+      "centerY": 296,
+      "note": "Repair content panel (left dark area)"
     },
     {
-      "id": "craft",
-      "x": 289,
-      "y": 21,
-      "width": 214,
-      "height": 90,
-      "centerX": 396,
-      "centerY": 66,
-      "note": "Craft sign (center wooden plaque)"
+      "id": "repair-1",
+      "x": 30,
+      "y": 136,
+      "width": 211,
+      "height": 52,
+      "centerX": 135,
+      "centerY": 162,
+      "note": "Repair item row 1"
     },
     {
-      "id": "upgrade",
-      "x": 542,
-      "y": 28,
-      "width": 201,
-      "height": 85,
-      "centerX": 642,
-      "centerY": 70,
-      "note": "Upgrade sign (right wooden plaque)"
+      "id": "repair-2",
+      "x": 30,
+      "y": 194,
+      "width": 211,
+      "height": 52,
+      "centerX": 135,
+      "centerY": 220,
+      "note": "Repair item row 2"
+    },
+    {
+      "id": "repair-3",
+      "x": 30,
+      "y": 252,
+      "width": 211,
+      "height": 52,
+      "centerX": 135,
+      "centerY": 278,
+      "note": "Repair item row 3"
+    },
+    {
+      "id": "repair-4",
+      "x": 30,
+      "y": 310,
+      "width": 211,
+      "height": 52,
+      "centerX": 135,
+      "centerY": 336,
+      "note": "Repair item row 4"
+    },
+    {
+      "id": "repair-5",
+      "x": 30,
+      "y": 368,
+      "width": 211,
+      "height": 52,
+      "centerX": 135,
+      "centerY": 394,
+      "note": "Repair item row 5"
+    },
+    {
+      "id": "craft-panel",
+      "x": 276,
+      "y": 128,
+      "width": 219,
+      "height": 337,
+      "centerX": 385,
+      "centerY": 296,
+      "note": "Craft content panel (center dark area)"
+    },
+    {
+      "id": "craft-1",
+      "x": 280,
+      "y": 136,
+      "width": 211,
+      "height": 52,
+      "centerX": 385,
+      "centerY": 162,
+      "note": "Craft item row 1"
+    },
+    {
+      "id": "craft-2",
+      "x": 280,
+      "y": 194,
+      "width": 211,
+      "height": 52,
+      "centerX": 385,
+      "centerY": 220,
+      "note": "Craft item row 2"
+    },
+    {
+      "id": "craft-3",
+      "x": 280,
+      "y": 252,
+      "width": 211,
+      "height": 52,
+      "centerX": 385,
+      "centerY": 278,
+      "note": "Craft item row 3"
+    },
+    {
+      "id": "craft-4",
+      "x": 280,
+      "y": 310,
+      "width": 211,
+      "height": 52,
+      "centerX": 385,
+      "centerY": 336,
+      "note": "Craft item row 4"
+    },
+    {
+      "id": "craft-5",
+      "x": 280,
+      "y": 368,
+      "width": 211,
+      "height": 52,
+      "centerX": 385,
+      "centerY": 394,
+      "note": "Craft item row 5"
+    },
+    {
+      "id": "upgrade-panel",
+      "x": 526,
+      "y": 128,
+      "width": 219,
+      "height": 337,
+      "centerX": 635,
+      "centerY": 296,
+      "note": "Upgrade content panel (right dark area)"
+    },
+    {
+      "id": "upgrade-1",
+      "x": 590,
+      "y": 136,
+      "width": 191,
+      "height": 52,
+      "centerX": 685,
+      "centerY": 162,
+      "note": "Upgrade item row 1"
+    },
+    {
+      "id": "upgrade-2",
+      "x": 590,
+      "y": 194,
+      "width": 191,
+      "height": 52,
+      "centerX": 685,
+      "centerY": 220,
+      "note": "Upgrade item row 2"
+    },
+    {
+      "id": "upgrade-3",
+      "x": 590,
+      "y": 252,
+      "width": 191,
+      "height": 52,
+      "centerX": 685,
+      "centerY": 278,
+      "note": "Upgrade item row 3"
+    },
+    {
+      "id": "upgrade-4",
+      "x": 590,
+      "y": 310,
+      "width": 191,
+      "height": 52,
+      "centerX": 685,
+      "centerY": 336,
+      "note": "Upgrade item row 4"
+    },
+    {
+      "id": "upgrade-5",
+      "x": 590,
+      "y": 368,
+      "width": 191,
+      "height": 52,
+      "centerX": 685,
+      "centerY": 394,
+      "note": "Upgrade item row 5"
     },
     {
       "id": "back",
-      "x": 312,
-      "y": 500,
-      "width": 177,
-      "height": 50,
-      "centerX": 400,
-      "centerY": 525,
-      "note": "Back button (bottom center frame)"
+      "x": 570,
+      "y": 527,
+      "width": 166,
+      "height": 43,
+      "centerX": 653,
+      "centerY": 548,
+      "note": "Back button (bottom-right plaque)"
     }
   ]
 }

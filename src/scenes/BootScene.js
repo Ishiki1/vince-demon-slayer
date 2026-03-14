@@ -316,6 +316,7 @@ class GamePreloadScene extends Phaser.Scene {
     this.load.image('buyandsell-ui-background', 'assets/overworld/buyandsellscene.png');
     this.load.json('buyandsell-hotspots', 'assets/overworld/buyandsellscene-hotspots-800x600.json');
     this.load.image('mine-ui-background', 'assets/overworld/mine-bg.png');
+    this.load.json('mine-hotspots', 'assets/overworld/minescene-hotspots-800x600.json');
     this.load.image('alchemist-ui-background', 'assets/overworld/alchemist-bg.png');
     this.load.image('eventscene-ui-background', 'assets/ui/EventScene-bg.png');
     this.load.image('lootscene-ui-background', 'assets/ui/LootScene-bg.png');

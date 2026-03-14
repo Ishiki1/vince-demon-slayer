@@ -10,6 +10,19 @@ class MineScene extends Phaser.Scene {
     super({ key: 'Mine' });
   }
 
+  getHotspotManifest() {
+    if (!this.cache || !this.cache.json) return null;
+    const manifest = this.cache.json.get('mine-hotspots');
+    if (!manifest || !Array.isArray(manifest.hotspots)) return null;
+    return manifest;
+  }
+
+  getHotspot(id) {
+    const manifest = this.getHotspotManifest();
+    if (!manifest) return null;
+    return manifest.hotspots.find(h => h.id === id) || null;
+  }
+
   create() {
     if (!GAME_STATE.hero) {
       this.scene.start('Menu');
@@ -23,38 +36,66 @@ class MineScene extends Phaser.Scene {
     const freeMineAvailable = typeof hasRunUnlock === 'function'
       ? hasRunUnlock('iLoveMining') && GAME_STATE.freeMineWeekUsed !== currentWeek
       : false;
-    const canMine = freeMineAvailable || hero.gold >= rentPrice;
-    const costLabel = freeMineAvailable ? 'Free this week' : (rentPrice + ' gold');
-    const buttonLabel = freeMineAvailable ? 'Mine for free' : `Rent pickaxe (${rentPrice}g)`;
+    const inventoryFull = hero.inventory.length >= hero.maxInventory;
+    const canAfford = freeMineAvailable || hero.gold >= rentPrice;
+    const canMine = canAfford && !inventoryFull;
+    const tooltipLabel = inventoryFull
+      ? 'Inventory is full'
+      : freeMineAvailable ? 'Mine for free' : `Rent pickaxe (${rentPrice}g)`;
     this.drawSceneFrame(hero);
 
-    this.add.text(w / 2, 160, 'Rent a pickaxe to mine for a random crafting material.', { fontSize: 14, color: '#e5e7eb' }).setOrigin(0.5);
-    this.add.text(w / 2, 185, 'Cost: ' + costLabel, { fontSize: 16, color: freeMineAvailable ? '#86efac' : '#94a3b8' }).setOrigin(0.5);
+    this.mineTooltipText = null;
+    this.mineMessageText = this.add.text(w / 2, h - 80, '', {
+      fontSize: 14,
+      color: '#94a3b8',
+      stroke: '#0f172a',
+      strokeThickness: 4,
+    }).setOrigin(0.5).setDepth(10);
 
-    const rentBtn = this.add.rectangle(w / 2, h / 2 - 20, 240, 48, canMine ? 0x78716c : 0x475569);
-    rentBtn.setInteractive({ useHandCursor: canMine });
-    this.add.text(w / 2, h / 2 - 20, buttonLabel, { fontSize: 16, color: '#fff' }).setOrigin(0.5);
-    this.mineMessageText = this.add.text(w / 2, h / 2 + 25, '', { fontSize: 14, color: '#94a3b8' }).setOrigin(0.5);
-
-    if (canMine) {
-      rentBtn.on('pointerdown', () => {
-        const materialId = MINE_MATERIAL_IDS[Math.floor(Math.random() * MINE_MATERIAL_IDS.length)];
-        const added = InventorySystem.add(hero, materialId);
-        if (!added) {
-          this.mineMessageText.setText('Inventory is full.');
-          return;
-        }
-        if (freeMineAvailable) {
-          GAME_STATE.freeMineWeekUsed = currentWeek;
-        } else {
-          hero.gold -= rentPrice;
-        }
-        const item = ITEMS[materialId];
-        const materialName = item ? item.name : materialId;
-        this.showMineResultPopup(item || { name: materialName });
-      });
-    } else {
+    if (inventoryFull) {
+      this.mineMessageText.setText('Inventory is full.');
+    } else if (!canAfford) {
       this.mineMessageText.setText('Not enough gold.');
+    }
+
+    const hs = this.getHotspot('minecart');
+    if (hs) {
+      const area = this.add.rectangle(hs.centerX, hs.centerY, hs.width, hs.height, 0x000000, 0)
+        .setInteractive({ useHandCursor: canMine });
+
+      area.on('pointerover', () => {
+        if (this.mineTooltipText) { this.mineTooltipText.destroy(); this.mineTooltipText = null; }
+        this.mineTooltipText = this.add.text(w / 2, h - 40, tooltipLabel, {
+          fontSize: 16,
+          color: canMine ? '#fbbf24' : '#94a3b8',
+          fontFamily: 'Arial',
+          stroke: '#0f172a',
+          strokeThickness: 4,
+        }).setOrigin(0.5).setWordWrapWidth(w - 80).setDepth(20);
+      });
+
+      area.on('pointerout', () => {
+        if (this.mineTooltipText) { this.mineTooltipText.destroy(); this.mineTooltipText = null; }
+      });
+
+      if (canMine) {
+        area.on('pointerdown', () => {
+          const materialId = MINE_MATERIAL_IDS[Math.floor(Math.random() * MINE_MATERIAL_IDS.length)];
+          const added = InventorySystem.add(hero, materialId);
+          if (!added) {
+            this.mineMessageText.setText('Inventory is full.');
+            return;
+          }
+          if (freeMineAvailable) {
+            GAME_STATE.freeMineWeekUsed = currentWeek;
+          } else {
+            hero.gold -= rentPrice;
+          }
+          const item = ITEMS[materialId];
+          const materialName = item ? item.name : materialId;
+          this.showMineResultPopup(item || { name: materialName });
+        });
+      }
     }
   }
 

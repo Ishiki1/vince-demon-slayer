@@ -1,14 +1,16 @@
 /**
  * BlacksmithScene.js
- * List damaged equipment (durability < max); repair for a price (by rarity). Craft mode: uniques for 350g + 1 material. Back to Town.
+ * Combined three-column blacksmith: Repair | Craft | Upgrade.
+ * Icon-only item slots, hover tooltips with full decision info, click-to-act.
  */
 
-const BLACKSMITH_FALLBACK_BUTTONS = [
-  { label: 'Craft Items', action: 'craft', x: 402, y: 88, width: 278, height: 78 },
-  { label: 'Upgrade Items', action: 'upgrade', x: 402, y: 217, width: 278, height: 78 },
-  { label: 'Repair Items', action: 'repair', x: 402, y: 347, width: 278, height: 78 },
-  { label: 'Back to Town', action: 'town', x: 402, y: 478, width: 278, height: 78 },
-];
+const UPGRADE_GOLD_BASE = 500;
+
+const BLACKSMITH_TYPE_LABELS = {
+  weapon: 'Weapon',
+  armor: 'Armor',
+  accessory: 'Accessory',
+};
 
 class BlacksmithScene extends Phaser.Scene {
   constructor() {
@@ -28,59 +30,155 @@ class BlacksmithScene extends Phaser.Scene {
     return manifest.hotspots.find(h => h.id === id) || null;
   }
 
-  createInvisibleHotspot(id, onClick) {
-    const hs = this.getHotspot(id);
-    if (!hs) return null;
-    const area = this.add.rectangle(hs.centerX, hs.centerY, hs.width, hs.height, 0x000000, 0)
-      .setInteractive({ useHandCursor: true });
-    area.on('pointerdown', onClick);
-    return area;
+  showTooltip(lines, x, y, lineColors) {
+    this.hideTooltip();
+    const padX = 12;
+    const padY = 8;
+    const clampedX = Math.min(Math.max(x, 120), CONFIG.WIDTH - 120);
+    const hasCustomColors = lineColors && lineColors.some(c => c !== null);
+
+    if (!hasCustomColors) {
+      const text = this.add.text(clampedX, y, lines.join('\n'), {
+        fontSize: 13,
+        color: '#e5e7eb',
+        fontFamily: 'Arial',
+        lineSpacing: 2,
+        align: 'center',
+      }).setOrigin(0.5, 1).setDepth(30).setWordWrapWidth(200);
+      const bgW = text.width + padX * 2;
+      const bgH = text.height + padY * 2;
+      const bg = this.add.rectangle(clampedX, y - text.height / 2, bgW, bgH, 0x0f172a, 0.92)
+        .setStrokeStyle(1, 0x94a3b8, 0.9).setDepth(29);
+      this.tooltipBg = bg;
+      this.tooltipText = text;
+      return;
+    }
+
+    const textObjects = [];
+    let totalHeight = 0;
+    let maxWidth = 0;
+    lines.forEach((line, i) => {
+      const color = (lineColors[i]) || '#e5e7eb';
+      const txt = this.add.text(0, 0, line, {
+        fontSize: 13, color, fontFamily: 'Arial', align: 'center',
+      }).setOrigin(0.5, 0).setDepth(30).setWordWrapWidth(200);
+      textObjects.push(txt);
+      maxWidth = Math.max(maxWidth, txt.width);
+      totalHeight += txt.height;
+    });
+    totalHeight += (lines.length - 1) * 2;
+
+    let curY = y - totalHeight;
+    textObjects.forEach((txt) => {
+      txt.setX(clampedX);
+      txt.setY(curY);
+      curY += txt.height + 2;
+    });
+
+    const bgW = maxWidth + padX * 2;
+    const bgH = totalHeight + padY * 2;
+    const bg = this.add.rectangle(clampedX, y - totalHeight / 2, bgW, bgH, 0x0f172a, 0.92)
+      .setStrokeStyle(1, 0x94a3b8, 0.9).setDepth(29);
+    this.tooltipBg = bg;
+    this.tooltipTexts = textObjects;
   }
 
-  create(data) {
+  hideTooltip() {
+    if (this.tooltipBg) { this.tooltipBg.destroy(); this.tooltipBg = null; }
+    if (this.tooltipText) { this.tooltipText.destroy(); this.tooltipText = null; }
+    if (this.tooltipTexts) { this.tooltipTexts.forEach(t => t.destroy()); this.tooltipTexts = null; }
+  }
+
+  createItemSlot(hotspot, icon, tooltipLines, onClick, lineColors) {
+    if (!hotspot) return;
+    const baseW = icon && typeof icon.displayWidth === 'number' ? icon.displayWidth : 40;
+    const baseH = icon && typeof icon.displayHeight === 'number' ? icon.displayHeight : 40;
+    const hitArea = this.add.rectangle(
+      hotspot.centerX, hotspot.centerY,
+      hotspot.width + 8, hotspot.height + 8,
+      0x000000, 0
+    ).setInteractive({ useHandCursor: !!onClick }).setDepth(20);
+    hitArea.on('pointerover', () => {
+      if (icon && typeof icon.setDisplaySize === 'function') {
+        icon.setDisplaySize(baseW + 4, baseH + 4);
+      }
+      this.showTooltip(tooltipLines, hotspot.centerX, hotspot.y - 6, lineColors);
+    });
+    hitArea.on('pointerout', () => {
+      if (icon && typeof icon.setDisplaySize === 'function') {
+        icon.setDisplaySize(baseW, baseH);
+      }
+      this.hideTooltip();
+    });
+    if (onClick) {
+      hitArea.on('pointerdown', () => {
+        this.hideTooltip();
+        onClick();
+      });
+    }
+  }
+
+  buildRepairTooltipLines(item, slot, slotType, cost, hero) {
+    const typeLabel = BLACKSMITH_TYPE_LABELS[item.type] || item.type;
+    const lines = [item.name + ' (' + item.rarity + ')', typeLabel];
+    const lineColors = [null, null];
+    if (slotType) { lines.push('Equipped: ' + slotType); lineColors.push(null); }
+    lines.push('Durability: ' + slot.durability + ' / ' + slot.maxDurability);
+    lineColors.push(null);
+    const effectLine = typeof getItemEffectLine === 'function' ? getItemEffectLine(item) : '';
+    if (effectLine) { lines.push(effectLine); lineColors.push(null); }
+    lines.push('Repair: ' + cost + ' gold');
+    lineColors.push(hero.gold >= cost ? null : '#ef4444');
+    return { lines, lineColors };
+  }
+
+  buildCraftTooltipLines(item, materialItem, cost, hero) {
+    const typeLabel = BLACKSMITH_TYPE_LABELS[item.type] || item.type;
+    const lines = [item.name, typeLabel];
+    const lineColors = [null, null];
+    const effectLine = typeof getItemEffectLine === 'function' ? getItemEffectLine(item) : '';
+    if (effectLine) { lines.push(effectLine); lineColors.push(null); }
+    lines.push('Durability: ' + CONFIG.DURABILITY_MAX_UNIQUE);
+    lineColors.push(null);
+    const materialName = materialItem ? materialItem.name : 'Material';
+    lines.push(cost + 'g + 1 ' + materialName);
+    lineColors.push(hero.gold >= cost ? null : '#ef4444');
+    return { lines, lineColors };
+  }
+
+  buildUpgradeTooltipLines(item, slot, materialName, cost, upgradeSummary, hero) {
+    const typeLabel = BLACKSMITH_TYPE_LABELS[item.type] || item.type;
+    const lines = [item.name + ' (' + typeLabel + ')'];
+    const lineColors = [null];
+    if (slot.upgraded) {
+      lines.push('Already upgraded');
+      lineColors.push('#4ade80');
+      return { lines, lineColors };
+    }
+    if (upgradeSummary) { lines.push(upgradeSummary); lineColors.push(null); }
+    lines.push(cost + 'g + 1 ' + materialName);
+    lineColors.push(hero.gold >= cost ? null : '#ef4444');
+    return { lines, lineColors };
+  }
+
+  create() {
     if (!GAME_STATE.hero) {
       this.scene.start('Menu');
       return;
     }
-    const w = CONFIG.WIDTH;
-    const h = CONFIG.HEIGHT;
+    if (typeof applyAnimationSettings === 'function') applyAnimationSettings(this);
     const hero = GAME_STATE.hero;
     InventorySystem.ensureSlotBased(hero);
     InventorySystem.ensureAccessorySlots(hero);
-    const requestedMode = data && typeof data.mode === 'string' ? data.mode : 'menu';
-    const mode = (requestedMode === 'repair' || requestedMode === 'craft') ? requestedMode : 'menu';
-    this.drawSceneFrame(hero);
+    this.tooltipBg = null;
+    this.tooltipText = null;
+    this.tooltipTexts = null;
 
-    if (mode === 'menu') {
-      this.buildLandingMenu(w, h);
-      return;
-    }
-
-    this.createModeTabs(w, mode);
-
-    if (mode === 'repair') {
-      this.buildRepairContent(w, h, hero);
-    } else {
-      this.craftTooltipGraphic = null;
-      this.buildCraftContent(w, h, hero);
-    }
-
-    const hasManifest = !!this.getHotspotManifest();
-    if (hasManifest) {
-      this.createInvisibleHotspot('back', () => this.scene.restart({ mode: 'menu' }));
-    } else {
-      createButton(this, w / 2, h - 60, 190, 48, 'Back to Blacksmith', {
-        bgColor: 0x475569,
-        fontSize: 16,
-      }, () => this.scene.restart({ mode: 'menu' }));
-    }
-  }
-
-  drawSceneFrame(hero) {
     const hasArt = !!addSceneBackground(this, 'blacksmith-ui-background');
     if (!hasArt) {
       this.add.rectangle(CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2, CONFIG.WIDTH, CONFIG.HEIGHT, 0x0f172a);
     }
+
     this.add.text(20, 32, 'Blacksmith', {
       fontSize: 28,
       color: '#fbbf24',
@@ -94,64 +192,30 @@ class BlacksmithScene extends Phaser.Scene {
       strokeThickness: 4,
     }).setOrigin(0, 0.5);
     createTownNavRow(this, { currentSection: 'blacksmith' });
-    return hasArt;
-  }
 
-  buildLandingMenu(w, h) {
-    if (this.getHotspotManifest()) {
-      this.createInvisibleHotspot('repair', () => this.handleLandingAction('repair'));
-      this.createInvisibleHotspot('craft', () => this.handleLandingAction('craft'));
-      this.createInvisibleHotspot('upgrade', () => this.handleLandingAction('upgrade'));
-      this.createInvisibleHotspot('back', () => this.scene.start('Town'));
-      return;
+    this.populateRepairColumn(hero);
+    this.populateCraftColumn(hero);
+    this.populateUpgradeColumn(hero);
+
+    const backHotspot = this.getHotspot('back');
+    if (backHotspot) {
+      const backArea = this.add.rectangle(
+        backHotspot.centerX, backHotspot.centerY,
+        backHotspot.width, backHotspot.height,
+        0x000000, 0
+      ).setInteractive({ useHandCursor: true });
+      backArea.on('pointerdown', () => this.scene.start('Town'));
     }
-    BLACKSMITH_FALLBACK_BUTTONS.forEach((button) => {
-      createButton(this, button.x, button.y, button.width, button.height, button.label, {
-        bgColor: button.action === 'upgrade' ? 0x64748b : 0x475569,
-        fontSize: 18,
-      }, () => this.handleLandingAction(button.action));
-    });
   }
 
-  handleLandingAction(action) {
-    if (action === 'repair' || action === 'craft') {
-      this.scene.restart({ mode: action });
-      return;
-    }
-    if (action === 'upgrade') {
-      this.scene.start('Upgrade');
-      return;
-    }
-    this.scene.start('Town');
-  }
-
-  createModeTabs(w, mode) {
-    createButton(this, w / 2 - 140, 100, 90, 36, 'Repair', {
-      bgColor: mode === 'repair' ? 0x64748b : 0x475569,
-      fontSize: 14,
-    }, () => {
-      if (mode !== 'repair') this.scene.restart({ mode: 'repair' });
-    });
-    createButton(this, w / 2, 100, 90, 36, 'Craft', {
-      bgColor: mode === 'craft' ? 0x64748b : 0x475569,
-      fontSize: 14,
-    }, () => {
-      if (mode !== 'craft') this.scene.restart({ mode: 'craft' });
-    });
-    createButton(this, w / 2 + 140, 100, 90, 36, 'Upgrade', {
-      bgColor: 0x475569,
-      fontSize: 14,
-    }, () => this.scene.start('Upgrade'));
-  }
-
-  buildRepairContent(w, h, hero) {
+  populateRepairColumn(hero) {
     const damaged = [];
     const equippedIds = new Set();
     const equippedEntries = [
-      { slotId: hero.weapon, slotType: 'weapon' },
-      { slotId: hero.armor, slotType: 'armor' },
-      { slotId: hero.accessories[0], slotType: 'accessory 1' },
-      { slotId: hero.accessories[1], slotType: 'accessory 2' },
+      { slotId: hero.weapon, slotType: 'Weapon' },
+      { slotId: hero.armor, slotType: 'Armor' },
+      { slotId: hero.accessories[0], slotType: 'Accessory 1' },
+      { slotId: hero.accessories[1], slotType: 'Accessory 2' },
     ];
     equippedEntries.forEach(({ slotId, slotType }) => {
       const slot = DurabilitySystem.getSlotById(hero, slotId);
@@ -168,132 +232,91 @@ class BlacksmithScene extends Phaser.Scene {
       }
     });
 
-    if (damaged.length === 0) {
-      this.add.text(w / 2, h / 2 - 30, 'No damaged equipment.', { fontSize: 18, color: '#94a3b8' }).setOrigin(0.5);
-    } else {
-      damaged.forEach(({ slot, slotType }, i) => {
-        const item = ITEMS[slot.itemId];
-        if (!item) return;
-        const y = 150 + i * 70;
-        const slotLabel = slotType ? ' (' + slotType + ')' : '';
-        createItemIconSprite(this, item, 44, y + 10, { width: 34, height: 34 });
-        this.add.text(80, y - 2, item.name + slotLabel, { fontSize: 16, color: '#e5e7eb' });
-        this.add.text(80, y + 14, 'Durability: ' + slot.durability + ' / ' + slot.maxDurability, { fontSize: 12, color: '#94a3b8' });
-        const cost = ShopSystem.getRepairPrice(slot.itemId);
-        this.add.text(80, y + 30, cost + ' gold to repair', { fontSize: 14, color: '#fbbf24' });
-        const canRepair = hero.gold >= cost;
-        const repairBtn = this.add.rectangle(w - 100, y + 14, 80, 32, canRepair ? 0x4ade80 : 0x64748b);
-        repairBtn.setInteractive({ useHandCursor: true });
-        this.add.text(w - 100, y + 14, 'Repair', { fontSize: 14, color: '#fff' }).setOrigin(0.5);
-        if (canRepair) {
-          repairBtn.on('pointerdown', () => {
-            hero.gold -= cost;
-            slot.durability = slot.maxDurability;
-            this.scene.restart({ mode: 'repair' });
-          });
-        }
+    const maxSlots = 5;
+    damaged.slice(0, maxSlots).forEach((entry, i) => {
+      const hotspot = this.getHotspot('repair-' + (i + 1));
+      if (!hotspot) return;
+      const item = ITEMS[entry.slot.itemId];
+      if (!item) return;
+      const cost = ShopSystem.getRepairPrice(entry.slot.itemId);
+      const canRepair = hero.gold >= cost;
+      const icon = createItemIconSprite(this, item, hotspot.centerX, hotspot.centerY, {
+        width: 40, height: 40,
       });
-    }
+      const tooltip = this.buildRepairTooltipLines(item, entry.slot, entry.slotType, cost, hero);
+      this.createItemSlot(hotspot, icon, tooltip.lines, canRepair ? () => {
+        hero.gold -= cost;
+        entry.slot.durability = entry.slot.maxDurability;
+        this.scene.restart();
+      } : null, tooltip.lineColors);
+    });
   }
 
-  buildCraftContent(w, h, hero) {
+  populateCraftColumn(hero) {
     const materialItemIds = new Set(
       hero.inventory.filter(s => ITEMS[s.itemId] && ITEMS[s.itemId].type === 'material').map(s => s.itemId)
     );
-
-    if (materialItemIds.size === 0) {
-      this.add.text(w / 2, h / 2 - 20, 'You do not currently own any materials for crafting.', { fontSize: 16, color: '#e5e7eb' }).setOrigin(0.5).setWordWrapWidth(w - 80);
-      this.add.text(w / 2, h / 2 + 12, 'Try to visit the mine or find them by defeating monsters.', { fontSize: 14, color: '#94a3b8' }).setOrigin(0.5).setWordWrapWidth(w - 80);
-      return;
-    }
-
     const allRecipes = getCraftRecipesForClass(hero);
     const recipes = allRecipes.filter(r => materialItemIds.has(r.material));
-
-    const rowHeight = 36;
-    const startY = 140;
-    const visibleHeight = (h - 70) - startY;
-    const totalHeight = recipes.length * rowHeight;
-    const maxScroll = Math.max(0, totalHeight - visibleHeight);
-    let scrollOffset = 0;
-
-    const maskShape = this.add.graphics();
-    maskShape.fillRect(0, startY, w, visibleHeight);
-    const mask = maskShape.createGeometryMask();
-
-    const container = this.add.container(0, startY);
-    container.setMask(mask);
-
-    const scrollUp = () => {
-      scrollOffset = Math.max(0, scrollOffset - rowHeight * 2);
-      container.y = startY - scrollOffset;
-    };
-    const scrollDown = () => {
-      scrollOffset = Math.min(maxScroll, scrollOffset + rowHeight * 2);
-      container.y = startY - scrollOffset;
-    };
-
-    const scene = this;
     const craftCost = typeof getFinalGoldCost === 'function' ? getFinalGoldCost(CONFIG.CRAFT_COST) : CONFIG.CRAFT_COST;
-    const maxDurUnique = CONFIG.DURABILITY_MAX_UNIQUE;
-    const craftTypeLabels = { weapon: 'Weapon', armor: 'Armor', accessory: 'Accessory' };
 
-    recipes.forEach((recipe, i) => {
+    const maxSlots = 5;
+    recipes.slice(0, maxSlots).forEach((recipe, i) => {
+      const hotspot = this.getHotspot('craft-' + (i + 1));
+      if (!hotspot) return;
       const item = ITEMS[recipe.itemId];
       const materialItem = ITEMS[recipe.material];
-      if (!item || !materialItem) return;
-      const y = i * rowHeight + rowHeight / 2;
-      const materialName = materialItem.name;
-      const costStr = craftCost + 'g + 1 ' + materialName;
+      if (!item) return;
       const hasMaterial = hero.inventory.some(s => s.itemId === recipe.material);
       const canCraft = hero.gold >= craftCost && hasMaterial;
-      const typeLabel = craftTypeLabels[item.type] || item.type;
-
-      const hitArea = this.add.rectangle(0, y, w - 20, rowHeight - 2, 0x000000, 0).setOrigin(0, 0.5);
-      hitArea.setPosition(10, y);
-      container.add(hitArea);
-      hitArea.setInteractive({ useHandCursor: false });
-      hitArea.on('pointerover', () => {
-        if (scene.craftTooltipGraphic) scene.craftTooltipGraphic.destroy();
-        const effectLine = getItemEffectLine(item);
-        const tip = item.name + ' — ' + typeLabel + (effectLine ? ' — ' + effectLine : '') + ' Unique. Durability: ' + maxDurUnique + '.';
-        scene.craftTooltipGraphic = scene.add.text(w / 2, h - 100, tip, { fontSize: 14, color: '#e5e7eb', fontFamily: 'Arial' }).setOrigin(0.5, 1).setWordWrapWidth(w - 80).setDepth(20);
+      const icon = createItemIconSprite(this, item, hotspot.centerX, hotspot.centerY, {
+        width: 40, height: 40,
       });
-      hitArea.on('pointerout', () => {
-        if (scene.craftTooltipGraphic) { scene.craftTooltipGraphic.destroy(); scene.craftTooltipGraphic = null; }
-      });
+      const tooltip = this.buildCraftTooltipLines(item, materialItem, craftCost, hero);
+      this.createItemSlot(hotspot, icon, tooltip.lines, canCraft ? () => {
+        hero.gold -= craftCost;
+        const matSlot = hero.inventory.find(s => s.itemId === recipe.material);
+        if (matSlot) InventorySystem.removeSlotById(hero, matSlot.id);
+        InventorySystem.add(hero, recipe.itemId);
+        this.scene.restart();
+      } : null, tooltip.lineColors);
+    });
+  }
 
-      const icon = createItemIconSprite(this, item, 28, y, { width: 24, height: 24 });
-      const nameTxt = this.add.text(48, y - 8, item.name, { fontSize: 14, color: '#e5e7eb' }).setOrigin(0, 0.5);
-      const costTxt = this.add.text(48, y + 8, costStr, { fontSize: 12, color: '#fbbf24' }).setOrigin(0, 0.5);
-      container.add(icon ? [icon, nameTxt, costTxt] : [nameTxt, costTxt]);
-
-      const craftBtn = this.add.rectangle(w - 90, y, 70, 28, canCraft ? 0x4ade80 : 0x64748b);
-      craftBtn.setInteractive({ useHandCursor: true });
-      const craftTxt = this.add.text(w - 90, y, 'Craft', { fontSize: 12, color: '#fff' }).setOrigin(0.5);
-      container.add([craftBtn, craftTxt]);
-      if (canCraft) {
-        craftBtn.on('pointerdown', () => {
-          hero.gold -= craftCost;
-          const slot = hero.inventory.find(s => s.itemId === recipe.material);
-          if (slot) InventorySystem.removeSlotById(hero, slot.id);
-          InventorySystem.add(hero, recipe.itemId);
-          scene.scene.restart({ mode: 'craft' });
-        });
-      }
+  populateUpgradeColumn(hero) {
+    const upgradeCost = typeof getFinalGoldCost === 'function' ? getFinalGoldCost(UPGRADE_GOLD_BASE) : UPGRADE_GOLD_BASE;
+    const upgradeable = [];
+    hero.inventory.forEach(slot => {
+      const item = ITEMS[slot.itemId];
+      if (!item || item.rarity !== 'unique') return;
+      if (item.type !== 'weapon' && item.type !== 'armor' && item.type !== 'accessory') return;
+      if (slot.upgraded) return;
+      const element = typeof getUniqueElement === 'function' ? getUniqueElement(slot.itemId) : null;
+      if (!element) return;
+      const hasStone = hero.inventory.some(s => s.itemId === element);
+      if (!hasStone) return;
+      upgradeable.push({ slot, item, element });
     });
 
-    container.y = startY - scrollOffset;
-
-    if (maxScroll > 0) {
-      const upBtn = this.add.rectangle(w - 24, startY + visibleHeight / 2 - 30, 32, 24, 0x475569);
-      upBtn.setInteractive({ useHandCursor: true });
-      this.add.text(w - 24, startY + visibleHeight / 2 - 30, '\u2191', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
-      upBtn.on('pointerdown', scrollUp);
-      const downBtn = this.add.rectangle(w - 24, startY + visibleHeight / 2 + 30, 32, 24, 0x475569);
-      downBtn.setInteractive({ useHandCursor: true });
-      this.add.text(w - 24, startY + visibleHeight / 2 + 30, '\u2193', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
-      downBtn.on('pointerdown', scrollDown);
-    }
+    const maxSlots = 5;
+    upgradeable.slice(0, maxSlots).forEach((entry, i) => {
+      const hotspot = this.getHotspot('upgrade-' + (i + 1));
+      if (!hotspot) return;
+      const materialName = ITEMS[entry.element] ? ITEMS[entry.element].name : 'Stone';
+      const canUpgrade = hero.gold >= upgradeCost;
+      const upgradeSummary = typeof getUniqueUpgradeSummary === 'function' ? getUniqueUpgradeSummary(entry.item) : '';
+      const icon = createItemIconSprite(this, entry.item, hotspot.centerX, hotspot.centerY, {
+        width: 40, height: 40,
+      });
+      const tooltip = this.buildUpgradeTooltipLines(entry.item, entry.slot, materialName, upgradeCost, upgradeSummary, hero);
+      this.createItemSlot(hotspot, icon, tooltip.lines, canUpgrade ? () => {
+        hero.gold -= upgradeCost;
+        const matSlot = hero.inventory.find(s => s.itemId === entry.element);
+        if (matSlot) InventorySystem.removeSlotById(hero, matSlot.id);
+        entry.slot.upgraded = true;
+        entry.slot.upgradeMultipliers = typeof getUniqueUpgradeMultipliers === 'function' ? getUniqueUpgradeMultipliers(entry.item) : {};
+        this.scene.restart();
+      } : null, tooltip.lineColors);
+    });
   }
 }
