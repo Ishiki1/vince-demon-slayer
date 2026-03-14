@@ -4,6 +4,58 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.61 – 2026-03-14
+
+### Changed
+- **Shop landing page:** Visiting the shop now shows the `shop-with-buttons-bg.png` background first with painted Buy and Sell sign hotspots. Clicking either sign navigates to the combined buy/sell grid scene. The Back button in the buy/sell scene returns to the shop landing instead of Town.
+
+### Technical
+- New `BuyAndSellScene` (key `'BuyAndSell'`) holds the existing buy/sell grid logic. `ShopScene` (key `'Shop'`) is now the landing page.
+- `GamePreloadScene` loads both `shop-with-buttons-bg.png` and `buyandsellscene.png` with separate texture and hotspot keys.
+
+---
+
+## Version 3.2.60 – 2026-03-14
+
+### Added
+- **Blacksmith background hotspotting:** New `blacksmithscene-hotspots-800x600.json` manifest (4 hotspots) maps the painted Repair, Craft, and Upgrade signs plus the Back button to invisible runtime click areas. Proof artifacts generated for approval.
+
+### Changed
+- **BlacksmithScene** landing menu and Back button now use manifest-driven invisible hotspots when the background art is loaded, falling back to rectangle buttons when art is absent. Removed the old `BLACKSMITH_MENU_BUTTONS` constant.
+
+### Technical
+- `GamePreloadScene` loads `blacksmith-hotspots` JSON alongside the background image.
+
+---
+
+## Version 3.2.59 – 2026-03-14
+
+### Changed
+- **Combined Buy/Sell shop scene:** Merged the three-view shop (choice, buy, sell) into a single scene using the new `buyandsellscene.png` painted background. Buy panel (left, 5 slots at 52x52) and sell panel (right, 4x5 grid at 48x48) display only item sprite icons. All item details, prices, and affordability status appear via hover tooltips. Removed Re-roll, Sell Trash, and filter tabs. Painted "Back" button exits to Town.
+
+### Technical
+- New hotspot manifest `buyandsellscene-hotspots-800x600.json` (26 hotspots) with proof artifacts.
+- Removed `GAME_STATE.shopView` and `GAME_STATE.shopSellFilter` transient state; cleaned callers in `TownScene.js` and `SceneUi.js`.
+
+---
+
+## Version 3.2.58 – 2026-03-14
+
+### Changed
+- **Shop "Sell Trash" button:** Replaced the old "Sell All (no potions)" button with a smarter "Sell Trash" button that sells only common and rare items while preserving health potions and crafting materials. Moved the button to the bottom of the sell view next to "Back to Shop" and added a hover tooltip.
+
+---
+
+## Version 3.2.57 – 2026-03-14
+
+### Changed
+- **All warrior skill icons replaced:** Every remaining placeholder skill icon now uses dark-fantasy pixel art matching the v3.2.38 batch. Active skill: `button-slash`. Tier 1-2 passives: `passive-mana2`, `passive-def1`, `passive-str2`, `passive-hp4`, `passive-mana4`, `passive-def2`. Named passives: `passive-translucent-skin`, `passive-reinforced-hide`, `passive-brutal-might`, `passive-vitality`, `passive-battle-focus`, `passive-combat-reflexes`. All 24 warrior skill/passive icons are now regenerated. (`assets/ui/skills/`)
+
+### Technical
+- **Skill icon pipeline scripts:** Added `crop-square.mjs` (center-crop landscape images to square with nearest-neighbor resize) and `composite-skill-icon.mjs` (composite transparent icons onto dark background with border sampled from a reference icon). (`scripts/`)
+
+---
+
 ## Version 3.2.56 – 2026-03-13
 
 ### Changed

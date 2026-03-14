@@ -90,7 +90,7 @@ const config = {
     min: { width: 400, height: 300 },
     max: { width: 1600, height: 1200 },
   },
-  scene: [BootScene, MenuScene, GamePreloadScene, ClassSelectScene, ClassOriginScene, OverworldScene, CombatScene, LootScene, EventScene, SkillTreeScene, TransitionScene, TownScene, AlchemistScene, ShopScene, BlacksmithScene, UpgradeScene, MineScene, InventoryOverworldScene, CharacterSheetScene, RunEndedScene, UnlockSelectScene, SettingsScene],
+  scene: [BootScene, MenuScene, GamePreloadScene, ClassSelectScene, ClassOriginScene, OverworldScene, CombatScene, LootScene, EventScene, SkillTreeScene, TransitionScene, TownScene, AlchemistScene, ShopScene, BuyAndSellScene, BlacksmithScene, UpgradeScene, MineScene, InventoryOverworldScene, CharacterSheetScene, RunEndedScene, UnlockSelectScene, SettingsScene],
   input: {
     activePointers: 1,
   },

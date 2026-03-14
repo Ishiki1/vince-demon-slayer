@@ -1,0 +1,44 @@
+{
+  "canvas": { "width": 800, "height": 600 },
+  "background": {
+    "path": "buyandsellscene.png",
+    "sourceWidth": 1536,
+    "sourceHeight": 1024,
+    "fit": "stretch-to-runtime"
+  },
+  "hotspots": [
+    { "id": "buy-1-1", "x": 141, "y": 202, "width": 48, "height": 48, "centerX": 165, "centerY": 226, "note": "Buy row1 col1" },
+    { "id": "buy-1-2", "x": 209, "y": 202, "width": 48, "height": 48, "centerX": 233, "centerY": 226, "note": "Buy row1 col2" },
+    { "id": "buy-1-3", "x": 277, "y": 202, "width": 48, "height": 48, "centerX": 301, "centerY": 226, "note": "Buy row1 col3" },
+
+    { "id": "buy-2-1", "x": 141, "y": 270, "width": 48, "height": 48, "centerX": 165, "centerY": 294, "note": "Buy row2 col1" },
+    { "id": "buy-2-2", "x": 209, "y": 270, "width": 48, "height": 48, "centerX": 233, "centerY": 294, "note": "Buy row2 col2" },
+    { "id": "buy-2-3", "x": 277, "y": 270, "width": 48, "height": 48, "centerX": 301, "centerY": 294, "note": "Buy row2 col3" },
+
+    { "id": "buy-3-1", "x": 141, "y": 338, "width": 48, "height": 48, "centerX": 165, "centerY": 362, "note": "Buy row3 col1" },
+    { "id": "buy-3-2", "x": 209, "y": 338, "width": 48, "height": 48, "centerX": 233, "centerY": 362, "note": "Buy row3 col2" },
+    { "id": "buy-3-3", "x": 277, "y": 338, "width": 48, "height": 48, "centerX": 301, "centerY": 362, "note": "Buy row3 col3" },
+
+    { "id": "buy-4-1", "x": 141, "y": 406, "width": 48, "height": 48, "centerX": 165, "centerY": 430, "note": "Buy row4 col1" },
+    { "id": "buy-4-2", "x": 209, "y": 406, "width": 48, "height": 48, "centerX": 233, "centerY": 430, "note": "Buy row4 col2" },
+    { "id": "buy-4-3", "x": 277, "y": 406, "width": 48, "height": 48, "centerX": 301, "centerY": 430, "note": "Buy row4 col3" },
+
+    { "id": "sell-1-1", "x": 443, "y": 202, "width": 48, "height": 48, "centerX": 467, "centerY": 226, "note": "Sell row1 col1" },
+    { "id": "sell-1-2", "x": 511, "y": 202, "width": 48, "height": 48, "centerX": 535, "centerY": 226, "note": "Sell row1 col2" },
+    { "id": "sell-1-3", "x": 579, "y": 202, "width": 48, "height": 48, "centerX": 603, "centerY": 226, "note": "Sell row1 col3" },
+
+    { "id": "sell-2-1", "x": 443, "y": 270, "width": 48, "height": 48, "centerX": 467, "centerY": 294, "note": "Sell row2 col1" },
+    { "id": "sell-2-2", "x": 511, "y": 270, "width": 48, "height": 48, "centerX": 535, "centerY": 294, "note": "Sell row2 col2" },
+    { "id": "sell-2-3", "x": 579, "y": 270, "width": 48, "height": 48, "centerX": 603, "centerY": 294, "note": "Sell row2 col3" },
+
+    { "id": "sell-3-1", "x": 443, "y": 338, "width": 48, "height": 48, "centerX": 467, "centerY": 362, "note": "Sell row3 col1" },
+    { "id": "sell-3-2", "x": 511, "y": 338, "width": 48, "height": 48, "centerX": 535, "centerY": 362, "note": "Sell row3 col2" },
+    { "id": "sell-3-3", "x": 579, "y": 338, "width": 48, "height": 48, "centerX": 603, "centerY": 362, "note": "Sell row3 col3" },
+
+    { "id": "sell-4-1", "x": 443, "y": 406, "width": 48, "height": 48, "centerX": 467, "centerY": 430, "note": "Sell row4 col1" },
+    { "id": "sell-4-2", "x": 511, "y": 406, "width": 48, "height": 48, "centerX": 535, "centerY": 430, "note": "Sell row4 col2" },
+    { "id": "sell-4-3", "x": 579, "y": 406, "width": 48, "height": 48, "centerX": 603, "centerY": 430, "note": "Sell row4 col3" },
+
+    { "id": "back-btn", "x": 320, "y": 477, "width": 159, "height": 62, "centerX": 399, "centerY": 508, "note": "Painted Back button" }
+  ]
+}

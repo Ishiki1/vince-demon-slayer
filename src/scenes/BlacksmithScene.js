@@ -3,12 +3,6 @@
  * List damaged equipment (durability < max); repair for a price (by rarity). Craft mode: uniques for 350g + 1 material. Back to Town.
  */
 
-const BLACKSMITH_MENU_BUTTONS = [
-  { label: 'Craft Items', action: 'craft', x: 146, y: 552, width: 180, height: 44 },
-  { label: 'Upgrade Items', action: 'upgrade', x: 400, y: 552, width: 180, height: 44 },
-  { label: 'Repair Items', action: 'repair', x: 654, y: 552, width: 180, height: 44 },
-];
-
 const BLACKSMITH_FALLBACK_BUTTONS = [
   { label: 'Craft Items', action: 'craft', x: 402, y: 88, width: 278, height: 78 },
   { label: 'Upgrade Items', action: 'upgrade', x: 402, y: 217, width: 278, height: 78 },
@@ -19,6 +13,28 @@ const BLACKSMITH_FALLBACK_BUTTONS = [
 class BlacksmithScene extends Phaser.Scene {
   constructor() {
     super({ key: 'Blacksmith' });
+  }
+
+  getHotspotManifest() {
+    if (!this.cache || !this.cache.json) return null;
+    const manifest = this.cache.json.get('blacksmith-hotspots');
+    if (!manifest || !Array.isArray(manifest.hotspots)) return null;
+    return manifest;
+  }
+
+  getHotspot(id) {
+    const manifest = this.getHotspotManifest();
+    if (!manifest) return null;
+    return manifest.hotspots.find(h => h.id === id) || null;
+  }
+
+  createInvisibleHotspot(id, onClick) {
+    const hs = this.getHotspot(id);
+    if (!hs) return null;
+    const area = this.add.rectangle(hs.centerX, hs.centerY, hs.width, hs.height, 0x000000, 0)
+      .setInteractive({ useHandCursor: true });
+    area.on('pointerdown', onClick);
+    return area;
   }
 
   create(data) {
@@ -49,10 +65,15 @@ class BlacksmithScene extends Phaser.Scene {
       this.buildCraftContent(w, h, hero);
     }
 
-    createButton(this, w / 2, h - 60, 190, 48, 'Back to Blacksmith', {
-      bgColor: 0x475569,
-      fontSize: 16,
-    }, () => this.scene.restart({ mode: 'menu' }));
+    const hasManifest = !!this.getHotspotManifest();
+    if (hasManifest) {
+      this.createInvisibleHotspot('back', () => this.scene.restart({ mode: 'menu' }));
+    } else {
+      createButton(this, w / 2, h - 60, 190, 48, 'Back to Blacksmith', {
+        bgColor: 0x475569,
+        fontSize: 16,
+      }, () => this.scene.restart({ mode: 'menu' }));
+    }
   }
 
   drawSceneFrame(hero) {
@@ -77,12 +98,17 @@ class BlacksmithScene extends Phaser.Scene {
   }
 
   buildLandingMenu(w, h) {
-    const hasArt = this.textures.exists('blacksmith-ui-background');
-    const buttons = hasArt ? BLACKSMITH_MENU_BUTTONS : BLACKSMITH_FALLBACK_BUTTONS;
-    buttons.forEach((button) => {
+    if (this.getHotspotManifest()) {
+      this.createInvisibleHotspot('repair', () => this.handleLandingAction('repair'));
+      this.createInvisibleHotspot('craft', () => this.handleLandingAction('craft'));
+      this.createInvisibleHotspot('upgrade', () => this.handleLandingAction('upgrade'));
+      this.createInvisibleHotspot('back', () => this.scene.start('Town'));
+      return;
+    }
+    BLACKSMITH_FALLBACK_BUTTONS.forEach((button) => {
       createButton(this, button.x, button.y, button.width, button.height, button.label, {
         bgColor: button.action === 'upgrade' ? 0x64748b : 0x475569,
-        fontSize: hasArt ? 16 : 18,
+        fontSize: 18,
       }, () => this.handleLandingAction(button.action));
     });
   }

@@ -342,7 +342,6 @@ function createTownNavRow(scene, options) {
   const onInnAction = options && typeof options.onInnAction === 'function' ? options.onInnAction : null;
   const openShop = () => {
     GAME_STATE.shopFrom = 'town';
-    GAME_STATE.shopView = 'choice';
     scene.scene.start('Shop');
   };
   const buttons = [

@@ -138,7 +138,6 @@ class TownScene extends Phaser.Scene {
     }
     if (action === 'shop') {
       GAME_STATE.shopFrom = 'town';
-      GAME_STATE.shopView = 'choice';
       this.scene.start('Shop');
       return;
     }

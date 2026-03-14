@@ -12,6 +12,7 @@ Use this file when adding or changing sprites and animations. It documents the c
 - **Sorceress items** live in `itemVisuals.js` as `preload: false` placeholders until bespoke art exists. The first approved batch (`unique-pyre-staff`, `unique-phoenix-robe`, `unique-cinder-orb`) is wired with real art and hover sheets. Remaining placeholders render fallback icon containers.
 - **Scene backgrounds** use static art with invisible hotspot manifests where applicable. See the asset table below for paths and texture keys.
 - **Overworld** uses `overworld-bg-800x600-hotspots.png` with invisible travel hotspots from `overworld-hotspots-800x600.json`. Only the `town-overworld` sprite is rendered on top; level/castle icon files remain on disk as reference only.
+- **Blacksmith** uses `blacksmith-bg.png` (1536x1024 source, stretched to 800x600) with invisible hotspots from `blacksmithscene-hotspots-800x600.json`. Hotspots: `repair` (left sign), `craft` (center sign), `upgrade` (right sign), `back` (bottom button). Landing menu and repair/craft modes share the painted Back hotspot.
 - **Inventory** uses `assets/ui/Inventory.png` as its layout frame. Placement contract: hero portrait center `166,186` at `84x128`, equip-slot centers `286,138` / `286,234` / `166,342` / `286,342`, `5x6` bag grid starting at `366,96` with `54x54` cells and `8px` gaps. Bag items render at `49x49` with a `10px` right offset on the first two columns.
 
 ---
