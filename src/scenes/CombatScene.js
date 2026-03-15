@@ -991,12 +991,34 @@ class CombatScene extends Phaser.Scene {
     GAME_STATE.lastBrokenItemName = null;
     const w = CONFIG.WIDTH;
     const h = CONFIG.HEIGHT;
-    const box = this.add.rectangle(w / 2, h / 2, 340, 100, 0x1e293b);
-    const msg = this.add.text(w / 2, h / 2 - 20, name + ' broke! Visit Inventory to equip another.', { fontSize: 14, color: '#fbbf24' }).setOrigin(0.5);
-    const okBtn = this.add.rectangle(w / 2, h / 2 + 24, 80, 36, 0x475569);
+    const popupWidth = 360;
+    const popupDepth = 30;
+    const horizontalPadding = 24;
+    const topPadding = 18;
+    const bottomPadding = 18;
+    const titleGap = 10;
+    const buttonGap = 18;
+    const title = this.add.text(w / 2, 0, 'Equipment Broke', {
+      fontSize: 20,
+      color: '#fbbf24',
+    }).setOrigin(0.5, 0).setDepth(popupDepth + 1);
+    const msg = this.add.text(w / 2, 0, name + ' broke! Visit Inventory to equip another.', {
+      fontSize: 14,
+      color: '#e5e7eb',
+      align: 'center',
+    }).setOrigin(0.5, 0).setWordWrapWidth(popupWidth - horizontalPadding * 2).setDepth(popupDepth + 1);
+    const contentHeight = topPadding + title.height + titleGap + msg.height + buttonGap + 36 + bottomPadding;
+    const popupHeight = Math.max(132, contentHeight);
+    const popupTop = h / 2 - popupHeight / 2;
+    title.setY(popupTop + topPadding);
+    msg.setY(title.y + title.height + titleGap);
+    const buttonY = msg.y + msg.height + buttonGap + 18;
+    const box = this.add.rectangle(w / 2, h / 2, popupWidth, popupHeight, 0x1e293b).setDepth(popupDepth);
+    const okBtn = this.add.rectangle(w / 2, buttonY, 92, 36, 0x475569).setDepth(popupDepth + 1);
     okBtn.setInteractive({ useHandCursor: true });
-    const okTxt = this.add.text(w / 2, h / 2 + 24, 'OK', { fontSize: 14, color: '#fff' }).setOrigin(0.5);
+    const okTxt = this.add.text(w / 2, buttonY, 'OK', { fontSize: 14, color: '#fff' }).setOrigin(0.5).setDepth(popupDepth + 2);
     okBtn.on('pointerdown', () => {
+      title.destroy();
       box.destroy();
       msg.destroy();
       okBtn.destroy();

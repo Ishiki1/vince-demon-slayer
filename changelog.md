@@ -4,6 +4,13 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.64 – 2026-03-15
+
+### Fixed
+- **Combat equipment-break popup:** Wrapped the broken-item warning text and resized the popup layout so long equipment names stay inside the panel instead of spilling past the modal bounds.
+
+---
+
 ## Version 3.2.63 – 2026-03-14
 
 ### Changed
