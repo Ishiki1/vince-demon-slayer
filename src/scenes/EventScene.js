@@ -12,15 +12,16 @@ class EventScene extends Phaser.Scene {
     if (typeof addSceneBackground === 'function' && addSceneBackground(this, 'eventscene-ui-background')) {
       return {
         hasArt: true,
-        titleY: 94,
-        bodyY: 142,
+        // Keep the painted frame clear by dropping the full event copy block lower.
+        titleY: 194,
+        bodyY: 242,
         bodyWrapWidth: 520,
-        choiceStartY: 254,
+        choiceStartY: 354,
         choiceSpacing: 56,
-        resultY: 286,
+        resultY: 386,
         continueY: h - 56,
-        merchantGoldY: 178,
-        merchantRowStartY: 232,
+        merchantGoldY: 278,
+        merchantRowStartY: 332,
         merchantRowSpacing: 72,
         merchantIconX: 146,
         merchantTextX: 182,

@@ -4,6 +4,13 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.65 – 2026-03-15
+
+### Changed
+- **Event scene copy position:** Moved the painted random-event copy block down by `100px` so titles, body text, choices, merchant gold, and merchant item rows sit lower inside the framed `EventScene-bg.png` layout.
+
+---
+
 ## Version 3.2.63 – 2026-03-14
 
 ### Changed
@@ -17,6 +24,13 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 - `MineScene` now reads the manifest via `getHotspotManifest()` / `getHotspot()` helpers, matching the pattern used by `BlacksmithScene`.
 - Removed the rectangle button, button label text, and standalone info text; informational state (cost, "not enough gold") uses the tooltip and a bottom message text.
 - `canMine` now checks `inventoryFull` alongside gold/free-mine status so the hotspot cursor and click handler are disabled before the player can click.
+
+---
+
+## Version 3.2.64 – 2026-03-15
+
+### Technical
+- **Event scene text-layout proof:** Added `EventScene-bg-text-layout-800x600.json` plus approval proofs to mark the current random-event text rows against the painted frame and recommend lower, narrower safe zones for the title, body, and result copy before rewiring `EventScene`.
 
 ---
 
