@@ -325,6 +325,9 @@ class InventoryOverworldScene extends Phaser.Scene {
     });
 
     const groups = groupBagSlots(bagSlots);
+    // #region agent log
+    if (typeof writeAgentDebugLog === 'function') writeAgentDebugLog({ hypothesisId: 'B', location: 'src/scenes/InventoryOverworldScene.js:327', message: 'Inventory scene bag groups', data: { returnMode: this.returnMode, inventoryLength: this.hero.inventory.length, bagSlotCount: bagSlots.length, groupCount: groups.length, groups: groups.slice(0, 8).map((group) => ({ itemId: group.itemId, count: group.slots.length })) }, timestamp: Date.now() });
+    // #endregion
 
     this.gridCells.forEach((cellData, index) => {
       const group = groups[index];

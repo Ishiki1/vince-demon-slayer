@@ -52,10 +52,17 @@ class LootScene extends Phaser.Scene {
   handleContinue(hero, itemId) {
     if (this.continueHandled) return;
     this.continueHandled = true;
+    // #region agent log
+    if (typeof writeAgentDebugLog === 'function') writeAgentDebugLog({ hypothesisId: 'A', location: 'src/scenes/LootScene.js:52', message: 'Loot continue entry', data: { itemId, itemExists: !!(itemId && ITEMS[itemId]), inventoryLength: hero && Array.isArray(hero.inventory) ? hero.inventory.length : null, maxInventory: hero ? hero.maxInventory : null, currentFightIndex: GAME_STATE.currentFightIndex }, timestamp: Date.now() });
+    // #endregion
     // The art-first loot screen now uses a single Continue plaque to claim any pending loot and move on.
+    let addResult = null;
     if (hero && itemId && ITEMS[itemId]) {
-      InventorySystem.add(hero, itemId);
+      addResult = InventorySystem.add(hero, itemId);
     }
+    // #region agent log
+    if (typeof writeAgentDebugLog === 'function') writeAgentDebugLog({ hypothesisId: addResult === false ? 'A' : 'C', location: 'src/scenes/LootScene.js:59', message: 'Loot continue post-add', data: { itemId, addResult, inventoryLength: hero && Array.isArray(hero.inventory) ? hero.inventory.length : null, currentFightIndex: GAME_STATE.currentFightIndex }, timestamp: Date.now() });
+    // #endregion
     this.finishLoot();
   }
 

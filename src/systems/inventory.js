@@ -58,7 +58,12 @@ const InventorySystem = {
     if (!ITEMS[itemId]) return false;
     this.ensureSlotBased(hero);
     this.ensureAccessorySlots(hero);
-    if (hero.inventory.length >= hero.maxInventory) return false;
+    if (hero.inventory.length >= hero.maxInventory) {
+      // #region agent log
+      if (typeof writeAgentDebugLog === 'function') writeAgentDebugLog({ hypothesisId: 'A', location: 'src/systems/inventory.js:61', message: 'Inventory add rejected full', data: { itemId, inventoryLength: hero.inventory.length, maxInventory: hero.maxInventory }, timestamp: Date.now() });
+      // #endregion
+      return false;
+    }
     hero._nextSlotId = hero._nextSlotId || 1;
     const item = ITEMS[itemId];
     const maxDur = item && ['weapon', 'armor', 'accessory'].includes(item.type)
@@ -69,6 +74,9 @@ const InventorySystem = {
       durability: maxDur != null ? maxDur : null,
       maxDurability: maxDur != null ? maxDur : null,
     });
+    // #region agent log
+    if (typeof writeAgentDebugLog === 'function') writeAgentDebugLog({ hypothesisId: 'B', location: 'src/systems/inventory.js:72', message: 'Inventory add success', data: { itemId, inventoryLength: hero.inventory.length, sameItemCount: hero.inventory.filter((slot) => slot.itemId === itemId).length, slotId: hero.inventory[hero.inventory.length - 1] ? hero.inventory[hero.inventory.length - 1].id : null }, timestamp: Date.now() });
+    // #endregion
     return true;
   },
 
