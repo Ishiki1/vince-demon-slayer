@@ -4,6 +4,13 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.64 – 2026-03-15
+
+### Changed
+- **Level Up / Skill Tree visuals:** Removed the green skill row boxes from the shared `SkillTreeScene` so the icons and labels sit directly on the screen, and increased the displayed skill icon size there by 1.25x for both level-up picks and free-browse skill tree view.
+
+---
+
 ## Version 3.2.63 – 2026-03-14
 
 ### Changed

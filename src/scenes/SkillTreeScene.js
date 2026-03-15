@@ -69,45 +69,45 @@ class SkillTreeScene extends Phaser.Scene {
     const colLeftX = 180;
     const colRightX = 500;
     const startY = 155;
-    const rowH = 54;
+    const rowH = 58;
     const btnW = 220;
-    const btnH = 44;
-    const iconSize = 30;
+    const btnH = 48;
+    const iconSize = Math.round(30 * 1.25);
 
-    const createChoiceRow = (choiceId, x, y, label, fillColor, tooltipText) => {
-      const btn = this.add.rectangle(x, y, btnW, btnH, fillColor).setOrigin(0, 0.5);
-      btn.setStrokeStyle(2, 0x0f172a, 0.22);
-      btn.setInteractive({ useHandCursor: true });
+    const createChoiceRow = (choiceId, x, y, label, tooltipText) => {
+      const hitArea = this.add.rectangle(x + btnW / 2, y, btnW, btnH, 0x0f172a, 0.001);
+      hitArea.setInteractive({ useHandCursor: true });
 
       const assetKey = typeof getChoiceAssetKey === 'function' ? getChoiceAssetKey(choiceId, hero) : null;
+      const iconX = x + 10 + iconSize / 2;
       const icon = assetKey && this.textures.exists(assetKey)
-        ? this.add.image(x + 26, y, assetKey).setDisplaySize(iconSize, iconSize)
+        ? this.add.image(iconX, y, assetKey).setDisplaySize(iconSize, iconSize)
         : null;
-      const labelText = this.add.text(icon ? x + 50 : x + 12, y, label, {
+      const labelText = this.add.text(icon ? x + iconSize + 18 : x + 12, y, label, {
         fontSize: 13,
         color: '#fff',
         fontFamily: 'Arial',
       }).setOrigin(0, 0.5).setWordWrapWidth(icon ? btnW - 84 : btnW - 46);
 
-      this.choiceGraphics.push(btn, labelText);
+      this.choiceGraphics.push(hitArea, labelText);
       if (icon) this.choiceGraphics.push(icon);
 
       if (icon && typeof attachHoverScaleTooltip === 'function') {
-        attachHoverScaleTooltip(btn, icon, {
+        attachHoverScaleTooltip(hitArea, icon, {
           tooltipKey: 'tooltipGraphic',
           tooltipText,
           tooltipX: w / 2,
           tooltipY: h - 100,
           tooltipWidth: w - 80,
-          hoverWidth: iconSize + 4,
-          hoverHeight: iconSize + 4,
+          hoverWidth: iconSize + 6,
+          hoverHeight: iconSize + 6,
           onHoverChanged: (hovered) => {
-            btn.setStrokeStyle(2, hovered ? 0xfbbf24 : 0x0f172a, hovered ? 0.85 : 0.22);
+            labelText.setColor(hovered ? '#fbbf24' : '#ffffff');
           },
         });
       } else {
-        btn.on('pointerover', () => {
-          btn.setStrokeStyle(2, 0xfbbf24, 0.85);
+        hitArea.on('pointerover', () => {
+          labelText.setColor('#fbbf24');
           if (this.tooltipGraphic) this.tooltipGraphic.destroy();
           if (tooltipText) {
             this.tooltipGraphic = this.add.text(w / 2, h - 100, tooltipText, {
@@ -117,8 +117,8 @@ class SkillTreeScene extends Phaser.Scene {
             }).setOrigin(0.5, 1).setWordWrapWidth(w - 80).setDepth(20);
           }
         });
-        btn.on('pointerout', () => {
-          btn.setStrokeStyle(2, 0x0f172a, 0.22);
+        hitArea.on('pointerout', () => {
+          labelText.setColor('#ffffff');
           if (this.tooltipGraphic) {
             this.tooltipGraphic.destroy();
             this.tooltipGraphic = null;
@@ -126,7 +126,7 @@ class SkillTreeScene extends Phaser.Scene {
         });
       }
 
-      return btn;
+      return hitArea;
     };
 
     if (actives.length > 0) {
@@ -137,7 +137,7 @@ class SkillTreeScene extends Phaser.Scene {
         const label = (skillMap[choiceId].name || choiceId) + ' (' + cost + ' SP)';
         const y = startY + i * rowH;
         const tip = typeof getSkillChoiceTooltip === 'function' ? getSkillChoiceTooltip(choiceId, hero) : '';
-        const btn = createChoiceRow(choiceId, colLeftX, y, label, 0x16a34a, tip);
+        const btn = createChoiceRow(choiceId, colLeftX, y, label, tip);
         btn.on('pointerdown', () => {
           if (ProgressionSystem.applyChoice(hero, choiceId)) this.buildChoiceButtons();
         });
@@ -156,7 +156,7 @@ class SkillTreeScene extends Phaser.Scene {
         const label = (PASSIVES[choiceId].name || choiceId) + ' (' + cost + ' SP)';
         const y = startY + i * rowH;
         const tip = typeof getPassiveChoiceTooltip === 'function' ? getPassiveChoiceTooltip(choiceId) : '';
-        const btn = createChoiceRow(choiceId, colRightX, y, label, 0x16a34a, tip);
+        const btn = createChoiceRow(choiceId, colRightX, y, label, tip);
         btn.on('pointerdown', () => {
           if (ProgressionSystem.applyChoice(hero, choiceId)) this.buildChoiceButtons();
         });
