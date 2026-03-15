@@ -78,28 +78,6 @@ const GAME_STATE = {
   runUnlocks: [], // set at run start from getRunUnlockSelection(); Multiplier is a future run modifier (stub).
 };
 
-// #region agent log
-function writeAgentDebugLog(payload) {
-  if (!payload || typeof window === 'undefined') return;
-  const entry = JSON.stringify(payload);
-  try {
-    if (navigator && typeof navigator.sendBeacon === 'function') {
-      const blob = new Blob([entry], { type: 'application/json' });
-      if (navigator.sendBeacon('http://127.0.0.1:3001/__debug_log', blob)) return;
-    }
-  } catch (_) {}
-  try {
-    fetch('http://127.0.0.1:3001/__debug_log', {
-      method: 'POST',
-      mode: 'cors',
-      keepalive: true,
-      headers: { 'Content-Type': 'application/json' },
-      body: entry,
-    }).catch(() => {});
-  } catch (_) {}
-}
-// #endregion
-
 const config = {
   type: Phaser.AUTO,
   width: CONFIG.WIDTH,

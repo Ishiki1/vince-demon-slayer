@@ -291,9 +291,6 @@ class CombatScene extends Phaser.Scene {
     }
     this.hero = hero;
     this.forcedEncounter = forcedEncounter;
-    // #region agent log
-    if (typeof writeAgentDebugLog === 'function') writeAgentDebugLog({ hypothesisId: 'C', location: 'src/scenes/CombatScene.js:292', message: 'Combat scene create hero snapshot', data: { currentLevelId: GAME_STATE.currentLevelId, currentFightIndex: GAME_STATE.currentFightIndex, inventoryLength: hero && Array.isArray(hero.inventory) ? hero.inventory.length : null, heroMatchesGameState: hero === GAME_STATE.hero }, timestamp: Date.now() });
-    // #endregion
     hero.battleEvasionChance = 0;
     hero.blockReflectRounds = 0;
     hero.flameAuraRounds = 0;
