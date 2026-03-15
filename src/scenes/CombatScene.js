@@ -414,6 +414,10 @@ class CombatScene extends Phaser.Scene {
 
     this.combatLogText = this.add.text(w - 220, 20, '', { fontSize: 12, color: '#e5e7eb' }).setWordWrapWidth(210);
     this.combatLogText.setOrigin(0, 0);
+    if (GAME_STATE.lastLootAddFailedItemId && ITEMS[GAME_STATE.lastLootAddFailedItemId]) {
+      this.logCombat('Inventory full. Left behind: ' + ITEMS[GAME_STATE.lastLootAddFailedItemId].name + '.');
+      GAME_STATE.lastLootAddFailedItemId = null;
+    }
 
     this.skillButtons = createSkillButtons(this, hero, (skillId) => this.useSkill(skillId));
     const inventoryButton = typeof createUiIconButton === 'function'

@@ -4,6 +4,16 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.66 – 2026-03-15
+
+### Fixed
+- **Loot scene — full inventory warning:** Loot now warns before Continue when the bag is full, and the next same-level combat log explains which item was left behind instead of making the reward appear to vanish silently.
+
+### Technical
+- Added targeted runtime instrumentation around loot claiming, inventory adds, combat entry, and combat inventory grouping to verify that full-bag rejection is the root cause and that same-item stacking still appears correctly in grouped inventory rows.
+
+---
+
 ## Version 3.2.65 – 2026-03-15
 
 ### Changed

@@ -60,6 +60,7 @@ class LootScene extends Phaser.Scene {
     if (hero && itemId && ITEMS[itemId]) {
       addResult = InventorySystem.add(hero, itemId);
     }
+    GAME_STATE.lastLootAddFailedItemId = addResult === false ? itemId : null;
     // #region agent log
     if (typeof writeAgentDebugLog === 'function') writeAgentDebugLog({ hypothesisId: addResult === false ? 'A' : 'C', location: 'src/scenes/LootScene.js:59', message: 'Loot continue post-add', data: { itemId, addResult, inventoryLength: hero && Array.isArray(hero.inventory) ? hero.inventory.length : null, currentFightIndex: GAME_STATE.currentFightIndex }, timestamp: Date.now() });
     // #endregion
@@ -81,6 +82,7 @@ class LootScene extends Phaser.Scene {
     const hero = GAME_STATE.hero;
     const itemId = GAME_STATE.pendingLootItemId;
     const goldEarned = GAME_STATE.goldEarned || 0;
+    const inventoryFullForLoot = !!(hero && itemId && ITEMS[itemId] && hero.inventory.length >= hero.maxInventory);
     this.continueHandled = false;
     const levelBackgroundKey = typeof getLevelBackgroundTextureKey === 'function'
       ? getLevelBackgroundTextureKey(GAME_STATE.currentLevelId)
@@ -113,6 +115,13 @@ class LootScene extends Phaser.Scene {
       this.add.text(w / 2, h / 2 + 80, `(${item.rarity})`, { fontSize: 18, color: '#94a3b8' }).setOrigin(0.5);
       const effectLine = getItemEffectLine(item);
       if (effectLine) this.add.text(w / 2, h / 2 + 110, effectLine, { fontSize: 14, color: '#a5b4fc' }).setOrigin(0.5);
+      if (inventoryFullForLoot) {
+        this.add.text(w / 2, h / 2 + 146, 'Inventory full - Continue will leave this item behind.', {
+          fontSize: 14,
+          color: '#fca5a5',
+          align: 'center',
+        }).setOrigin(0.5).setWordWrapWidth(320);
+      }
     } else {
       this.add.text(w / 2, h / 2 + 80, 'No loot this time.', { fontSize: 18, color: '#94a3b8' }).setOrigin(0.5);
     }

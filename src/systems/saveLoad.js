@@ -91,6 +91,7 @@ function applyRunStatePayload(payload) {
   GAME_STATE.fledGoldLost = null;
   GAME_STATE.fledItemLostNames = [];
   GAME_STATE.levelJustCompleted = false;
+  GAME_STATE.lastLootAddFailedItemId = null;
   return true;
 }
 

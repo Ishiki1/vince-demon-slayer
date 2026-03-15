@@ -41,6 +41,7 @@ function resetRun() {
   GAME_STATE.runUnlocks = [];
   GAME_STATE.freeMineWeekUsed = null;
   GAME_STATE.levelJustCompleted = false;
+  GAME_STATE.lastLootAddFailedItemId = null;
   if (typeof clearRunUnlockSelection === 'function') clearRunUnlockSelection();
   if (typeof clearPendingRunBootstrap === 'function') clearPendingRunBootstrap();
 }
@@ -73,6 +74,7 @@ const GAME_STATE = {
   shopStock: null,
   freeMineWeekUsed: null,
   levelJustCompleted: false,
+  lastLootAddFailedItemId: null,
   runUnlocks: [], // set at run start from getRunUnlockSelection(); Multiplier is a future run modifier (stub).
 };
 
