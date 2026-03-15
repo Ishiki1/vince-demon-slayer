@@ -4,6 +4,13 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.65 – 2026-03-15
+
+### Changed
+- **Event scene copy position:** Moved the painted random-event copy block down by `100px` so titles, body text, choices, merchant gold, and merchant item rows sit lower inside the framed `EventScene-bg.png` layout.
+
+---
+
 ## Version 3.2.63 – 2026-03-14
 
 ### Changed
