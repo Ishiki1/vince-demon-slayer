@@ -1,0 +1,80 @@
+{
+  "canvas": {
+    "width": 800,
+    "height": 600
+  },
+  "background": {
+    "path": "EventScene-bg.png",
+    "sourceWidth": 1536,
+    "sourceHeight": 1024,
+    "fit": "stretch-to-runtime"
+  },
+  "hotspots": [
+    {
+      "id": "current-title-row",
+      "textureKey": "event-title",
+      "x": 180,
+      "y": 78,
+      "width": 440,
+      "height": 32,
+      "centerX": 400,
+      "centerY": 94,
+      "note": "Current title row in EventScene buildLayout(). Title sits too close to the skull beam."
+    },
+    {
+      "id": "current-body-envelope",
+      "textureKey": "event-body",
+      "x": 140,
+      "y": 113,
+      "width": 520,
+      "height": 58,
+      "centerX": 400,
+      "centerY": 142,
+      "note": "Current 520px body wrap, modeled as a 3-line centered text block. Longer copy grows upward into the frame."
+    },
+    {
+      "id": "current-result-envelope",
+      "textureKey": "event-result",
+      "x": 140,
+      "y": 175,
+      "width": 520,
+      "height": 38,
+      "centerX": 400,
+      "centerY": 194,
+      "note": "Current feedback/result line area. Shares the same wide left/right span as the body text."
+    },
+    {
+      "id": "safe-title-zone",
+      "textureKey": "event-title",
+      "x": 195,
+      "y": 106,
+      "width": 410,
+      "height": 32,
+      "centerX": 400,
+      "centerY": 122,
+      "note": "Recommended title safe zone. Roughly 28px lower than the current title row."
+    },
+    {
+      "id": "safe-body-zone",
+      "textureKey": "event-body",
+      "x": 150,
+      "y": 148,
+      "width": 500,
+      "height": 72,
+      "centerX": 400,
+      "centerY": 184,
+      "note": "Recommended narrative/merchant copy box. Limit wrap to 500px and prefer top-anchored text so extra lines grow downward."
+    },
+    {
+      "id": "safe-result-zone",
+      "textureKey": "event-result",
+      "x": 150,
+      "y": 226,
+      "width": 500,
+      "height": 48,
+      "centerX": 400,
+      "centerY": 250,
+      "note": "Recommended result/effect box. Keeps green feedback inside the parchment before choices or the Continue button."
+    }
+  ]
+}

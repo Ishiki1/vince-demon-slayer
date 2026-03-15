@@ -20,6 +20,13 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.2.64 – 2026-03-15
+
+### Technical
+- **Event scene text-layout proof:** Added `EventScene-bg-text-layout-800x600.json` plus approval proofs to mark the current random-event text rows against the painted frame and recommend lower, narrower safe zones for the title, body, and result copy before rewiring `EventScene`.
+
+---
+
 ## Version 3.2.62 – 2026-03-14
 
 ### Changed
