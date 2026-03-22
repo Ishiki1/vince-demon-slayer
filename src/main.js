@@ -40,6 +40,8 @@ function resetRun() {
   GAME_STATE.shopStock = null;
   GAME_STATE.runUnlocks = [];
   GAME_STATE.freeMineWeekUsed = null;
+  GAME_STATE.pendingWitchDungeon = false;
+  GAME_STATE.dungeonProgress = null;
   GAME_STATE.levelJustCompleted = false;
   if (typeof clearRunUnlockSelection === 'function') clearRunUnlockSelection();
   if (typeof clearPendingRunBootstrap === 'function') clearPendingRunBootstrap();
@@ -72,6 +74,8 @@ const GAME_STATE = {
   fledItemLostNames: [],
   shopStock: null,
   freeMineWeekUsed: null,
+  pendingWitchDungeon: false,
+  dungeonProgress: null,
   levelJustCompleted: false,
   runUnlocks: [], // set at run start from getRunUnlockSelection(); Multiplier is a future run modifier (stub).
 };
@@ -90,7 +94,7 @@ const config = {
     min: { width: 400, height: 300 },
     max: { width: 1600, height: 1200 },
   },
-  scene: [BootScene, MenuScene, GamePreloadScene, ClassSelectScene, ClassOriginScene, OverworldScene, CombatScene, LootScene, EventScene, SkillTreeScene, TransitionScene, TownScene, AlchemistScene, ShopScene, BuyAndSellScene, BlacksmithScene, MineScene, InventoryOverworldScene, CharacterSheetScene, RunEndedScene, UnlockSelectScene, SettingsScene],
+  scene: [BootScene, MenuScene, GamePreloadScene, ClassSelectScene, ClassOriginScene, OverworldScene, CombatScene, LootScene, EventScene, SkillTreeScene, TransitionScene, TownScene, AlchemistScene, ShopScene, BuyAndSellScene, BlacksmithScene, MineScene, WitchDungeonScene, InventoryOverworldScene, CharacterSheetScene, RunEndedScene, UnlockSelectScene, SettingsScene],
   input: {
     activePointers: 1,
   },

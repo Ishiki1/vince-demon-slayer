@@ -136,6 +136,30 @@ class CombatScene extends Phaser.Scene {
         attackAnimKey: 'imp_attack',
       };
     }
+    if (enemy.goonType === 'mushroom') {
+      return {
+        idleSheetKey: 'mushroom_idle_sheet',
+        idleAnimKey: 'mushroom_idle',
+        attackSheetKey: 'mushroom_attack_sheet',
+        attackAnimKey: 'mushroom_attack',
+      };
+    }
+    if (enemy.goonType === 'spider') {
+      return {
+        idleSheetKey: 'spider_idle_sheet',
+        idleAnimKey: 'spider_idle',
+        attackSheetKey: 'spider_attack_sheet',
+        attackAnimKey: 'spider_attack',
+      };
+    }
+    if (enemy.name === 'The Witch') {
+      return {
+        idleSheetKey: 'witch_idle_sheet',
+        idleAnimKey: 'witch_idle',
+        attackSheetKey: 'witch_attack_sheet',
+        attackAnimKey: 'witch_attack',
+      };
+    }
     return null;
   }
 
@@ -223,6 +247,16 @@ class CombatScene extends Phaser.Scene {
       callback(0);
       return;
     }
+    if (skill.effect === 'poisonHero') {
+      const rounds = skill.poisonRounds || 3;
+      const dmg = Math.max(1, Math.floor(enemy.damage * (skill.poisonDamageFactor || 0.4)));
+      this.hero.poisonRounds = rounds;
+      this.hero.poisonDamage = dmg;
+      this.logCombat(enemy.name + ' casts Poison! ' + dmg + ' damage/turn for ' + rounds + ' turns.');
+      this.updateStatusEffects();
+      callback(0);
+      return;
+    }
     callback(0);
   }
 
@@ -236,10 +270,20 @@ class CombatScene extends Phaser.Scene {
     const hero = GAME_STATE.hero;
     const forcedEncounter = GAME_STATE.forcedEncounter;
     const isForcedDay10Reaper = forcedEncounter && forcedEncounter.type === 'day10Reaper';
+    const isDungeonGoon = forcedEncounter && forcedEncounter.type === 'dungeonGoon';
+    const isWitchBoss = forcedEncounter && forcedEncounter.type === 'witchBoss';
     let level = null;
     let fightIndex = 0;
     let fight = null;
-    if (isForcedDay10Reaper) {
+    if (isDungeonGoon || isWitchBoss) {
+      level = {
+        id: isWitchBoss ? 'witchBoss' : 'dungeonGoon',
+        name: isWitchBoss ? "The Witch's Lair" : 'Dungeon Encounter',
+        levelIndex: Math.max(0, (hero.level || 1) - 1),
+        fights: [{ slot: 0, isBoss: isWitchBoss }],
+      };
+      fight = level.fights[0];
+    } else if (isForcedDay10Reaper) {
       level = {
         id: 'day10Reaper',
         name: 'The Reaper',
@@ -274,7 +318,20 @@ class CombatScene extends Phaser.Scene {
     GAME_STATE.reaperFight = reaperAppears;
 
     hero.reaperSuppressEquipmentEvasion = false;
-    if (reaperAppears) {
+    if (isDungeonGoon) {
+      const goonType = forcedEncounter.goonType || 'mushroom';
+      const goon = typeof createDungeonGoon === 'function'
+        ? createDungeonGoon(hero.level, goonType)
+        : createEnemy(level.levelIndex, false);
+      this.enemies = [goon];
+      this.isBossFight = false;
+    } else if (isWitchBoss) {
+      const witch = typeof createWitch === 'function'
+        ? createWitch(hero.level)
+        : createEnemy(level.levelIndex, true);
+      this.enemies = [witch];
+      this.isBossFight = true;
+    } else if (reaperAppears) {
       hero.reaperFrightened = true;
       hero.reaperSuppressEquipmentEvasion = true;
       this.enemies = [createReaper(hero.level)];
@@ -294,6 +351,11 @@ class CombatScene extends Phaser.Scene {
     hero.battleEvasionChance = 0;
     hero.blockReflectRounds = 0;
     hero.flameAuraRounds = 0;
+    hero.poisonRounds = 0;
+    hero.poisonDamage = 0;
+    hero.regenRounds = 0;
+    hero.regenPercent = 0;
+    hero.doubletapActive = false;
     this.fightIndex = fightIndex;
     this.level = level;
     this.skillButtons = null;
@@ -381,6 +443,18 @@ class CombatScene extends Phaser.Scene {
       } else if (enemy.goonType === 'imp' && this.textures.exists('imp_idle_sheet') && this.anims.exists('imp_idle')) {
         const sprite = this.add.sprite(x, spriteY, 'imp_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
         sprite.play('imp_idle');
+        displayObj = sprite;
+      } else if (enemy.goonType === 'mushroom' && this.textures.exists('mushroom_idle_sheet') && this.anims.exists('mushroom_idle')) {
+        const sprite = this.add.sprite(x, spriteY, 'mushroom_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
+        sprite.play('mushroom_idle');
+        displayObj = sprite;
+      } else if (enemy.goonType === 'spider' && this.textures.exists('spider_idle_sheet') && this.anims.exists('spider_idle')) {
+        const sprite = this.add.sprite(x, spriteY, 'spider_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
+        sprite.play('spider_idle');
+        displayObj = sprite;
+      } else if (enemy.name === 'The Witch' && this.textures.exists('witch_idle_sheet') && this.anims.exists('witch_idle')) {
+        const sprite = this.add.sprite(x, spriteY, 'witch_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
+        sprite.play('witch_idle');
         displayObj = sprite;
       } else {
         displayObj = this.add.rectangle(x, spriteY, enemyW, enemyH, enemyColor);
@@ -594,7 +668,13 @@ class CombatScene extends Phaser.Scene {
       }
     }
 
-    const damage = CombatSystem.dealDamage(this.hero, enemy, skillId);
+    let damage = CombatSystem.dealDamage(this.hero, enemy, skillId);
+    if (this.hero.doubletapActive) {
+      enemy.hp = Math.max(0, enemy.hp - damage);
+      damage = damage * 2;
+      this.hero.doubletapActive = false;
+      this.logCombat('Doubletap! Damage doubled!');
+    }
     if (damage > 0 && typeof playSfx === 'function') playSfx(this, 'damage-dealt-and-received');
     this.logCombat((skill ? skill.name : 'Attack') + ' on ' + enemy.name + '. ' + damage + ' damage.');
     this.shakeSprite(this.enemySprites[enemyIndex], () => {});
@@ -743,6 +823,17 @@ class CombatScene extends Phaser.Scene {
       this.hero.currentMana -= skill.manaCost;
       const runAoeEffects = () => {
         const damages = CombatSystem.dealDamageToAll(this.hero, this.enemies, skillId);
+        const wasDoubletap = this.hero.doubletapActive;
+        if (wasDoubletap) {
+          this.hero.doubletapActive = false;
+          this.logCombat('Doubletap! Damage doubled!');
+          for (let i = 0; i < damages.length; i++) {
+            if (damages[i] > 0) {
+              this.enemies[i].hp = Math.max(0, this.enemies[i].hp - damages[i]);
+              damages[i] = damages[i] * 2;
+            }
+          }
+        }
         let totalDamage = 0;
         for (let i = 0; i < this.enemies.length; i++) {
           if (damages[i] != null) totalDamage += damages[i];
@@ -960,6 +1051,32 @@ class CombatScene extends Phaser.Scene {
 
   startOfPlayerTurn() {
     this.clearTargetMode();
+    if ((this.hero.poisonRounds || 0) > 0) {
+      const poisonDmg = this.hero.poisonDamage || 1;
+      this.hero.currentHealth = Math.max(0, this.hero.currentHealth - poisonDmg);
+      this.hero.poisonRounds = Math.max(0, this.hero.poisonRounds - 1);
+      this.logCombat('Poison tick! ' + poisonDmg + ' damage.' + (this.hero.poisonRounds > 0 ? ' (' + this.hero.poisonRounds + ' turns left)' : ' Poison faded.'));
+      if (this.heroSprite) {
+        this.shakeSprite(this.heroSprite, () => {});
+        this.showDamageNumber(this.heroSprite.x, this.heroSprite.y, poisonDmg);
+      }
+      this.updateBars();
+      if (CombatSystem.isHeroDead(this.hero)) {
+        this.onCombatLose();
+        return;
+      }
+    }
+    if ((this.hero.regenRounds || 0) > 0) {
+      const regenAmt = Math.max(1, Math.floor(this.hero.getEffectiveHealth() * (this.hero.regenPercent || 0.30)));
+      this.hero.currentHealth = Math.min(this.hero.getEffectiveHealth(), this.hero.currentHealth + regenAmt);
+      this.hero.regenRounds = Math.max(0, this.hero.regenRounds - 1);
+      this.logCombat('Regen tick! +' + regenAmt + ' HP.' + (this.hero.regenRounds > 0 ? ' (' + this.hero.regenRounds + ' turns left)' : ' Regen faded.'));
+      if (this.heroSprite) {
+        const txt = this.add.text(this.heroSprite.x, this.heroSprite.y - 30, '+' + regenAmt, { fontSize: 22, color: '#4ade80' }).setOrigin(0.5);
+        this.tweens.add({ targets: txt, y: txt.y - 40, alpha: 0, duration: 600, onComplete: () => txt.destroy() });
+      }
+      this.updateBars();
+    }
     if (this.hero.flameAuraRounds > 0) {
       const weaponDamageMult = this.hero.getWeaponDamageMultiplier ? this.hero.getWeaponDamageMultiplier() : 1;
       const dmg = Math.floor((this.hero.getIntelligence ? this.hero.getIntelligence() : 0) * 1.0 * weaponDamageMult);
@@ -1036,6 +1153,9 @@ class CombatScene extends Phaser.Scene {
     if ((this.hero.flameAuraRounds || 0) > 0) parts.push('Flame Aura ' + this.hero.flameAuraRounds + 'r');
     if ((this.hero.blockReflectRounds || 0) > 0) parts.push('Reflect ' + this.hero.blockReflectRounds + 'r');
     if ((this.hero.invulnerableRounds || 0) > 0) parts.push('Invulnerable ' + this.hero.invulnerableRounds + 'r');
+    if ((this.hero.poisonRounds || 0) > 0) parts.push('Poisoned ' + this.hero.poisonRounds + 'r');
+    if ((this.hero.regenRounds || 0) > 0) parts.push('Regen ' + this.hero.regenRounds + 'r');
+    if (this.hero.doubletapActive) parts.push('Doubletap');
     if (this.hero.reaperFrightened) parts.push('Frightened');
     this.statusEffectsText.setText(parts.length ? parts.join(' | ') : '');
   }
@@ -1076,12 +1196,39 @@ class CombatScene extends Phaser.Scene {
     this.hero.flameAuraRounds = 0;
     this.hero.blockReflectRounds = 0;
     this.hero.invulnerableRounds = 0;
+    this.hero.poisonRounds = 0;
+    this.hero.poisonDamage = 0;
+    this.hero.regenRounds = 0;
+    this.hero.regenPercent = 0;
+    this.hero.doubletapActive = false;
     this.hero.reaperFrightened = false;
     this.hero.reaperSuppressEquipmentEvasion = false;
     GAME_STATE.reaperFight = false;
     const wasForcedEncounter = !!this.forcedEncounter;
+    const wasDungeonGoon = wasForcedEncounter && this.forcedEncounter.type === 'dungeonGoon';
+    const wasWitchBoss = wasForcedEncounter && this.forcedEncounter.type === 'witchBoss';
     GAME_STATE.forcedEncounter = null;
     if (typeof playGameMusicLoop === 'function') playGameMusicLoop(this);
+
+    if (wasDungeonGoon) {
+      GAME_STATE.currentLevelId = null;
+      GAME_STATE.currentFightIndex = 0;
+      this.scene.start('WitchDungeon');
+      return;
+    }
+    if (wasWitchBoss) {
+      GAME_STATE.currentLevelId = null;
+      GAME_STATE.currentFightIndex = 0;
+      const witchGold = 50 + (this.hero.level || 1) * 15;
+      this.hero.gold += witchGold;
+      if (typeof InventorySystem !== 'undefined') InventorySystem.add(this.hero, 'nightshade');
+      GAME_STATE.dungeonProgress = null;
+      GAME_STATE.pendingWitchDungeon = false;
+      GAME_STATE.pendingLootItemId = null;
+      GAME_STATE.goldEarned = witchGold;
+      this.scene.start('Overworld');
+      return;
+    }
 
     if (wasForcedEncounter) {
       GAME_STATE.currentLevelId = null;
@@ -1131,6 +1278,11 @@ class CombatScene extends Phaser.Scene {
       this.hero.battleEvasionChance = 0;
       this.hero.blockReflectRounds = 0;
       this.hero.invulnerableRounds = 0;
+      this.hero.poisonRounds = 0;
+      this.hero.poisonDamage = 0;
+      this.hero.regenRounds = 0;
+      this.hero.regenPercent = 0;
+      this.hero.doubletapActive = false;
       this.hero.reaperFrightened = false;
       this.hero.reaperSuppressEquipmentEvasion = false;
     }
@@ -1150,6 +1302,11 @@ class CombatScene extends Phaser.Scene {
       this.hero.flameAuraRounds = 0;
       this.hero.blockReflectRounds = 0;
       this.hero.invulnerableRounds = 0;
+      this.hero.poisonRounds = 0;
+      this.hero.poisonDamage = 0;
+      this.hero.regenRounds = 0;
+      this.hero.regenPercent = 0;
+      this.hero.doubletapActive = false;
       this.hero.reaperFrightened = false;
       this.hero.reaperSuppressEquipmentEvasion = false;
     }

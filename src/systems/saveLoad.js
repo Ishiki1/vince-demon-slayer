@@ -4,7 +4,7 @@
  */
 
 const SAVE_KEY = 'vince_saveState';
-const SAVE_VERSION = 3;
+const SAVE_VERSION = 4;
 const PENDING_RUN_KEY = 'vince_pendingRunBootstrap';
 const PENDING_RUN_VERSION = 1;
 
@@ -45,6 +45,8 @@ function buildRunStatePayload() {
     day10ReaperResolved: GAME_STATE.day10ReaperResolved,
     forcedEncounter: GAME_STATE.forcedEncounter,
     freeMineWeekUsed: GAME_STATE.freeMineWeekUsed,
+    pendingWitchDungeon: GAME_STATE.pendingWitchDungeon,
+    dungeonProgress: GAME_STATE.dungeonProgress,
     shopStock: GAME_STATE.shopStock,
   };
 }
@@ -81,6 +83,10 @@ function applyRunStatePayload(payload) {
     ? payload.forcedEncounter
     : null;
   GAME_STATE.freeMineWeekUsed = typeof payload.freeMineWeekUsed === 'number' ? payload.freeMineWeekUsed : null;
+  GAME_STATE.pendingWitchDungeon = payload.pendingWitchDungeon === true;
+  GAME_STATE.dungeonProgress = payload.dungeonProgress && typeof payload.dungeonProgress === 'object'
+    ? payload.dungeonProgress
+    : null;
   GAME_STATE.shopStock = Array.isArray(payload.shopStock) ? payload.shopStock : null;
 
   GAME_STATE.pendingLevelUpSkill = null;
@@ -152,7 +158,7 @@ function hasSave() {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw || raw.length === 0) return false;
     const data = JSON.parse(raw);
-    return data && (data.version === SAVE_VERSION || (data.hero && data.hero.class));
+    return data && (data.version >= 3 || (data.hero && data.hero.class));
   } catch (_) {
     return false;
   }

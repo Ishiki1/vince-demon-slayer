@@ -40,6 +40,12 @@ const ENEMY_ANIMATIONS = [
   { sheetKey: 'reaper_attack_sheet', animKey: 'reaper_attack', frameRate: 24, repeat: 0 },
   { sheetKey: 'vampire_idle_sheet', animKey: 'vampire_idle', frameRate: 20, repeat: -1 },
   { sheetKey: 'vampire_attack_sheet', animKey: 'vampire_attack', frameRate: 24, repeat: 0 },
+  { sheetKey: 'mushroom_idle_sheet', animKey: 'mushroom_idle', frameRate: 20, repeat: -1 },
+  { sheetKey: 'mushroom_attack_sheet', animKey: 'mushroom_attack', frameRate: 24, repeat: 0 },
+  { sheetKey: 'spider_idle_sheet', animKey: 'spider_idle', frameRate: 20, repeat: -1 },
+  { sheetKey: 'spider_attack_sheet', animKey: 'spider_attack', frameRate: 24, repeat: 0 },
+  { sheetKey: 'witch_idle_sheet', animKey: 'witch_idle', frameRate: 20, repeat: -1 },
+  { sheetKey: 'witch_attack_sheet', animKey: 'witch_attack', frameRate: 24, repeat: 0 },
 ];
 
 function getTextureFrameCount(scene, sheetKey) {
@@ -318,6 +324,14 @@ class GamePreloadScene extends Phaser.Scene {
     this.load.image('mine-ui-background', 'assets/overworld/mine-bg.png');
     this.load.json('mine-hotspots', 'assets/overworld/minescene-hotspots-800x600.json');
     this.load.image('alchemist-ui-background', 'assets/overworld/alchemist-bg.png');
+    this.load.json('alchemist-hotspots', 'assets/overworld/alchemist-hotspots-800x600.json');
+    this.load.image('witch-dungeon-ui-background', 'assets/overworld/witch-bg.png');
+    this.load.spritesheet('mushroom_idle_sheet', 'assets/goons/mushroom_idle_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
+    this.load.spritesheet('mushroom_attack_sheet', 'assets/goons/mushroom_attack_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
+    this.load.spritesheet('spider_idle_sheet', 'assets/goons/spider_idle_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
+    this.load.spritesheet('spider_attack_sheet', 'assets/goons/spider_attack_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
+    this.load.spritesheet('witch_idle_sheet', 'assets/goons/witch_idle_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
+    this.load.spritesheet('witch_attack_sheet', 'assets/goons/witch_attack_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
     this.load.image('eventscene-ui-background', 'assets/ui/EventScene-bg.png');
     this.load.image('lootscene-ui-background', 'assets/ui/LootScene-bg.png');
     this.load.json('lootscene-hotspots', 'assets/ui/LootScene-bg-hotspots-800x600.json');

@@ -1,0 +1,21 @@
+{
+  "canvas": { "width": 800, "height": 600 },
+  "background": {
+    "path": "alchemist-bg.png",
+    "sourceWidth": 1536,
+    "sourceHeight": 1024,
+    "fit": "stretch-to-runtime"
+  },
+  "hotspots": [
+    {
+      "id": "cauldron",
+      "x": 180,
+      "y": 260,
+      "width": 320,
+      "height": 260,
+      "centerX": 340,
+      "centerY": 390,
+      "note": "Large clickable area covering the brewing cauldron and alchemist"
+    }
+  ]
+}

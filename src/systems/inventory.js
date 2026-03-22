@@ -117,6 +117,18 @@ const InventorySystem = {
     if (item.effect === 'invulnerability') {
       hero.invulnerableRounds = Math.max(hero.invulnerableRounds || 0, item.value || 0);
     }
+    if (item.effect === 'remedy') {
+      hero.poisonRounds = 0;
+      hero.poisonDamage = 0;
+      hero.reaperFrightened = false;
+    }
+    if (item.effect === 'regeneration') {
+      hero.regenRounds = item.value || 5;
+      hero.regenPercent = 0.30;
+    }
+    if (item.effect === 'doubletap') {
+      hero.doubletapActive = true;
+    }
     hero.inventory.splice(idx, 1);
     return true;
   },

@@ -83,6 +83,18 @@ const ITEMS = {
   'mana-potion-legendary': defineItem('mana-potion-legendary', { name: 'Supreme Mana Potion', type: 'potion', rarity: 'legendary', effect: 'mana', value: 999, lootEligible: true, shopEligible: true, merchantEligible: true, visualId: 'mana-potion' }),
   'avoid-death-potion': defineItem('avoid-death-potion', { name: 'Avoid Death Potion', type: 'potion', rarity: 'legendary', effect: 'invulnerability', value: 3, visualId: 'avoid-death-potion' }),
 
+  // Alchemy potions (brewed from herbs)
+  'remedy-potion': defineItem('remedy-potion', { name: 'Remedy Potion', type: 'potion', rarity: 'rare', effect: 'remedy' }),
+  'regen-potion': defineItem('regen-potion', { name: 'Regeneration Potion', type: 'potion', rarity: 'legendary', effect: 'regeneration', value: 5 }),
+  'doubletap-potion': defineItem('doubletap-potion', { name: 'Doubletap Potion', type: 'potion', rarity: 'legendary', effect: 'doubletap' }),
+
+  // Herbs (Witch's Dungeon)
+  'moonpetal': defineItem('moonpetal', { name: 'Moonpetal', type: 'herb', rarity: 'common' }),
+  'thornroot': defineItem('thornroot', { name: 'Thornroot', type: 'herb', rarity: 'common' }),
+  'ghostcap': defineItem('ghostcap', { name: 'Ghostcap', type: 'herb', rarity: 'rare' }),
+  'witchbloom': defineItem('witchbloom', { name: 'Witchbloom', type: 'herb', rarity: 'rare' }),
+  'nightshade': defineItem('nightshade', { name: 'Nightshade', type: 'herb', rarity: 'legendary' }),
+
   // Shared materials
   'fire-stone': defineItem('fire-stone', { name: 'Fire Stone', type: 'material', rarity: 'rare' }),
   'wind-stone': defineItem('wind-stone', { name: 'Wind Stone', type: 'material', rarity: 'rare' }),
@@ -263,6 +275,7 @@ function getUniqueSetBonusDisplay(hero) {
 function getItemEffectLine(item) {
   if (!item) return '';
   if (item.type === 'material') return 'Crafting material';
+  if (item.type === 'herb') return 'Alchemy ingredient';
   const parts = [];
   if (item.strength) parts.push('+' + item.strength + ' Str');
   if (item.defense) parts.push('+' + item.defense + ' Def');
@@ -271,9 +284,21 @@ function getItemEffectLine(item) {
   if (item.effect === 'health' && item.value) parts.push(item.value >= 999 ? 'Full HP' : '+' + item.value + ' HP');
   if (item.effect === 'mana' && item.value) parts.push(item.value >= 999 ? 'Full Mana' : '+' + item.value + ' Mana');
   if (item.effect === 'invulnerability' && item.value) parts.push('Invulnerable ' + item.value + ' turns');
+  if (item.effect === 'remedy') parts.push('Cures all ailments');
+  if (item.effect === 'regeneration') parts.push('Heals 30% HP/round for ' + (item.value || 5) + ' rounds');
+  if (item.effect === 'doubletap') parts.push('Doubles next attack damage');
   if (item.skillId) parts.push('Learn: ' + ((WARRIOR_SKILLS[item.skillId] || SORCERESS_SKILLS[item.skillId]) ? (WARRIOR_SKILLS[item.skillId] || SORCERESS_SKILLS[item.skillId]).name : item.skillId));
   if (item.maxHealthModifier != null) parts.push(item.maxHealthModifier >= 0 ? '+' + item.maxHealthModifier + ' Max HP' : item.maxHealthModifier + ' Max HP');
   if (item.evasion != null) parts.push('+' + Math.round(item.evasion * 100) + '% Evasion');
   if (item.intelligence) parts.push('+' + item.intelligence + ' Int');
   return parts.join(', ') || '';
 }
+
+const ALCHEMY_RECIPES = [
+  { id: 'brew-health',   herbId: 'moonpetal',  resultId: 'health-potion-rare', gold: 50 },
+  { id: 'brew-mana',     herbId: 'thornroot',  resultId: 'mana-potion-rare',   gold: 50 },
+  { id: 'brew-remedy-g', herbId: 'ghostcap',   resultId: 'remedy-potion',      gold: 100 },
+  { id: 'brew-remedy-w', herbId: 'witchbloom', resultId: 'remedy-potion',      gold: 100 },
+  { id: 'brew-regen',    herbId: 'nightshade', resultId: 'regen-potion',       gold: 200 },
+  { id: 'brew-double',   herbId: 'nightshade', resultId: 'doubletap-potion',   gold: 200 },
+];

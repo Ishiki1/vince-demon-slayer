@@ -136,6 +136,28 @@ registerVisualList([
   placeholderLabel: visualId.replace(/^unique-/, '').split('-')[0].slice(0, 2).toUpperCase(),
 }));
 
+registerVisualList([
+  'moonpetal',
+  'thornroot',
+  'ghostcap',
+  'witchbloom',
+  'nightshade',
+], () => ({
+  preload: false,
+  hover: null,
+  placeholderLabel: null,
+}));
+
+registerVisualList([
+  'remedy-potion',
+  'regen-potion',
+  'doubletap-potion',
+], () => ({
+  preload: false,
+  hover: null,
+  placeholderLabel: null,
+}));
+
 function getItemVisual(visualId) {
   return ITEM_VISUALS[visualId] || null;
 }

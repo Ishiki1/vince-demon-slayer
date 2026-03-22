@@ -10,6 +10,14 @@ const ENEMY_SKILLS = {
     effect: 'clearHeroCombatBuffs',
     useAttackAnimation: true,
   },
+  'witch-poison-skill': {
+    id: 'witch-poison-skill',
+    name: 'Poison',
+    effect: 'poisonHero',
+    poisonRounds: 3,
+    poisonDamageFactor: 0.4,
+    useAttackAnimation: true,
+  },
 };
 
 function getEnemySkill(skillId) {

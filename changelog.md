@@ -4,6 +4,55 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.4.1 – 2026-03-22
+
+### Changed
+- **Alchemist hotspot-driven UI:** The Alchemist scene now loads with a clean background. Click the cauldron hotspot to open a recipe overlay panel; close to return to the art. Follows the same hotspot manifest pattern as the Mine scene. (`AlchemistScene.js`, `BootScene.js`)
+
+### Technical
+- New `assets/overworld/alchemist-hotspots-800x600.json` manifest with a single `cauldron` hotspot.
+- `BootScene` loads `alchemist-hotspots` JSON alongside the existing background image.
+- `AlchemistScene` restructured: `getHotspotManifest()`/`getHotspot()` helpers, invisible cauldron hit area with hover tooltip, `openBrewingPanel()`/`closeBrewingPanel()` for overlay lifecycle.
+
+---
+
+## Version 3.4.0 – 2026-03-22
+
+### Added
+- **Alchemist potion crafting:** The Alchemist scene is now a functional brewing UI. Lists all available recipes with herb cost, gold cost, and potion effect. Click "Brew" to consume one herb + gold and receive the potion. Greyed-out rows when missing ingredients; inventory-full guard prevents waste. (`AlchemistScene.js`)
+- **Remedy Potion** (rare): Brewed from Ghostcap or Witchbloom + 100g. Cures poison, clears Reaper fright, and removes all combat ailments. (`items.js`, `inventory.js`)
+- **Regeneration Potion** (legendary): Brewed from Nightshade + 200g. Heals 30% of max HP per round for 5 rounds. Green floating numbers show healing each turn. (`items.js`, `inventory.js`, `CombatScene.js`)
+- **Doubletap Potion** (legendary): Brewed from Nightshade + 200g. Doubles the damage of the hero's next attack (single-target or AoE), then expires. (`items.js`, `inventory.js`, `CombatScene.js`)
+- **ALCHEMY_RECIPES** data array: Six recipes mapping herbs to potions with gold costs. Common herbs produce existing Greater Health/Mana potions; rare herbs produce Remedy; legendary Nightshade produces Regeneration or Doubletap. (`items.js`)
+
+### Technical
+- New hero fields `regenRounds`, `regenPercent`, `doubletapActive` in `Hero.js`; cleared on battle start/end in `CombatScene`.
+- `usePotion()` in `inventory.js` extended with `remedy`, `regeneration`, and `doubletap` effect branches.
+- `CombatScene.startOfPlayerTurn()` applies regen tick after poison tick; doubletap multiplier applied in both single-target and AoE damage paths.
+- `updateStatusEffects()` shows "Regen Xr" and "Doubletap" indicators in combat.
+- Placeholder visuals registered for the three new potions in `itemVisuals.js`.
+
+---
+
+## Version 3.3.0 – 2026-03-22
+
+### Added
+- **Witch's Dungeon:** New recurring mini-dungeon that appears every 4 days. A popup on the overworld invites the player to visit. The dungeon uses `witch-bg.png` as a painted room backdrop with an 8x6 tile grid. Click any walkable tile to move there via BFS pathfinding; each tile crossed counts as a step. Landmark tiles (cauldron, mushrooms, bookshelves, table) give fixed rewards. Floor tiles roll random outcomes: herb find, goon fight, trap, or flavor text. After enough steps (8-12), the Witch spawns at the pentagram for a boss fight. (`WitchDungeonScene.js`, `dungeon.js`)
+- **Witch boss:** New boss enemy with scaled HP/damage and a poison ability. Every 2 turns she casts Poison, dealing damage-over-time for 3 rounds. Defeating her drops a guaranteed Nightshade herb plus gold. (`dungeon.js`, `enemySkills.js`, `CombatScene.js`)
+- **Poison status effect:** Hero can now be poisoned. Poison ticks at the start of each player turn, showing floating damage and a "Poisoned Xr" status indicator. Clears automatically when rounds expire or combat ends. (`Hero.js`, `CombatScene.js`)
+- **New dungeon goons:** Mushroom Creature and Giant Spider enemy types for dungeon encounters. Fall back to red rectangles until spritesheets are added. (`dungeon.js`, `CombatScene.js`, `BootScene.js`)
+- **Herb items:** Five new herb items for future Alchemist potion crafting — Moonpetal (common), Thornroot (common), Ghostcap (rare), Witchbloom (rare), Nightshade (legendary, Witch drop). (`items.js`, `itemVisuals.js`)
+
+### Technical
+- New `src/data/dungeon.js` with tile grid, BFS pathfinding, outcome tables, landmark rewards, and Witch/goon factories.
+- New `src/scenes/WitchDungeonScene.js` with grid-based room exploration, step counting, popup system, and combat transitions.
+- `SAVE_VERSION` bumped to 4; `pendingWitchDungeon` and `dungeonProgress` added to save payload. Backward-compatible with version 3 saves.
+- `LootScene` sets `pendingWitchDungeon` on day 4, 8, 12, etc. `OverworldScene` shows the invite popup.
+- `CombatScene` handles `dungeonGoon` and `witchBoss` forced encounter types; returns to dungeon or overworld after combat.
+- `GamePreloadScene` loads `witch-bg.png` and six new enemy spritesheets (graceful 404 until art exists).
+
+---
+
 ## Version 3.2.63 – 2026-03-14
 
 ### Changed
