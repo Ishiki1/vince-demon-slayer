@@ -332,6 +332,15 @@ for(const anim of ['idle','attack']){
 
 **Special case -- green-skinned creatures:** Creatures with intentionally green skin (e.g. goblins) will have high green pixel counts that are correct. For these creatures, visually inspect the processed frames instead: zoom into the creature outline and confirm there is no bright-green (#00FF00) halo between the creature edge and the transparent background. The flood-fill preserves interior green but border-connected green should be gone.
 
+### Outline integrity check
+
+After cleanup, verify the creature's black outline survived processing intact. This catches two common issues:
+
+1. **Dark creatures** (golems, shadow beings): dark body pixels can merge with the black outline during cleanup, making the silhouette blobby. Inspect the first frame of each processed sheet -- the creature should have a clearly visible black border separating it from the transparent background.
+2. **Thin features** (spider legs, antennae, tails): aggressive cleanup thresholds can eat into thin features. Verify thin extremities still have their black outline visible at the edges.
+
+If the outline is degraded, lower the cleanup `--threshold` (try 24 or 20) and reprocess. The trade-off: lower threshold may leave more green residue, so balance both checks.
+
 ## Phase 7: Wire into Codebase
 
 Five insertion points across four files. Use `<goon>` as the goonType string throughout.
