@@ -78,6 +78,20 @@ Skill definition in `src/data/enemySkills.js`:
 },
 ```
 
+### Creature-Specific Adaptations
+
+Before generating art, identify which of these edge cases apply to the new creature and plan accordingly:
+
+| Creature trait | Risk | Mitigation |
+|---|---|---|
+| **Green/teal coloring** (goblins, slimes, plant creatures) | Green skin blends with #00FF00 background during cleanup | Use a lower cleanup threshold (24-28 instead of 32). After processing, use visual inspection for green halo instead of the automated green-pixel check. |
+| **Thin limbs or fine detail** (spiders, insects, skeletal creatures) | Thin legs/antennae get eaten by aggressive flood-fill or threshold | Use a lower cleanup threshold (24-28). After processing, zoom into thin features and confirm they survived. If limbs are lost, lower the threshold further. |
+| **Dark coloring near black** (stone golems, shadow creatures, dark metal) | Dark body blends with the thick black outline, losing silhouette definition | In the prompt, explicitly request "clearly visible thick black outline that contrasts with the dark body." After processing, verify the outline is distinguishable from the body at display size. |
+| **Held items** (staffs, weapons, shields, orbs) | Items disappear, swap hands, or change position between frames | In every frame description, mention the held item and which hand holds it. Add to the closing line: "The [item] must appear in every frame in the [left/right] hand." |
+| **Massive/unusual proportions** (golems, giants, dragons) | Creature may not read well at 120x150 display size; standard framing may clip extremities | In the reference prompt, emphasize "the creature fits entirely within the frame with no clipping." Consider whether the silhouette is recognizable at small display size. |
+| **Melee/slam attacks** (no projectile) | The attack template assumes horizontal lunge; vertical slams need different motion description | Describe the slam as "leaning forward toward the LEFT while striking downward" so the leftward direction is clear even in a vertical motion. |
+| **Spell/projectile attacks** | Projectile direction is the most common facing failure | In the attack prompt, explicitly describe the projectile's path: "the [spell/bolt] travels from the [creature] toward the LEFT edge of the frame." |
+
 ## Phase 3: Generate Static Reference Image
 
 Use the `GenerateImage` tool with `reference_image_paths` if restyling an existing goon.
