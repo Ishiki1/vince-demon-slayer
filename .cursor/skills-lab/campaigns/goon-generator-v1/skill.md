@@ -28,7 +28,7 @@ These were learned the hard way during the Plague Toad POC:
 - **VERIFY facing direction after EVERY generation.** Before processing any sprite sheet, visually inspect the generated image and confirm ALL frames face left. Attack sheets are especially prone to flipping -- the lunge/strike must go toward the LEFT edge. If any frame faces right, regenerate the sheet immediately. Do not process a sheet with wrong-facing frames.
 - **NO divider lines in sprite sheets.** Image generators love adding black grid separators. Explicitly forbid them.
 - **Green flood fill preserves interior green.** The cleanup script only removes border-connected green, so creatures with green markings keep their coloring.
-- **Idle = 20fps loop, Attack = 24fps one-shot.** This is universal across all goons.
+- **Idle = 20fps loop, Attack = 24fps one-shot.** This is universal across all goons. Idle: 8 frames at 20fps = 0.4s loop. Attack: 8 frames at 24fps = 0.33s one-shot -- enough for wind-up, peak, and recovery to read clearly.
 - **Both getEnemyAnimationSet AND the sprite creation chain need branches.** Forgetting either means the goon either renders as a rectangle or does not animate on attack.
 - **Phaser auto-detects frame count.** `ensureGeneratedAnimation` reads frame count from the loaded texture. Do not hardcode frame numbers.
 
@@ -160,7 +160,7 @@ Generate a single image containing all attack animation frames in a grid.
 Prompt rules:
 
 - Reference the cleaned goon image via `reference_image_paths`.
-- Request a 3x2 grid (6 frames).
+- Request a 4x2 grid (8 frames). At 24fps this gives ~0.33s of animation -- enough time for the attack to read clearly with wind-up, peak, and recovery.
 - Say "NO divider lines or borders between frames".
 - Say "bright solid green (#00FF00) background".
 - **Every frame** must face left -- repeat "facing left" in each frame description.
@@ -172,8 +172,8 @@ Prompt rules:
 Attack prompt template:
 
 ```
-A pixel art sprite sheet showing exactly 6 frames of a [ATTACK TYPE] attack animation,
-arranged in exactly 2 rows of 3 frames each (3 columns, 2 rows grid).
+A pixel art sprite sheet showing exactly 8 frames of a [ATTACK TYPE] attack animation,
+arranged in exactly 2 rows of 4 frames each (4 columns, 2 rows grid).
 NO divider lines or borders between frames. Each frame shows the same dark-fantasy
 [CREATURE NAME] creature FACING LEFT. Bright solid green (#00FF00) background with
 NO grid lines, NO borders, NO separators between frames. Pixel art style with
@@ -185,15 +185,17 @@ must NOT face right. The attack must NOT go toward the right side. Do NOT mirror
 or flip any frame.
 
 Row 1 (left to right):
-Frame 1 - [creature] crouching low facing left, compressing body, preparing to attack.
-Frame 2 - [creature] facing left, [describe wind-up, e.g. mouth opening, body tensing].
-Frame 3 - [creature] facing left, [peak of attack, e.g. lunging, striking, spitting],
-body fully extended toward the left. Attack goes LEFT, not right.
+Frame 1 - [creature] in ready stance facing left, tensing, preparing to attack.
+Frame 2 - [creature] facing left, [early wind-up, e.g. pulling back, coiling, raising weapon].
+Frame 3 - [creature] facing left, [full wind-up, e.g. body at maximum tension, weapon raised high].
+Frame 4 - [creature] facing left, [peak of attack, e.g. lunging, striking, releasing],
+body/attack fully committed toward the left. Attack goes LEFT, not right.
 
 Row 2 (left to right):
-Frame 4 - [creature] facing left, [follow-through, e.g. projectile in flight, recoiling].
-Frame 5 - [creature] facing left, [pulling back, recovering].
-Frame 6 - [creature] facing left, returning to normal crouching pose.
+Frame 5 - [creature] facing left, [impact/release moment, e.g. projectile just launched, fist connecting].
+Frame 6 - [creature] facing left, [follow-through, e.g. recoiling, weapon swinging past].
+Frame 7 - [creature] facing left, [recovering, pulling back toward neutral].
+Frame 8 - [creature] facing left, returning to ready stance.
 
 All frames must maintain the same [describe key visual traits]. Every single frame
 the [creature] faces LEFT. No frame may face right.
@@ -204,13 +206,13 @@ the [creature] faces LEFT. No frame may face right.
 This is the most common failure point -- attack animations frequently flip direction. Inspect EVERY frame for:
 1. The creature's head/face/eyes point toward the **left** edge.
 2. The attack action (lunge, projectile, slam) goes toward the **left** edge.
-3. Peak frames (3-4) are NOT mirrored compared to wind-up frames (1-2).
+3. Peak frames (4-5) are NOT mirrored compared to wind-up frames (1-3).
 4. No frame shows the creature facing or attacking toward the right.
 
 **Attack direction anti-patterns to reject immediately:**
 - The creature's body or head turned to face the right edge
 - A projectile, bolt, or lunge going toward the right side of the frame
-- Frames 3-4 (peak/follow-through) mirrored compared to frames 1-2
+- Frames 4-5 (peak/follow-through) mirrored compared to frames 1-3
 - The creature "winding up" by leaning right (the wind-up should compress the body, not change facing)
 
 If ANY frame fails, regenerate the entire attack sheet. After 3 failed attempts, modify the prompt: emphasize facing direction even more heavily by adding "IMPORTANT: This creature attacks toward the LEFT margin. Every frame faces LEFT." and consider simplifying the attack motion description.
