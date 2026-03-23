@@ -153,11 +153,13 @@ A pixel art sprite sheet showing exactly [N] frames of an idle breathing animati
 arranged in exactly [ROWS] rows of [COLS] frames each ([COLS] columns, [ROWS] rows grid).
 NO divider lines or borders between frames. Each frame shows the same dark-fantasy
 [CREATURE NAME] creature FACING LEFT (looking toward the left side of the image).
+The viewer sees the creature from a side-profile view showing its LEFT flank --
+the creature's head points left and its tail/back faces right.
 Bright solid green (#00FF00) background with NO grid lines, NO borders, NO separators
 between frames. Pixel art style with visible pixels, thick black outlines.
 
 Row 1 (left to right):
-Frame 1 - [creature] in normal resting pose facing left.
+Frame 1 - [creature] in normal resting pose facing left, LEFT flank visible to viewer.
 Frame 2 - [creature] facing left, body slightly [describe subtle motion, e.g. swelling].
 Frame 3 - [creature] facing left, [peak of motion, e.g. maximum inhale].
 Frame 4 - [creature] facing left, [beginning to return, e.g. deflating].
@@ -203,9 +205,10 @@ Attack prompt template:
 A pixel art sprite sheet showing exactly 8 frames of a [ATTACK TYPE] attack animation,
 arranged in exactly 2 rows of 4 frames each (4 columns, 2 rows grid).
 NO divider lines or borders between frames. Each frame shows the same dark-fantasy
-[CREATURE NAME] creature FACING LEFT. Bright solid green (#00FF00) background with
-NO grid lines, NO borders, NO separators between frames. Pixel art style with
-visible pixels, thick black outlines.
+[CREATURE NAME] creature FACING LEFT. The viewer sees the creature from a side-profile
+view showing its LEFT flank -- head points left, back/tail faces right.
+Bright solid green (#00FF00) background with NO grid lines, NO borders, NO separators
+between frames. Pixel art style with visible pixels, thick black outlines.
 
 CRITICAL DIRECTION RULE: The creature faces LEFT in ALL frames. The attack motion,
 lunge, projectile, or strike goes TOWARD THE LEFT EDGE of the image. The creature
