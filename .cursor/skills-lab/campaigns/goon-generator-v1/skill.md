@@ -144,7 +144,14 @@ All frames must maintain the same [describe key visual traits -- colors, marking
 outline style]. Every single frame the [creature] faces LEFT.
 ```
 
-**Before processing:** Visually inspect the generated idle sheet. Every frame must face left (hood/head/eyes point toward the left edge). If any frame is mirrored or faces right, regenerate immediately.
+**Before processing -- facing direction gate (max 3 attempts):**
+
+Inspect the generated idle sheet before processing. Check every frame for these specific cues:
+1. The creature's head/face/eyes point toward the **left** edge of the image.
+2. Any asymmetric features (held items, dominant limb, mouth opening) are on the **left** side of the body as viewed.
+3. No frame is a mirror image of the others.
+
+If ANY frame faces right, regenerate the entire sheet. Do not process a sheet with even one right-facing frame. After 3 failed generation attempts, adjust the prompt: add "The creature is looking to the LEFT, toward the left margin of the image" as an additional line and try again.
 
 ## Phase 5: Generate Attack Sprite Sheet
 
@@ -192,13 +199,21 @@ All frames must maintain the same [describe key visual traits]. Every single fra
 the [creature] faces LEFT. No frame may face right.
 ```
 
-**Before processing:** Visually inspect the generated attack sheet. This is the most common failure point -- attack animations frequently flip direction. The lunge/strike in the peak frames MUST go toward the LEFT edge. If any frame faces right, regenerate immediately. Do not process a right-facing attack sheet.
+**Before processing -- facing direction gate (max 3 attempts):**
 
-**Attack direction anti-patterns to watch for:**
+This is the most common failure point -- attack animations frequently flip direction. Inspect EVERY frame for:
+1. The creature's head/face/eyes point toward the **left** edge.
+2. The attack action (lunge, projectile, slam) goes toward the **left** edge.
+3. Peak frames (3-4) are NOT mirrored compared to wind-up frames (1-2).
+4. No frame shows the creature facing or attacking toward the right.
+
+**Attack direction anti-patterns to reject immediately:**
 - The creature's body or head turned to face the right edge
 - A projectile, bolt, or lunge going toward the right side of the frame
 - Frames 3-4 (peak/follow-through) mirrored compared to frames 1-2
 - The creature "winding up" by leaning right (the wind-up should compress the body, not change facing)
+
+If ANY frame fails, regenerate the entire attack sheet. After 3 failed attempts, modify the prompt: emphasize facing direction even more heavily by adding "IMPORTANT: This creature attacks toward the LEFT margin. Every frame faces LEFT." and consider simplifying the attack motion description.
 
 ## Phase 6: Process Sprite Sheets
 
