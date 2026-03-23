@@ -229,6 +229,17 @@ All frames must maintain the same [describe key visual traits]. Every single fra
 the [creature] faces LEFT. No frame may face right.
 ```
 
+**Attack-type motion arc examples** -- use the one closest to your creature's attack, then customize:
+
+*Melee lunge (biting, clawing, pouncing):*
+- F1: ready stance, body low. F2: legs coiling, body compressing toward left. F3: muscles tensed, jaws/claws drawn back. F4: explosive lunge toward LEFT, body stretched, jaws/claws at full extension. F5: impact moment, jaws clamping / claws raking. F6: recoil from hit, body bouncing back slightly. F7: pulling back, body curling. F8: settling to ready stance.
+
+*Vertical slam (fist pound, ground strike, stomp):*
+- F1: standing ready, facing left. F2: both arms/fists raising overhead. F3: arms at apex, body leaning forward-left. F4: slamming DOWN and toward LEFT, arms descending. F5: impact -- fists hitting ground, debris/shockwave spreading. F6: ground crack visible, body still low from slam. F7: slowly pushing back up, arms withdrawing. F8: returning to standing ready.
+
+*Ranged spell/projectile (bolts, spit, thrown objects):*
+- F1: caster in ready stance, staff/arm resting. F2: raising staff/arm, energy beginning to gather. F3: energy at peak, glowing bright at staff tip / hand / mouth. F4: release -- projectile launching TOWARD THE LEFT from the staff/hand/mouth. F5: projectile in flight toward LEFT edge, caster recoiling slightly. F6: follow-through, caster off-balance from release. F7: caster steadying, energy dissipating. F8: returning to ready stance.
+
 **Before processing -- facing direction gate (max 3 attempts):**
 
 This is the most common failure point -- attack animations frequently flip direction. Inspect EVERY frame for:
