@@ -1,4 +1,28 @@
-"node_modules/" 
-".env" 
-"*.log" 
-"dist/" 
+# Dependencies
+node_modules/
+
+# Environment and secrets
+.env
+.env.*
+
+# Logs
+*.log
+
+# Build output
+dist/
+
+# Local IDE / agent tooling
+.cursor/mcp.json
+.claude/
+.playwright-mcp/
+
+# Root-level test screenshots and proof artifacts
+/test-*.png
+/toad-*.png
+/*-hotspot-proof.png
+/*-layout-guide.svg
+/*-layout-redesign-guide.svg
+
+# Miscellaneous local-only files
+*.webm
+*.zip
