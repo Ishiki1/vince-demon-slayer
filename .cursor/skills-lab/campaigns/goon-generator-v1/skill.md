@@ -159,6 +159,8 @@ Prompt rules:
 - **Every frame** must face left -- repeat "facing left" in each frame description.
 - Describe the attack sequence frame by frame: wind-up, action peak, recovery.
 - Explicitly state the attack/lunge direction goes toward the LEFT edge.
+- **Add negative prompts:** Include "The creature must NOT face right. The attack must NOT go toward the right side. Do NOT mirror or flip any frame." at the end of the prompt.
+- **Add anti-pattern warning** in the prompt: "CRITICAL: attack animations are prone to accidental right-facing. Double-check that every frame's action goes LEFT."
 
 Attack prompt template:
 
@@ -170,11 +172,16 @@ NO divider lines or borders between frames. Each frame shows the same dark-fanta
 NO grid lines, NO borders, NO separators between frames. Pixel art style with
 visible pixels, thick black outlines.
 
+CRITICAL DIRECTION RULE: The creature faces LEFT in ALL frames. The attack motion,
+lunge, projectile, or strike goes TOWARD THE LEFT EDGE of the image. The creature
+must NOT face right. The attack must NOT go toward the right side. Do NOT mirror
+or flip any frame.
+
 Row 1 (left to right):
 Frame 1 - [creature] crouching low facing left, compressing body, preparing to attack.
 Frame 2 - [creature] facing left, [describe wind-up, e.g. mouth opening, body tensing].
 Frame 3 - [creature] facing left, [peak of attack, e.g. lunging, striking, spitting],
-body fully extended toward the left.
+body fully extended toward the left. Attack goes LEFT, not right.
 
 Row 2 (left to right):
 Frame 4 - [creature] facing left, [follow-through, e.g. projectile in flight, recoiling].
@@ -182,10 +189,16 @@ Frame 5 - [creature] facing left, [pulling back, recovering].
 Frame 6 - [creature] facing left, returning to normal crouching pose.
 
 All frames must maintain the same [describe key visual traits]. Every single frame
-the [creature] faces LEFT.
+the [creature] faces LEFT. No frame may face right.
 ```
 
 **Before processing:** Visually inspect the generated attack sheet. This is the most common failure point -- attack animations frequently flip direction. The lunge/strike in the peak frames MUST go toward the LEFT edge. If any frame faces right, regenerate immediately. Do not process a right-facing attack sheet.
+
+**Attack direction anti-patterns to watch for:**
+- The creature's body or head turned to face the right edge
+- A projectile, bolt, or lunge going toward the right side of the frame
+- Frames 3-4 (peak/follow-through) mirrored compared to frames 1-2
+- The creature "winding up" by leaning right (the wind-up should compress the body, not change facing)
 
 ## Phase 6: Process Sprite Sheets
 
