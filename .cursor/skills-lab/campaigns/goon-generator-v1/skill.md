@@ -229,6 +229,37 @@ Every frame should have at least 30,000 opaque pixels. If any frame has fewer th
 
 Both sheets must exist, have height 512, and width divisible by 512.
 
+### Green residue check
+
+After processing, verify no green outline remains on the sprites. Run this check on both processed sheets:
+
+```bash
+node -e "
+const {PNG}=require('pngjs'),fs=require('fs');
+const goon='<GOON_TYPE>';
+for(const anim of ['idle','attack']){
+  const p='assets/goons/'+goon+'_'+anim+'_512x512_sheet.png';
+  if(!fs.existsSync(p)){continue;}
+  const d=PNG.sync.read(fs.readFileSync(p));
+  let greenPx=0;
+  for(let i=0;i<d.data.length;i+=4){
+    const r=d.data[i],g=d.data[i+1],b=d.data[i+2],a=d.data[i+3];
+    if(a>0 && g>200 && r<100 && b<100) greenPx++;
+  }
+  console.log(anim+': '+greenPx+' bright-green pixels detected');
+}
+"
+```
+
+**Acceptable:** 0 bright-green pixels (or a small count under 50 for creatures with intentional green markings).
+
+**If green residue is found (>50 pixels on a non-green creature):**
+1. Re-run `process-spritesheet.mjs` with the raw sheet that was cleaned at a higher threshold.
+2. Or re-run `npm run asset:clean` on the raw sheet first with `--threshold 40` (or `48` for stubborn fringe), then re-process.
+3. After remediation, re-run this green check to confirm the count is acceptable.
+
+**Special case -- green-skinned creatures:** Creatures with intentionally green skin (e.g. goblins) will have high green pixel counts that are correct. For these creatures, visually inspect the processed frames instead: zoom into the creature outline and confirm there is no bright-green (#00FF00) halo between the creature edge and the transparent background. The flood-fill preserves interior green but border-connected green should be gone.
+
 ## Phase 7: Wire into Codebase
 
 Five insertion points across four files. Use `<goon>` as the goonType string throughout.
