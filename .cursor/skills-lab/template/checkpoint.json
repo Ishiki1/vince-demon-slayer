@@ -1,0 +1,11 @@
+{
+  "current_iteration": 0,
+  "best_score": 0.0,
+  "best_commit": null,
+  "baseline_score": null,
+  "consecutive_no_improvement": 0,
+  "total_improvements": 0,
+  "total_reverts": 0,
+  "last_updated": null,
+  "status": "not_started"
+}

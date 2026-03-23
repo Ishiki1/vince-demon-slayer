@@ -1,0 +1,2 @@
+iteration	score	delta	decision	description
+0	42.5	0.0	BASELINE	Initial skill evaluation — Case1 (Frost Spider): 44.3, Case2 (Goblin Shaman): 42.3, Case3 (Stone Golem): 40.8. Weakest: Green Cleanup Verification (avg 28.3), Frame Count Adequacy (avg 33.3), Prompt Adaptability (avg 38.3)

@@ -1,0 +1,36 @@
+# Skills Lab Campaign Configuration
+# Duplicate this template and fill in for each new campaign.
+
+# --- Campaign Identity ---
+name: "my-skill-v1"
+description: "Brief description of what this campaign aims to improve"
+created: "YYYY-MM-DD"
+
+# --- Goal ---
+goal: "Improve the quality of [output type] by focusing on [specific areas]"
+
+# --- Scope ---
+# Only these files may be edited during the training loop.
+editable_files:
+  - "skill.md"
+
+# --- Iterations ---
+max_iterations: 20
+
+# --- Stall Detection ---
+# If no improvement after this many consecutive iterations, stop early.
+stall_threshold: 5
+
+# --- Guard ---
+# Optional shell command run before evaluation. If it fails (non-zero exit),
+# revert immediately. Example: syntax-check the skill, validate markdown, etc.
+guard_command: ""
+
+# --- Rules ---
+# Extra constraints for the researcher agent during mutations.
+rules:
+  - "Only edit skill.md — never modify eval infrastructure mid-campaign"
+  - "Make one small, focused change per iteration"
+  - "Always state your hypothesis before editing"
+  - "Prefer high-leverage prompt changes over cosmetic rewording"
+  - "Do not remove existing functionality — add or refine"
