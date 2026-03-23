@@ -1,0 +1,8 @@
+[   80180ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/assets/goons/mushroom_idle_512x512_sheet.png:0
+[   80180ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/assets/goons/mushroom_attack_512x512_sheet.png:0
+[   80181ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/assets/goons/spider_idle_512x512_sheet.png:0
+[   80181ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/assets/goons/spider_attack_512x512_sheet.png:0
+[   80182ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/assets/goons/plant_idle_512x512_sheet.png:0
+[   80182ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/assets/goons/plant_attack_512x512_sheet.png:0
+[   80184ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/assets/goons/witch_idle_512x512_sheet.png:0
+[   80184ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/assets/goons/witch_attack_512x512_sheet.png:0

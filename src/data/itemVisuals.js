@@ -136,27 +136,69 @@ registerVisualList([
   placeholderLabel: visualId.replace(/^unique-/, '').split('-')[0].slice(0, 2).toUpperCase(),
 }));
 
-registerVisualList([
-  'moonpetal',
-  'thornroot',
-  'ghostcap',
-  'witchbloom',
-  'nightshade',
-], () => ({
-  preload: false,
-  hover: null,
-  placeholderLabel: null,
-}));
+registerItemVisual('moonpetal', {
+  hover: {
+    path: 'assets/items/moonpetal-hover_256x256_sheet.png',
+    style: 'pingPong',
+    frameRate: 10,
+  },
+});
 
-registerVisualList([
-  'remedy-potion',
-  'regen-potion',
-  'doubletap-potion',
-], () => ({
-  preload: false,
-  hover: null,
-  placeholderLabel: null,
-}));
+registerItemVisual('thornroot', {
+  hover: {
+    path: 'assets/items/thornroot-hover_256x256_sheet.png',
+    style: 'pingPong',
+    frameRate: 10,
+  },
+});
+
+registerItemVisual('ghostcap', {
+  hover: {
+    path: 'assets/items/ghostcap-hover_256x256_sheet.png',
+    style: 'pingPong',
+    frameRate: 10,
+  },
+});
+
+registerItemVisual('witchbloom', {
+  hover: {
+    path: 'assets/items/witchbloom-hover_256x256_sheet.png',
+    style: 'pingPong',
+    frameRate: 10,
+  },
+});
+
+registerItemVisual('nightshade', {
+  hover: {
+    path: 'assets/items/nightshade-hover_256x256_sheet.png',
+    style: 'pingPong',
+    frameRate: 10,
+  },
+});
+
+registerItemVisual('remedy-potion', {
+  hover: {
+    path: 'assets/items/remedy-potion-hover_256x256_sheet.png',
+    style: 'pingPong',
+    frameRate: 10,
+  },
+});
+
+registerItemVisual('regen-potion', {
+  hover: {
+    path: 'assets/items/regen-potion-hover_256x256_sheet.png',
+    style: 'pingPong',
+    frameRate: 10,
+  },
+});
+
+registerItemVisual('doubletap-potion', {
+  hover: {
+    path: 'assets/items/doubletap-potion-hover_256x256_sheet.png',
+    style: 'pingPong',
+    frameRate: 10,
+  },
+});
 
 function getItemVisual(visualId) {
   return ITEM_VISUALS[visualId] || null;

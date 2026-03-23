@@ -36,8 +36,9 @@ const WARRIOR_SKILLS = {
   execute: {
     id: 'execute',
     name: 'Execute',
-    manaCost: 5,
+    manaCost: 6,
     damageMultiplier: 2.0,
+    trueDamage: true,
     assetKey: 'button-execute',
     skillTier: 2,
     cost: 1,
@@ -404,6 +405,7 @@ function getSkillChoiceTooltip(choiceId, hero) {
   if (skill.battleDefenseBonus != null) lines.push('Def +' + skill.battleDefenseBonus + ' this battle');
   if (skill.battleEvasionChance != null) lines.push('Evasion +' + Math.round((skill.battleEvasionChance || 0) * 100) + '%');
   if (skill.dotRounds != null) lines.push('DoT ' + skill.dotRounds + ' rounds');
+  if (skill.trueDamage) lines.push('True damage (cannot be dodged)');
   if (skill.lifeSteal) lines.push('Life steal');
   if (skill.blockReflectRounds != null) lines.push('Block damage for ' + skill.blockReflectRounds + ' turns, reflect to attackers');
   return lines.join(' | ');

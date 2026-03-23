@@ -121,7 +121,7 @@ function rollFloorOutcome() {
     roll -= entry.weight;
     if (roll <= 0) {
       if (entry.type === 'herb') return { type: 'herb', herbId: pickWeightedHerb(DUNGEON_FLOOR_HERBS) };
-      if (entry.type === 'goon') return { type: 'goon', goonType: Math.random() < 0.5 ? 'mushroom' : 'spider' };
+      if (entry.type === 'goon') return { type: 'goon', goonType: pickWeightedGoonType() };
       if (entry.type === 'trap') return { type: 'trap' };
       return { type: 'nothing', text: DUNGEON_FLAVOR_TEXTS[Math.floor(Math.random() * DUNGEON_FLAVOR_TEXTS.length)] };
     }
@@ -160,13 +160,56 @@ function findDungeonPath(startCol, startRow, endCol, endRow) {
   return null;
 }
 
-const DUNGEON_GOON_TYPES = ['mushroom', 'spider'];
-const DUNGEON_GOON_NAMES = { mushroom: 'Mushroom Creature', spider: 'Giant Spider' };
+const DUNGEON_GOON_HERB_LOOT = [
+  { id: 'moonpetal',  weight: 28 },
+  { id: 'thornroot',  weight: 27 },
+  { id: 'ghostcap',   weight: 15 },
+  { id: 'witchbloom', weight: 15 },
+  { id: 'nightshade', weight: 10 },
+  { id: null,          weight: 5 },
+];
+
+function rollDungeonGoonHerbDrop() {
+  const total = DUNGEON_GOON_HERB_LOOT.reduce((s, e) => s + e.weight, 0);
+  let roll = Math.random() * total;
+  for (const entry of DUNGEON_GOON_HERB_LOOT) {
+    roll -= entry.weight;
+    if (roll <= 0) return entry.id;
+  }
+  return null;
+}
+
+const DUNGEON_GOON_WEIGHTS = [
+  { type: 'mushroom', weight: 50 },
+  { type: 'plant',    weight: 35 },
+  { type: 'toad',     weight: 15 },
+];
+
+function pickWeightedGoonType() {
+  const total = DUNGEON_GOON_WEIGHTS.reduce((s, e) => s + e.weight, 0);
+  let roll = Math.random() * total;
+  for (const entry of DUNGEON_GOON_WEIGHTS) {
+    roll -= entry.weight;
+    if (roll <= 0) return entry.type;
+  }
+  return 'mushroom';
+}
+
+const DUNGEON_GOON_NAMES = { mushroom: 'Mushroom Creature', plant: 'Thorn Creeper', toad: 'Plague Toad' };
+
+const DUNGEON_GOON_PROFILES = {
+  mushroom: { hpMult: 1,   dmgMult: 1,   skills: [{ id: 'mushroom-spore-skill', everyTurns: 3, firstUseTurn: 2 }] },
+  plant:    { hpMult: 0.7, dmgMult: 1.4, skills: [{ id: 'plant-vine-skill',     everyTurns: 3, firstUseTurn: 1 }] },
+  toad:     { hpMult: 1.5, dmgMult: 0.6, skills: [{ id: 'toad-spit-skill',      everyTurns: 3, firstUseTurn: 2 }] },
+};
 
 function createDungeonGoon(heroLevel, goonType) {
-  const type = goonType || DUNGEON_GOON_TYPES[Math.floor(Math.random() * DUNGEON_GOON_TYPES.length)];
-  const hp = Math.floor(30 + heroLevel * 12);
-  const damage = Math.max(1, Math.floor(4 + heroLevel * 1.8));
+  const type = goonType || pickWeightedGoonType();
+  const profile = DUNGEON_GOON_PROFILES[type] || DUNGEON_GOON_PROFILES.mushroom;
+  const baseHp = 30 + heroLevel * 12;
+  const baseDmg = 4 + heroLevel * 1.8;
+  const hp = Math.floor(baseHp * profile.hpMult);
+  const damage = Math.max(1, Math.floor(baseDmg * profile.dmgMult));
   return {
     levelIndex: -1,
     name: DUNGEON_GOON_NAMES[type] || 'Dungeon Creature',
@@ -176,7 +219,7 @@ function createDungeonGoon(heroLevel, goonType) {
     isBoss: false,
     goonType: type,
     turnsTaken: 0,
-    skills: [],
+    skills: profile.skills.map(s => ({ ...s })),
   };
 }
 

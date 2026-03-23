@@ -9,60 +9,20 @@ class CombatScene extends Phaser.Scene {
   }
 
   isHeroIdleAnimKey(animKey) {
-    return animKey === 'hero_idle'
-      || (typeof animKey === 'string' && animKey.startsWith('hero_') && animKey.endsWith('_set_idle'));
+    return isHeroIdleAnimKey(animKey);
   }
 
   isVampireBossEnemy(enemy) {
-    return !!enemy && enemy.isBoss === true && enemy.name === 'Vampire';
+    return isVampireBossEnemy(enemy);
   }
 
   getEnemyFormationLayout(enemyCount, enemyW, heroW, sceneWidth) {
-    const heroCenterX = this.heroSprite ? this.heroSprite.x : 150;
-    const minX = heroCenterX + heroW / 2 + enemyW / 2 + 20;
-    const maxX = sceneWidth - enemyW / 2 - 20;
-    const desiredStartX = heroCenterX + heroW / 2 + enemyW / 2 + 50;
-
-    if (enemyCount <= 1) {
-      return {
-        startX: Math.max(minX, Math.min(desiredStartX + 70, maxX)),
-        step: 0,
-      };
-    }
-
-    // Keep enemy groups closer to Vince while compressing just enough to stay in bounds.
-    const desiredStep = Math.max(enemyW - 10, 90);
-    const maxStep = (maxX - minX) / (enemyCount - 1);
-    const step = Math.max(0, Math.min(desiredStep, maxStep));
-    const groupWidth = step * (enemyCount - 1);
-    const startX = Math.max(minX, Math.min(desiredStartX, maxX - groupWidth));
-    return { startX, step };
+    const heroCenterX = this.heroSprite ? this.heroSprite.x : CONFIG.COMBAT_HERO_X;
+    return getEnemyFormationLayout(enemyCount, enemyW, heroW, sceneWidth, heroCenterX);
   }
 
   getHeroIdleVisual() {
-    const hero = this.hero;
-    if (hero && typeof getUniqueElement === 'function' && typeof getClassCombatIdleVisual === 'function') {
-      const weaponSlot = hero.weapon != null ? hero.inventory.find(s => s.id === hero.weapon) : null;
-      const armorSlot = hero.armor != null ? hero.inventory.find(s => s.id === hero.armor) : null;
-      const weaponElement = weaponSlot ? getUniqueElement(weaponSlot.itemId) : null;
-      const armorElement = armorSlot ? getUniqueElement(armorSlot.itemId) : null;
-      const accessorySlots = typeof hero.getEquippedAccessorySlots === 'function'
-        ? hero.getEquippedAccessorySlots()
-        : [];
-      const fullSetElement = weaponElement
-        && weaponElement === armorElement
-        && accessorySlots.some((slot) => getUniqueElement(slot.itemId) === weaponElement)
-        ? weaponElement
-        : null;
-      const classVisual = getClassCombatIdleVisual(hero.class, fullSetElement);
-      if (classVisual && this.textures.exists(classVisual.sheetKey) && this.anims.exists(classVisual.animKey)) {
-        return classVisual;
-      }
-    }
-    if (this.textures.exists('hero_sheet') && this.anims.exists('hero_idle')) {
-      return { sheetKey: 'hero_sheet', animKey: 'hero_idle' };
-    }
-    return null;
+    return getHeroIdleVisual(this.hero, this);
   }
 
   playCurrentHeroIdle() {
@@ -95,79 +55,20 @@ class CombatScene extends Phaser.Scene {
   }
 
   getEnemyAnimationSet(enemy) {
-    if (!enemy) return null;
-    if (enemy.name === 'The Reaper') {
-      return {
-        idleSheetKey: 'reaper_idle_sheet',
-        idleAnimKey: 'reaper_idle',
-        attackSheetKey: 'reaper_attack_sheet',
-        attackAnimKey: 'reaper_attack',
-      };
-    }
-    if (this.isVampireBossEnemy(enemy)) {
-      return {
-        idleSheetKey: 'vampire_idle_sheet',
-        idleAnimKey: 'vampire_idle',
-        attackSheetKey: 'vampire_attack_sheet',
-        attackAnimKey: 'vampire_attack',
-      };
-    }
-    if (enemy.goonType === 'skeleton') {
-      return {
-        idleSheetKey: 'skeleton_idle_sheet',
-        idleAnimKey: 'skeleton_idle',
-        attackSheetKey: 'skeleton_attack_sheet',
-        attackAnimKey: 'skeleton_attack',
-      };
-    }
-    if (enemy.goonType === 'bat') {
-      return {
-        idleSheetKey: 'bat_idle_sheet',
-        idleAnimKey: 'bat_idle',
-        attackSheetKey: 'bat_attack_sheet',
-        attackAnimKey: 'bat_attack',
-      };
-    }
-    if (enemy.goonType === 'imp') {
-      return {
-        idleSheetKey: 'imp_idle_sheet',
-        idleAnimKey: 'imp_idle',
-        attackSheetKey: 'imp_attack_sheet',
-        attackAnimKey: 'imp_attack',
-      };
-    }
-    if (enemy.goonType === 'mushroom') {
-      return {
-        idleSheetKey: 'mushroom_idle_sheet',
-        idleAnimKey: 'mushroom_idle',
-        attackSheetKey: 'mushroom_attack_sheet',
-        attackAnimKey: 'mushroom_attack',
-      };
-    }
-    if (enemy.goonType === 'spider') {
-      return {
-        idleSheetKey: 'spider_idle_sheet',
-        idleAnimKey: 'spider_idle',
-        attackSheetKey: 'spider_attack_sheet',
-        attackAnimKey: 'spider_attack',
-      };
-    }
-    if (enemy.name === 'The Witch') {
-      return {
-        idleSheetKey: 'witch_idle_sheet',
-        idleAnimKey: 'witch_idle',
-        attackSheetKey: 'witch_attack_sheet',
-        attackAnimKey: 'witch_attack',
-      };
-    }
-    return null;
+    return getEnemyAnimationSet(enemy);
   }
 
   drawCombatBackground(w, h) {
-    const textureKey = this.level && typeof getLevelBackgroundTextureKey === 'function'
-      ? getLevelBackgroundTextureKey(this.level.id)
-      : null;
-    if (textureKey && typeof addSceneBackground === 'function' && this.textures.exists(textureKey)) {
+    if (this.level && (this.level.id === 'dungeonGoon' || this.level.id === 'witchBoss')) {
+      const key = 'witch-dungeon-ui-background';
+      if (this.textures.exists(key)) {
+        addSceneBackground(this, key, { width: w, height: h, depth: -30 });
+        this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.18).setDepth(-25);
+        return;
+      }
+    }
+    const textureKey = this.level ? getLevelBackgroundTextureKey(this.level.id) : null;
+    if (textureKey && this.textures.exists(textureKey)) {
       addSceneBackground(this, textureKey, { width: w, height: h, depth: -30 });
       this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.18).setDepth(-25);
       return;
@@ -213,21 +114,16 @@ class CombatScene extends Phaser.Scene {
   markEnemyTurnTaken(enemy) {
     if (!enemy) return;
     enemy.turnsTaken = this.getUpcomingEnemyTurnNumber(enemy);
+    if ((enemy.shieldRounds || 0) > 0) {
+      enemy.shieldRounds--;
+      if (enemy.shieldRounds <= 0) {
+        enemy.shieldDefense = 0;
+      }
+    }
   }
 
   clearHeroCombatBuffs() {
-    const removed = [];
-    if ((this.hero.battleDefenseBonus || 0) > 0) removed.push('Def');
-    if ((this.hero.battleEvasionChance || 0) > 0) removed.push('Evasion');
-    if ((this.hero.flameAuraRounds || 0) > 0) removed.push('Flame Aura');
-    if ((this.hero.blockReflectRounds || 0) > 0) removed.push('Reflect');
-    if ((this.hero.invulnerableRounds || 0) > 0) removed.push('Invulnerable');
-    this.hero.battleDefenseBonus = 0;
-    this.hero.battleEvasionChance = 0;
-    this.hero.flameAuraRounds = 0;
-    this.hero.blockReflectRounds = 0;
-    this.hero.invulnerableRounds = 0;
-    return removed;
+    return clearHeroCombatBuffs(this.hero);
   }
 
   executeEnemySkill(enemyIndex, skill, callback) {
@@ -249,11 +145,98 @@ class CombatScene extends Phaser.Scene {
     }
     if (skill.effect === 'poisonHero') {
       const rounds = skill.poisonRounds || 3;
-      const dmg = Math.max(1, Math.floor(enemy.damage * (skill.poisonDamageFactor || 0.4)));
+      let dmg = Math.max(1, Math.floor(enemy.damage * (skill.poisonDamageFactor || 0.4)));
+      if (skill.maxPoisonPercentHp) {
+        const maxDmg = Math.max(1, Math.floor(this.hero.getEffectiveHealth() * skill.maxPoisonPercentHp));
+        dmg = Math.min(dmg, maxDmg);
+      }
       this.hero.poisonRounds = rounds;
       this.hero.poisonDamage = dmg;
       this.logCombat(enemy.name + ' casts Poison! ' + dmg + ' damage/turn for ' + rounds + ' turns.');
       this.updateStatusEffects();
+      callback(0);
+      return;
+    }
+    if (skill.effect === 'weakenHero') {
+      const rounds = skill.weakenRounds || 2;
+      const factor = skill.weakenFactor || 0.25;
+      this.hero.weakenedRounds = rounds;
+      this.hero.weakenedFactor = factor;
+      this.logCombat(enemy.name + ' uses ' + skill.name + '! Your damage is reduced by ' + Math.round(factor * 100) + '% for ' + rounds + ' turns.');
+      this.updateStatusEffects();
+      callback(0);
+      return;
+    }
+    if (skill.effect === 'vulnerableHero') {
+      const rounds = skill.vulnerableRounds || 2;
+      const factor = skill.vulnerableFactor || 0.25;
+      this.hero.vulnerableRounds = rounds;
+      this.hero.vulnerableFactor = factor;
+      this.logCombat(enemy.name + ' uses ' + skill.name + '! You take ' + Math.round(factor * 100) + '% more damage for ' + rounds + ' turns.');
+      this.updateStatusEffects();
+      callback(0);
+      return;
+    }
+    if (skill.effect === 'shieldEnemy') {
+      const def = skill.shieldDefense || 2;
+      const rounds = skill.shieldRounds || 2;
+      enemy.shieldDefense = (enemy.shieldDefense || 0) + def;
+      enemy.shieldRounds = rounds;
+      this.logCombat(enemy.name + ' uses ' + skill.name + '! +' + def + ' defense for ' + rounds + ' turns.');
+      callback(0);
+      return;
+    }
+    if (skill.effect === 'summonBroodling') {
+      const livingSummons = this.enemies.filter((e, idx) => idx > 0 && e.hp > 0).length;
+      if (livingSummons >= (skill.maxSummons || 2)) {
+        this.logCombat(enemy.name + ' hisses but has no room for more broodlings!');
+        callback(0);
+        return;
+      }
+      const hp = Math.max(1, Math.floor(enemy.maxHp * (skill.summonHpFactor || 0.3)));
+      const dmg = Math.max(1, Math.floor(enemy.damage * (skill.summonDmgFactor || 0.6)));
+      const broodling = {
+        name: 'Spiderling',
+        hp, maxHp: hp, damage: dmg,
+        isBoss: false, goonType: 'spider',
+        turnsTaken: 0, skills: [],
+        levelIndex: enemy.levelIndex,
+      };
+      this.enemies.push(broodling);
+      const w = CONFIG.WIDTH;
+      const h = CONFIG.HEIGHT;
+      const enemyW = CONFIG.ENEMY_SPRITE_WIDTH;
+      const enemyH = CONFIG.ENEMY_SPRITE_HEIGHT;
+      const heroW = CONFIG.HERO_SPRITE_DISPLAY_WIDTH;
+      const spriteY = h / 2 + CONFIG.COMBAT_ROW_Y_OFFSET;
+      const heroCenterX = this.heroSprite ? this.heroSprite.x : CONFIG.COMBAT_HERO_X;
+      const { startX, step } = repositionEnemyFormation(
+        this.enemies.length, this.enemySprites, this.enemyNameTexts, this.enemyHpTexts,
+        spriteY, enemyW, enemyH, heroW, w, heroCenterX
+      );
+      const newIdx = this.enemies.length - 1;
+      const newX = startX + newIdx * step;
+      const displayObj = createEnemyDisplayObject(this, broodling, newX, spriteY, enemyW, enemyH, false);
+      const nameText = this.add.text(newX, spriteY - enemyH / 2 - CONFIG.COMBAT_LABEL_OFFSET_NAME, broodling.name, { fontSize: 12, color: '#fff' }).setOrigin(0.5);
+      const hpText = this.add.text(newX, spriteY - enemyH / 2 - CONFIG.COMBAT_LABEL_OFFSET_HP, 'HP: ' + hp + '/' + hp, { fontSize: 12, color: '#fff' }).setOrigin(0.5);
+      displayObj.setInteractive({ useHandCursor: true });
+      displayObj.on('pointerdown', () => this.onEnemyClicked(newIdx));
+      this.enemySprites.push(displayObj);
+      this.enemyHpTexts.push(hpText);
+      this.enemyNameTexts.push(nameText);
+      this.logCombat(enemy.name + ' spawns a Spiderling!');
+      callback(0);
+      return;
+    }
+    if (skill.effect === 'drainHeroMana') {
+      const drain = Math.ceil(this.hero.currentMana * (skill.drainFactor || 0.15));
+      this.hero.currentMana = Math.max(0, this.hero.currentMana - drain);
+      this.logCombat(enemy.name + ' uses ' + skill.name + '! Drained ' + drain + ' mana.');
+      if (drain > 0 && this.heroSprite) {
+        const txt = this.add.text(this.heroSprite.x, this.heroSprite.y - 30, '-' + drain + ' Mana', { fontSize: 20, color: '#a78bfa' }).setOrigin(0.5);
+        this.tweens.add({ targets: txt, y: txt.y - 40, alpha: 0, duration: 600, onComplete: () => txt.destroy() });
+      }
+      this.updateBars();
       callback(0);
       return;
     }
@@ -265,8 +248,8 @@ class CombatScene extends Phaser.Scene {
       this.scene.start('Menu');
       return;
     }
-    if (typeof applyAnimationSettings === 'function') applyAnimationSettings(this);
-    if (typeof ensureCombatAnimations === 'function') ensureCombatAnimations(this);
+    applyAnimationSettings(this);
+    ensureCombatAnimations(this);
     const hero = GAME_STATE.hero;
     const forcedEncounter = GAME_STATE.forcedEncounter;
     const isForcedDay10Reaper = forcedEncounter && forcedEncounter.type === 'day10Reaper';
@@ -320,15 +303,11 @@ class CombatScene extends Phaser.Scene {
     hero.reaperSuppressEquipmentEvasion = false;
     if (isDungeonGoon) {
       const goonType = forcedEncounter.goonType || 'mushroom';
-      const goon = typeof createDungeonGoon === 'function'
-        ? createDungeonGoon(hero.level, goonType)
-        : createEnemy(level.levelIndex, false);
+      const goon = createDungeonGoon(hero.level, goonType);
       this.enemies = [goon];
       this.isBossFight = false;
     } else if (isWitchBoss) {
-      const witch = typeof createWitch === 'function'
-        ? createWitch(hero.level)
-        : createEnemy(level.levelIndex, true);
+      const witch = createWitch(hero.level);
       this.enemies = [witch];
       this.isBossFight = true;
     } else if (reaperAppears) {
@@ -348,14 +327,7 @@ class CombatScene extends Phaser.Scene {
     }
     this.hero = hero;
     this.forcedEncounter = forcedEncounter;
-    hero.battleEvasionChance = 0;
-    hero.blockReflectRounds = 0;
-    hero.flameAuraRounds = 0;
-    hero.poisonRounds = 0;
-    hero.poisonDamage = 0;
-    hero.regenRounds = 0;
-    hero.regenPercent = 0;
-    hero.doubletapActive = false;
+    hero.resetBattleState();
     this.fightIndex = fightIndex;
     this.level = level;
     this.skillButtons = null;
@@ -380,13 +352,13 @@ class CombatScene extends Phaser.Scene {
     this.combatLogMaxLines = 8;
 
     if (GAME_STATE.reaperFight) {
-      if (typeof stopAllMusic === 'function') stopAllMusic(this);
-      if (typeof playMusicOnce === 'function') playMusicOnce(this, 'reaper-appears');
+      stopAllMusic(this);
+      playMusicOnce(this, 'reaper-appears');
     } else if (this.isBossFight) {
       if (level.id === 'level10' || level.id === 'level20') {
-        if (typeof playMusicLoop === 'function') playMusicLoop(this, 'boss-music');
+        playMusicLoop(this, 'boss-music');
       } else {
-        if (typeof playMusicLoop === 'function') playMusicLoop(this, 'generic-bossfight-music');
+        playMusicLoop(this, 'generic-bossfight-music');
       }
     }
 
@@ -397,9 +369,9 @@ class CombatScene extends Phaser.Scene {
     const heroW = CONFIG.HERO_SPRITE_DISPLAY_WIDTH;
     const heroH = CONFIG.HERO_SPRITE_DISPLAY_HEIGHT;
     const heroIdleVisual = this.getHeroIdleVisual();
-    const spriteY = h / 2 + 100;
+    const spriteY = h / 2 + CONFIG.COMBAT_ROW_Y_OFFSET;
     if (heroIdleVisual) {
-      this.heroSprite = this.add.sprite(150, spriteY, heroIdleVisual.sheetKey)
+      this.heroSprite = this.add.sprite(CONFIG.COMBAT_HERO_X, spriteY, heroIdleVisual.sheetKey)
         .setDisplaySize(heroW, heroH)
         .setOrigin(0.5, 0.5);
       this.heroSprite.setFrame(0);
@@ -412,9 +384,9 @@ class CombatScene extends Phaser.Scene {
         }
       });
     } else {
-      this.heroSprite = this.add.rectangle(150, spriteY, heroW, heroH, 0x2563eb).setOrigin(0.5, 0.5);
+      this.heroSprite = this.add.rectangle(CONFIG.COMBAT_HERO_X, spriteY, heroW, heroH, 0x2563eb).setOrigin(0.5, 0.5);
     }
-    this.add.text(150, spriteY - heroH / 2 - 24, this.hero.name || 'Hero', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
+    this.add.text(CONFIG.COMBAT_HERO_X, spriteY - heroH / 2 - 24, this.hero.name || 'Hero', { fontSize: 16, color: '#fff' }).setOrigin(0.5);
 
     const enemyW = CONFIG.ENEMY_SPRITE_WIDTH;
     const enemyH = CONFIG.ENEMY_SPRITE_HEIGHT;
@@ -423,44 +395,9 @@ class CombatScene extends Phaser.Scene {
     for (let i = 0; i < this.enemies.length; i++) {
       const x = startX + i * step;
       const enemy = this.enemies[i];
-      let displayObj;
-      if (enemy.name === 'The Reaper' && this.textures.exists('reaper_idle_sheet') && this.anims.exists('reaper_idle')) {
-        const sprite = this.add.sprite(x, spriteY, 'reaper_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
-        sprite.play('reaper_idle');
-        displayObj = sprite;
-      } else if (this.isVampireBossEnemy(enemy) && this.textures.exists('vampire_idle_sheet') && this.anims.exists('vampire_idle')) {
-        const sprite = this.add.sprite(x, spriteY, 'vampire_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
-        sprite.play('vampire_idle');
-        displayObj = sprite;
-      } else if (enemy.goonType === 'skeleton' && this.textures.exists('skeleton_idle_sheet') && this.anims.exists('skeleton_idle')) {
-        const sprite = this.add.sprite(x, spriteY, 'skeleton_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
-        sprite.play('skeleton_idle');
-        displayObj = sprite;
-      } else if (enemy.goonType === 'bat' && this.textures.exists('bat_idle_sheet') && this.anims.exists('bat_idle')) {
-        const sprite = this.add.sprite(x, spriteY, 'bat_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
-        sprite.play('bat_idle');
-        displayObj = sprite;
-      } else if (enemy.goonType === 'imp' && this.textures.exists('imp_idle_sheet') && this.anims.exists('imp_idle')) {
-        const sprite = this.add.sprite(x, spriteY, 'imp_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
-        sprite.play('imp_idle');
-        displayObj = sprite;
-      } else if (enemy.goonType === 'mushroom' && this.textures.exists('mushroom_idle_sheet') && this.anims.exists('mushroom_idle')) {
-        const sprite = this.add.sprite(x, spriteY, 'mushroom_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
-        sprite.play('mushroom_idle');
-        displayObj = sprite;
-      } else if (enemy.goonType === 'spider' && this.textures.exists('spider_idle_sheet') && this.anims.exists('spider_idle')) {
-        const sprite = this.add.sprite(x, spriteY, 'spider_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
-        sprite.play('spider_idle');
-        displayObj = sprite;
-      } else if (enemy.name === 'The Witch' && this.textures.exists('witch_idle_sheet') && this.anims.exists('witch_idle')) {
-        const sprite = this.add.sprite(x, spriteY, 'witch_idle_sheet', 0).setDisplaySize(enemyW, enemyH);
-        sprite.play('witch_idle');
-        displayObj = sprite;
-      } else {
-        displayObj = this.add.rectangle(x, spriteY, enemyW, enemyH, enemyColor);
-      }
-      const nameText = this.add.text(x, spriteY - enemyH / 2 - 28, enemy.name, { fontSize: 12, color: '#fff' }).setOrigin(0.5);
-      const hpText = this.add.text(x, spriteY - enemyH / 2 - 12, `HP: ${enemy.hp}/${enemy.maxHp}`, { fontSize: 12, color: '#fff' }).setOrigin(0.5);
+      const displayObj = createEnemyDisplayObject(this, enemy, x, spriteY, enemyW, enemyH, this.isBossFight);
+      const nameText = this.add.text(x, spriteY - enemyH / 2 - CONFIG.COMBAT_LABEL_OFFSET_NAME, enemy.name, { fontSize: 12, color: '#fff' }).setOrigin(0.5);
+      const hpText = this.add.text(x, spriteY - enemyH / 2 - CONFIG.COMBAT_LABEL_OFFSET_HP, `HP: ${enemy.hp}/${enemy.maxHp}`, { fontSize: 12, color: '#fff' }).setOrigin(0.5);
       displayObj.setInteractive({ useHandCursor: true });
       const enemyIndex = i;
       displayObj.on('pointerdown', () => this.onEnemyClicked(enemyIndex));
@@ -469,50 +406,35 @@ class CombatScene extends Phaser.Scene {
       this.enemyNameTexts.push(nameText);
     }
 
-    const barW = 200;
-    const barH = 20;
-    this.hpBarBg = this.add.rectangle(20, 20, barW, barH, 0x333333).setOrigin(0, 0);
-    this.hpBarFill = this.add.rectangle(20, 20, barW * (hero.currentHealth / hero.getEffectiveHealth()), barH, 0xdc2626).setOrigin(0, 0);
-    this.heroHpText = this.add.text(20 + barW / 2, 20 + barH / 2, `HP: ${hero.currentHealth}/${hero.getEffectiveHealth()}`, { fontSize: 14, color: '#fff' }).setOrigin(0.5, 0.5);
-    this.manaBarBg = this.add.rectangle(20, 42, barW, barH, 0x333333).setOrigin(0, 0);
-    this.manaBarFill = this.add.rectangle(20, 42, barW * (hero.currentMana / hero.getEffectiveMana()), barH, 0x3b82f6).setOrigin(0, 0);
-    this.heroManaText = this.add.text(20 + barW / 2, 42 + barH / 2, `Mana: ${hero.currentMana}/${hero.getEffectiveMana()}`, { fontSize: 14, color: '#fff' }).setOrigin(0.5, 0.5);
+    const barW = CONFIG.COMBAT_BAR_WIDTH;
+    const barH = CONFIG.COMBAT_BAR_HEIGHT;
+    const barX = CONFIG.COMBAT_BAR_X;
+    const barY = CONFIG.COMBAT_BAR_Y;
+    this.hpBarBg = this.add.rectangle(barX, barY, barW, barH, 0x333333).setOrigin(0, 0);
+    this.hpBarFill = this.add.rectangle(barX, barY, barW * (hero.currentHealth / hero.getEffectiveHealth()), barH, 0xdc2626).setOrigin(0, 0);
+    this.heroHpText = this.add.text(barX + barW / 2, barY + barH / 2, `HP: ${hero.currentHealth}/${hero.getEffectiveHealth()}`, { fontSize: 14, color: '#fff' }).setOrigin(0.5, 0.5);
+    this.manaBarBg = this.add.rectangle(barX, CONFIG.COMBAT_BAR_MANA_Y, barW, barH, 0x333333).setOrigin(0, 0);
+    this.manaBarFill = this.add.rectangle(barX, CONFIG.COMBAT_BAR_MANA_Y, barW * (hero.currentMana / hero.getEffectiveMana()), barH, 0x3b82f6).setOrigin(0, 0);
+    this.heroManaText = this.add.text(barX + barW / 2, CONFIG.COMBAT_BAR_MANA_Y + barH / 2, `Mana: ${hero.currentMana}/${hero.getEffectiveMana()}`, { fontSize: 14, color: '#fff' }).setOrigin(0.5, 0.5);
 
-    this.xpBar = createXPBar(this, 20, 64, barW, barH, hero);
+    this.xpBar = createXPBar(this, barX, CONFIG.COMBAT_BAR_XP_Y, barW, barH, hero);
     this.xpBar.update();
 
-    this.statusEffectsText = this.add.text(20, 88, '', { fontSize: 14, color: '#e5e7eb' }).setDepth(10);
+    this.statusEffectsText = this.add.text(barX, CONFIG.COMBAT_STATUS_Y, '', { fontSize: 14, color: '#e5e7eb' }).setDepth(10);
 
-    this.combatLogText = this.add.text(w - 220, 20, '', { fontSize: 12, color: '#e5e7eb' }).setWordWrapWidth(210);
+    this.combatLogText = this.add.text(w - CONFIG.COMBAT_LOG_OFFSET_X, barY, '', { fontSize: 12, color: '#e5e7eb' }).setWordWrapWidth(CONFIG.COMBAT_LOG_WIDTH);
     this.combatLogText.setOrigin(0, 0);
 
     this.skillButtons = createSkillButtons(this, hero, (skillId) => this.useSkill(skillId));
-    const inventoryButton = typeof createUiIconButton === 'function'
-      ? createUiIconButton(this, w - 44, h - 100, 'inventory-icon', 'Inventory', () => this.openInventoryScene(), {
-          size: 52,
-          tooltipY: h - 68,
-          tooltipOriginY: 0,
-        })
-      : null;
-    if (!inventoryButton) {
-      const invBtn = this.add.rectangle(w - 44, h - 100, 52, 52, 0x475569);
-      invBtn.setInteractive({ useHandCursor: true });
-      this.add.text(w - 44, h - 100, 'Inv', { fontSize: 14, color: '#fff' }).setOrigin(0.5);
-      invBtn.on('pointerdown', () => this.openInventoryScene());
-    }
-
-    const fleeButton = typeof createUiIconButton === 'function'
-      ? createUiIconButton(this, w - 44, h - 156, 'flee-icon', 'Flee', () => this.showFleeConfirmModal(), {
-          size: 52,
-          tooltipY: h - 198,
-        })
-      : null;
-    if (!fleeButton) {
-      const fleeBtn = this.add.rectangle(w - 44, h - 156, 52, 52, 0x7f1d1d);
-      fleeBtn.setInteractive({ useHandCursor: true });
-      this.add.text(w - 44, h - 156, 'Flee', { fontSize: 14, color: '#fecaca' }).setOrigin(0.5);
-      fleeBtn.on('pointerdown', () => this.showFleeConfirmModal());
-    }
+    createUiIconButton(this, w - 44, h - 100, 'inventory-icon', 'Inventory', () => this.openInventoryScene(), {
+      size: 52,
+      tooltipY: h - 68,
+      tooltipOriginY: 0,
+    });
+    createUiIconButton(this, w - 44, h - 156, 'flee-icon', 'Flee', () => this.showFleeConfirmModal(), {
+      size: 52,
+      tooltipY: h - 198,
+    });
 
     if (GAME_STATE.reaperFight) {
       this.showReaperPopup();
@@ -554,7 +476,7 @@ class CombatScene extends Phaser.Scene {
     cancelBtn.on('pointerdown', destroyAll);
     fleeConfirmBtn.on('pointerdown', () => {
       destroyAll();
-      if (typeof playGameMusicLoop === 'function') playGameMusicLoop(this);
+      playGameMusicLoop(this);
       this.doFlee();
     });
   }
@@ -577,16 +499,11 @@ class CombatScene extends Phaser.Scene {
       }
     }
     this.hero.gold = Math.max(0, this.hero.gold - goldLost);
-    this.hero.reaperFrightened = false;
-    this.hero.reaperSuppressEquipmentEvasion = false;
+    this.hero.resetBattleState();
     GAME_STATE.reaperFight = false;
     GAME_STATE.forcedEncounter = null;
     GAME_STATE.currentLevelId = null;
     GAME_STATE.currentFightIndex = 0;
-    this.hero.battleDefenseBonus = 0;
-    this.hero.battleEvasionChance = 0;
-    this.hero.blockReflectRounds = 0;
-    this.hero.flameAuraRounds = 0;
     GAME_STATE.fledGoldLost = goldLost;
     GAME_STATE.fledItemLostNames = itemLostNames;
     this.scene.start('Overworld');
@@ -602,9 +519,7 @@ class CombatScene extends Phaser.Scene {
 
   getEnemyClickSkillId() {
     if (this.selectedSkillId) return this.selectedSkillId;
-    return typeof getDefaultZeroManaSkillId === 'function'
-      ? getDefaultZeroManaSkillId(this.hero)
-      : null;
+    return getDefaultZeroManaSkillId(this.hero);
   }
 
   onEnemyClicked(enemyIndex) {
@@ -668,14 +583,29 @@ class CombatScene extends Phaser.Scene {
       }
     }
 
-    let damage = CombatSystem.dealDamage(this.hero, enemy, skillId);
+    const hitResult = CombatSystem.dealDamage(this.hero, enemy, skillId);
+    if (hitResult.dodged) {
+      this.logCombat((skill ? skill.name : 'Attack') + ' on ' + enemy.name + '. Missed!');
+      this.showMissText(this.enemySprites[enemyIndex].x, this.enemySprites[enemyIndex].y);
+      this.updateBars();
+      if (this.areAllEnemiesDead()) { this.onCombatWin(); return; }
+      this.clearTargetMode();
+      this.endPlayerTurn();
+      return;
+    }
+    let damage = hitResult.damage;
     if (this.hero.doubletapActive) {
       enemy.hp = Math.max(0, enemy.hp - damage);
       damage = damage * 2;
       this.hero.doubletapActive = false;
       this.logCombat('Doubletap! Damage doubled!');
     }
-    if (damage > 0 && typeof playSfx === 'function') playSfx(this, 'damage-dealt-and-received');
+    if ((this.hero.weakenedRounds || 0) > 0 && damage > 0) {
+      const reduction = Math.floor(damage * (this.hero.weakenedFactor || 0));
+      enemy.hp = Math.min(enemy.maxHp, enemy.hp + reduction);
+      damage -= reduction;
+    }
+    if (damage > 0) playSfx(this, 'damage-dealt-and-received');
     this.logCombat((skill ? skill.name : 'Attack') + ' on ' + enemy.name + '. ' + damage + ' damage.');
     this.shakeSprite(this.enemySprites[enemyIndex], () => {});
     this.showDamageNumber(this.enemySprites[enemyIndex].x, this.enemySprites[enemyIndex].y, damage);
@@ -723,6 +653,17 @@ class CombatScene extends Phaser.Scene {
     });
   }
 
+  showMissText(x, y) {
+    const txt = this.add.text(x, y - 30, 'Miss!', { fontSize: 20, color: '#94a3b8' }).setOrigin(0.5);
+    this.tweens.add({
+      targets: txt,
+      y: txt.y - 40,
+      alpha: 0,
+      duration: 600,
+      onComplete: () => txt.destroy(),
+    });
+  }
+
   useSkill(skillId) {
     if (this.turnState !== 'playerTurn') return;
     const skill = getSkill(this.hero, skillId);
@@ -732,9 +673,7 @@ class CombatScene extends Phaser.Scene {
 
     if (skill.isHeal) {
       this.hero.currentMana -= skill.manaCost;
-      const healAmount = typeof getSkillHealAmount === 'function'
-        ? getSkillHealAmount(this.hero, skill)
-        : (skill.healValue != null ? skill.healValue : 0);
+      const healAmount = getSkillHealAmount(this.hero, skill);
       this.hero.currentHealth = Math.min(this.hero.getEffectiveHealth(), this.hero.currentHealth + healAmount);
       this.logCombat(skill.name + '. Healed ' + healAmount + ' HP.');
       // Healing animation only for Warrior (Holy Light); Sorceress (Arcane Heal) uses different sprites.
@@ -822,31 +761,49 @@ class CombatScene extends Phaser.Scene {
     if (skill.isAoe) {
       this.hero.currentMana -= skill.manaCost;
       const runAoeEffects = () => {
-        const damages = CombatSystem.dealDamageToAll(this.hero, this.enemies, skillId);
+        const hitResults = CombatSystem.dealDamageToAll(this.hero, this.enemies, skillId);
+        const dmgValues = hitResults.map(r => r.damage);
         const wasDoubletap = this.hero.doubletapActive;
         if (wasDoubletap) {
           this.hero.doubletapActive = false;
           this.logCombat('Doubletap! Damage doubled!');
-          for (let i = 0; i < damages.length; i++) {
-            if (damages[i] > 0) {
-              this.enemies[i].hp = Math.max(0, this.enemies[i].hp - damages[i]);
-              damages[i] = damages[i] * 2;
+          for (let i = 0; i < dmgValues.length; i++) {
+            if (dmgValues[i] > 0) {
+              this.enemies[i].hp = Math.max(0, this.enemies[i].hp - dmgValues[i]);
+              dmgValues[i] = dmgValues[i] * 2;
+            }
+          }
+        }
+        if ((this.hero.weakenedRounds || 0) > 0) {
+          for (let i = 0; i < dmgValues.length; i++) {
+            if (dmgValues[i] > 0) {
+              const reduction = Math.floor(dmgValues[i] * (this.hero.weakenedFactor || 0));
+              this.enemies[i].hp = Math.min(this.enemies[i].maxHp, this.enemies[i].hp + reduction);
+              dmgValues[i] -= reduction;
             }
           }
         }
         let totalDamage = 0;
+        let dodgeCount = 0;
         for (let i = 0; i < this.enemies.length; i++) {
-          if (damages[i] != null) totalDamage += damages[i];
-          if (damages[i] != null && this.enemySprites[i]) {
+          if (hitResults[i] && hitResults[i].dodged && this.enemySprites[i]) {
+            this.showMissText(this.enemySprites[i].x, this.enemySprites[i].y);
+            dodgeCount++;
+            continue;
+          }
+          if (dmgValues[i] != null) totalDamage += dmgValues[i];
+          if (dmgValues[i] != null && this.enemySprites[i]) {
             this.shakeSprite(this.enemySprites[i], () => {});
-            this.showDamageNumber(this.enemySprites[i].x, this.enemySprites[i].y, damages[i]);
+            this.showDamageNumber(this.enemySprites[i].x, this.enemySprites[i].y, dmgValues[i]);
           }
         }
-        if (totalDamage > 0 && typeof playSfx === 'function') playSfx(this, 'damage-dealt-and-received');
+        if (totalDamage > 0) playSfx(this, 'damage-dealt-and-received');
         if (skill.lifeSteal && totalDamage > 0) {
           this.hero.currentHealth = Math.min(this.hero.getEffectiveHealth(), this.hero.currentHealth + totalDamage);
         }
-        this.logCombat(skill.name + ' (AoE). ' + totalDamage + ' total damage.');
+        const logParts = [skill.name + ' (AoE). ' + totalDamage + ' total damage.'];
+        if (dodgeCount > 0) logParts.push(dodgeCount + ' dodged.');
+        this.logCombat(logParts.join(' '));
         this.updateBars();
         if (!skill.lifeSteal) DurabilitySystem.weaponUse(this.hero);
         if (GAME_STATE.lastBrokenItemName) {
@@ -915,7 +872,7 @@ class CombatScene extends Phaser.Scene {
         return 0;
       }
       if (!result.evaded && result.damage > 0) {
-        if (typeof playSfx === 'function') playSfx(this, 'damage-dealt-and-received');
+        playSfx(this, 'damage-dealt-and-received');
         enemy.hp = Math.max(0, enemy.hp - result.damage);
         if (this.enemySprites[enemyIndex]) {
           this.shakeSprite(this.enemySprites[enemyIndex], () => {});
@@ -933,11 +890,15 @@ class CombatScene extends Phaser.Scene {
       return 0;
     }
     if (!result.evaded) {
-      if (result.damage > 0 && typeof playSfx === 'function') playSfx(this, 'damage-dealt-and-received');
-      this.hero.currentHealth = Math.max(0, this.hero.currentHealth - result.damage);
+      let finalDmg = result.damage;
+      if ((this.hero.vulnerableRounds || 0) > 0 && finalDmg > 0) {
+        finalDmg = Math.floor(finalDmg * (1 + (this.hero.vulnerableFactor || 0)));
+      }
+      if (finalDmg > 0 ) playSfx(this, 'damage-dealt-and-received');
+      this.hero.currentHealth = Math.max(0, this.hero.currentHealth - finalDmg);
       DurabilitySystem.armorHit(this.hero);
-      this.logCombat(enemy.name + ' attacks. ' + result.damage + ' damage.');
-      return result.damage;
+      this.logCombat(enemy.name + ' attacks. ' + finalDmg + ' damage.');
+      return finalDmg;
     }
     this.logCombat(enemy.name + ' attacks. Dodged!');
     return 0;
@@ -945,9 +906,7 @@ class CombatScene extends Phaser.Scene {
 
   processEnemyAttacks(i, totalSoFar) {
     if (i >= this.enemies.length) {
-      if ((this.hero.blockReflectRounds || 0) > 0) {
-        this.hero.blockReflectRounds = Math.max(0, (this.hero.blockReflectRounds || 0) - 1);
-      }
+      decayBlockReflect(this.hero);
       this.finishEnemyTurn(totalSoFar);
       return;
     }
@@ -956,9 +915,7 @@ class CombatScene extends Phaser.Scene {
       this.processEnemyAttacks(i + 1, totalSoFar);
       return;
     }
-    const scheduledSkill = typeof getEnemyScheduledSkillForTurn === 'function'
-      ? getEnemyScheduledSkillForTurn(enemy, this.getUpcomingEnemyTurnNumber(enemy))
-      : null;
+    const scheduledSkill = getEnemyScheduledSkillForTurn(enemy, this.getUpcomingEnemyTurnNumber(enemy), this.hero);
     if (scheduledSkill) {
       const finishSkill = (addedDamage) => {
         this.markEnemyTurnTaken(enemy);
@@ -996,7 +953,7 @@ class CombatScene extends Phaser.Scene {
           continue;
         }
         if (!result.evaded && result.damage > 0) {
-          if (typeof playSfx === 'function') playSfx(this, 'damage-dealt-and-received');
+          playSfx(this, 'damage-dealt-and-received');
           enemy.hp = Math.max(0, enemy.hp - result.damage);
           if (this.enemySprites[i]) {
             this.shakeSprite(this.enemySprites[i], () => {});
@@ -1013,15 +970,19 @@ class CombatScene extends Phaser.Scene {
           continue;
         }
         if (!result.evaded) {
-          if (result.damage > 0 && typeof playSfx === 'function') playSfx(this, 'damage-dealt-and-received');
-          this.hero.currentHealth = Math.max(0, this.hero.currentHealth - result.damage);
-          totalDamage += result.damage;
+          let finalDmg = result.damage;
+          if ((this.hero.vulnerableRounds || 0) > 0 && finalDmg > 0) {
+            finalDmg = Math.floor(finalDmg * (1 + (this.hero.vulnerableFactor || 0)));
+          }
+          if (finalDmg > 0 ) playSfx(this, 'damage-dealt-and-received');
+          this.hero.currentHealth = Math.max(0, this.hero.currentHealth - finalDmg);
+          totalDamage += finalDmg;
           DurabilitySystem.armorHit(this.hero);
         }
         this.logCombat(enemy.name + ' attacks. ' + (result.damage > 0 ? result.damage + ' damage.' : 'Dodged!'));
       }
     }
-    if (reflecting) this.hero.blockReflectRounds = Math.max(0, (this.hero.blockReflectRounds || 0) - 1);
+    if (reflecting) decayBlockReflect(this.hero);
     return totalDamage;
   }
 
@@ -1037,9 +998,7 @@ class CombatScene extends Phaser.Scene {
       const txt = this.add.text(this.heroSprite.x, this.heroSprite.y - 30, 'Dodged!', { fontSize: 18, color: '#94a3b8' }).setOrigin(0.5);
       this.tweens.add({ targets: txt, y: txt.y - 30, alpha: 0, duration: 500, onComplete: () => txt.destroy() });
     }
-    if ((this.hero.invulnerableRounds || 0) > 0) {
-      this.hero.invulnerableRounds = Math.max(0, (this.hero.invulnerableRounds || 0) - 1);
-    }
+    decayInvulnerable(this.hero);
     this.updateBars();
     if (GAME_STATE.lastBrokenItemName) this.showBreakPopup();
     if (CombatSystem.isHeroDead(this.hero)) {
@@ -1051,14 +1010,12 @@ class CombatScene extends Phaser.Scene {
 
   startOfPlayerTurn() {
     this.clearTargetMode();
-    if ((this.hero.poisonRounds || 0) > 0) {
-      const poisonDmg = this.hero.poisonDamage || 1;
-      this.hero.currentHealth = Math.max(0, this.hero.currentHealth - poisonDmg);
-      this.hero.poisonRounds = Math.max(0, this.hero.poisonRounds - 1);
-      this.logCombat('Poison tick! ' + poisonDmg + ' damage.' + (this.hero.poisonRounds > 0 ? ' (' + this.hero.poisonRounds + ' turns left)' : ' Poison faded.'));
+    const poisonResult = tickPoison(this.hero);
+    if (poisonResult) {
+      this.logCombat(poisonResult.message);
       if (this.heroSprite) {
         this.shakeSprite(this.heroSprite, () => {});
-        this.showDamageNumber(this.heroSprite.x, this.heroSprite.y, poisonDmg);
+        this.showDamageNumber(this.heroSprite.x, this.heroSprite.y, poisonResult.damage);
       }
       this.updateBars();
       if (CombatSystem.isHeroDead(this.hero)) {
@@ -1066,38 +1023,40 @@ class CombatScene extends Phaser.Scene {
         return;
       }
     }
-    if ((this.hero.regenRounds || 0) > 0) {
-      const regenAmt = Math.max(1, Math.floor(this.hero.getEffectiveHealth() * (this.hero.regenPercent || 0.30)));
-      this.hero.currentHealth = Math.min(this.hero.getEffectiveHealth(), this.hero.currentHealth + regenAmt);
-      this.hero.regenRounds = Math.max(0, this.hero.regenRounds - 1);
-      this.logCombat('Regen tick! +' + regenAmt + ' HP.' + (this.hero.regenRounds > 0 ? ' (' + this.hero.regenRounds + ' turns left)' : ' Regen faded.'));
+    const regenResult = tickRegen(this.hero);
+    if (regenResult) {
+      this.logCombat(regenResult.message);
       if (this.heroSprite) {
-        const txt = this.add.text(this.heroSprite.x, this.heroSprite.y - 30, '+' + regenAmt, { fontSize: 22, color: '#4ade80' }).setOrigin(0.5);
+        const txt = this.add.text(this.heroSprite.x, this.heroSprite.y - 30, '+' + regenResult.amount, { fontSize: 22, color: '#4ade80' }).setOrigin(0.5);
         this.tweens.add({ targets: txt, y: txt.y - 40, alpha: 0, duration: 600, onComplete: () => txt.destroy() });
       }
       this.updateBars();
     }
-    if (this.hero.flameAuraRounds > 0) {
-      const weaponDamageMult = this.hero.getWeaponDamageMultiplier ? this.hero.getWeaponDamageMultiplier() : 1;
-      const dmg = Math.floor((this.hero.getIntelligence ? this.hero.getIntelligence() : 0) * 1.0 * weaponDamageMult);
-      const living = this.enemies.filter(e => e.hp > 0);
-      for (let i = 0; i < this.enemies.length; i++) {
-        if (this.enemies[i].hp > 0) {
-          this.enemies[i].hp = Math.max(0, this.enemies[i].hp - dmg);
-          if (this.enemySprites[i]) {
-            this.shakeSprite(this.enemySprites[i], () => {});
-            this.showDamageNumber(this.enemySprites[i].x, this.enemySprites[i].y, dmg);
-          }
+    const auraResult = tickFlameAura(this.hero, this.enemies);
+    if (auraResult) {
+      for (const idx of auraResult.hitIndices) {
+        if (this.enemySprites[idx]) {
+          this.shakeSprite(this.enemySprites[idx], () => {});
+          this.showDamageNumber(this.enemySprites[idx].x, this.enemySprites[idx].y, auraResult.damage);
         }
       }
-      if (dmg > 0 && typeof playSfx === 'function') playSfx(this, 'damage-dealt-and-received');
-      this.logCombat('Flame Aura tick. ' + dmg + ' damage to all.');
-      this.hero.flameAuraRounds = this.hero.flameAuraRounds - 1;
+      if (auraResult.damage > 0 ) playSfx(this, 'damage-dealt-and-received');
+      this.logCombat(auraResult.message);
       this.updateBars();
       if (this.areAllEnemiesDead()) {
         this.onCombatWin();
         return;
       }
+    }
+    const weakResult = decayWeakened(this.hero);
+    if (weakResult) {
+      if (weakResult.message) this.logCombat(weakResult.message);
+      this.updateStatusEffects();
+    }
+    const vulnResult = decayVulnerable(this.hero);
+    if (vulnResult) {
+      if (vulnResult.message) this.logCombat(vulnResult.message);
+      this.updateStatusEffects();
     }
     this.turnState = 'playerTurn';
     if (this.skillButtons && this.skillButtons.setEnabled) this.skillButtons.setEnabled(true);
@@ -1147,24 +1106,14 @@ class CombatScene extends Phaser.Scene {
   }
 
   updateStatusEffects() {
-    const parts = [];
-    if (this.hero.battleDefenseBonus > 0) parts.push('Def +' + this.hero.battleDefenseBonus);
-    if ((this.hero.battleEvasionChance || 0) > 0) parts.push('Evasion ' + this.getDisplayedEvasionPercent() + '%');
-    if ((this.hero.flameAuraRounds || 0) > 0) parts.push('Flame Aura ' + this.hero.flameAuraRounds + 'r');
-    if ((this.hero.blockReflectRounds || 0) > 0) parts.push('Reflect ' + this.hero.blockReflectRounds + 'r');
-    if ((this.hero.invulnerableRounds || 0) > 0) parts.push('Invulnerable ' + this.hero.invulnerableRounds + 'r');
-    if ((this.hero.poisonRounds || 0) > 0) parts.push('Poisoned ' + this.hero.poisonRounds + 'r');
-    if ((this.hero.regenRounds || 0) > 0) parts.push('Regen ' + this.hero.regenRounds + 'r');
-    if (this.hero.doubletapActive) parts.push('Doubletap');
-    if (this.hero.reaperFrightened) parts.push('Frightened');
-    this.statusEffectsText.setText(parts.length ? parts.join(' | ') : '');
+    this.statusEffectsText.setText(getStatusEffectString(this.hero, this.getDisplayedEvasionPercent()));
   }
 
   updateBars() {
     const maxHp = this.hero.getEffectiveHealth();
     const maxMana = this.hero.getEffectiveMana();
-    const barW = 200;
-    const barH = 20;
+    const barW = CONFIG.COMBAT_BAR_WIDTH;
+    const barH = CONFIG.COMBAT_BAR_HEIGHT;
     const hpRatio = maxHp > 0 ? this.hero.currentHealth / maxHp : 0;
     const manaRatio = maxMana > 0 ? this.hero.currentMana / maxMana : 0;
     this.hpBarFill.width = barW * hpRatio;
@@ -1191,29 +1140,35 @@ class CombatScene extends Phaser.Scene {
 
   onCombatWin() {
     this.justWonReaperFight = this.enemies.length === 1 && this.enemies[0] && this.enemies[0].name === 'The Reaper';
-    this.hero.battleDefenseBonus = 0;
-    this.hero.battleEvasionChance = 0;
-    this.hero.flameAuraRounds = 0;
-    this.hero.blockReflectRounds = 0;
-    this.hero.invulnerableRounds = 0;
-    this.hero.poisonRounds = 0;
-    this.hero.poisonDamage = 0;
-    this.hero.regenRounds = 0;
-    this.hero.regenPercent = 0;
-    this.hero.doubletapActive = false;
-    this.hero.reaperFrightened = false;
-    this.hero.reaperSuppressEquipmentEvasion = false;
+    this.hero.resetBattleState();
     GAME_STATE.reaperFight = false;
     const wasForcedEncounter = !!this.forcedEncounter;
     const wasDungeonGoon = wasForcedEncounter && this.forcedEncounter.type === 'dungeonGoon';
     const wasWitchBoss = wasForcedEncounter && this.forcedEncounter.type === 'witchBoss';
     GAME_STATE.forcedEncounter = null;
-    if (typeof playGameMusicLoop === 'function') playGameMusicLoop(this);
+    playGameMusicLoop(this);
 
     if (wasDungeonGoon) {
       GAME_STATE.currentLevelId = null;
       GAME_STATE.currentFightIndex = 0;
-      this.scene.start('WitchDungeon');
+      const heroLvl = this.hero.level || 1;
+      const goonGold = CONFIG.GOLD_GOON_BASE + heroLvl * CONFIG.GOLD_GOON_PER_LEVEL;
+      const goonXp = CONFIG.XP_GOON;
+      this.hero.gold += goonGold;
+      const herbDrop = rollDungeonGoonHerbDrop();
+      GAME_STATE.pendingLootItemId = herbDrop;
+      GAME_STATE.goldEarned = goonGold;
+      GAME_STATE.returnToDungeon = true;
+      const leveledUp = ProgressionSystem.giveXP(this.hero, goonXp);
+      if (leveledUp) {
+        const choices = ProgressionSystem.getChoicesForLevel(this.hero.level);
+        if (choices.length > 0) {
+          GAME_STATE.pendingLevelUp = true;
+          this.scene.start('SkillTree', { from: 'dungeonGoon' });
+          return;
+        }
+      }
+      this.scene.start('Loot');
       return;
     }
     if (wasWitchBoss) {
@@ -1226,6 +1181,15 @@ class CombatScene extends Phaser.Scene {
       GAME_STATE.pendingWitchDungeon = false;
       GAME_STATE.pendingLootItemId = null;
       GAME_STATE.goldEarned = witchGold;
+      const witchLeveledUp = ProgressionSystem.giveXP(this.hero, CONFIG.XP_BOSS);
+      if (witchLeveledUp) {
+        const choices = ProgressionSystem.getChoicesForLevel(this.hero.level);
+        if (choices.length > 0) {
+          GAME_STATE.pendingLevelUp = true;
+          this.scene.start('SkillTree', { from: 'witchBoss' });
+          return;
+        }
+      }
       this.scene.start('Overworld');
       return;
     }
@@ -1274,22 +1238,12 @@ class CombatScene extends Phaser.Scene {
 
   onCombatLose() {
     if (this.hero) {
-      this.hero.battleDefenseBonus = 0;
-      this.hero.battleEvasionChance = 0;
-      this.hero.blockReflectRounds = 0;
-      this.hero.invulnerableRounds = 0;
-      this.hero.poisonRounds = 0;
-      this.hero.poisonDamage = 0;
-      this.hero.regenRounds = 0;
-      this.hero.regenPercent = 0;
-      this.hero.doubletapActive = false;
-      this.hero.reaperFrightened = false;
-      this.hero.reaperSuppressEquipmentEvasion = false;
+      this.hero.resetBattleState();
     }
     GAME_STATE.reaperFight = false;
     GAME_STATE.forcedEncounter = null;
-    if (typeof stopAllMusic === 'function') stopAllMusic(this);
-    if (typeof playMusicOnce === 'function') playMusicOnce(this, 'game-over');
+    stopAllMusic(this);
+    playMusicOnce(this, 'game-over');
     const runPoints = GAME_STATE.points || 0;
     addTotalPoints(runPoints);
     this.scene.start('RunEnded', { runPoints, title: 'Game Over' });
@@ -1297,18 +1251,7 @@ class CombatScene extends Phaser.Scene {
 
   shutdown() {
     if (this.hero) {
-      this.hero.battleDefenseBonus = 0;
-      this.hero.battleEvasionChance = 0;
-      this.hero.flameAuraRounds = 0;
-      this.hero.blockReflectRounds = 0;
-      this.hero.invulnerableRounds = 0;
-      this.hero.poisonRounds = 0;
-      this.hero.poisonDamage = 0;
-      this.hero.regenRounds = 0;
-      this.hero.regenPercent = 0;
-      this.hero.doubletapActive = false;
-      this.hero.reaperFrightened = false;
-      this.hero.reaperSuppressEquipmentEvasion = false;
+      this.hero.resetBattleState();
     }
     GAME_STATE.reaperFight = false;
     if (this.skillButtons) this.skillButtons.destroy();

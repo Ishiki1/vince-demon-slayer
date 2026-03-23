@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "autosprite": {
+      "type": "http",
+      "url": "https://www.autosprite.io/api/mcp",
+      "headers": {
+        "Authorization": "Bearer vspk_699b26ccd8_8AyCgUOoCJOJh7TcrjMB8C_KEYaZBUi4gg_36Mab"
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--caps=vision,storage,devtools",
+        "--viewport-size=1024x768",
+        "--console-level=error"
+      ]
+    }
+  }
+}

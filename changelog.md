@@ -4,6 +4,30 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.5.1 – 2026-03-23
+
+### Fixed
+- **Combat crash (ReferenceError):** `CombatScene` called global functions `getHeroIdleVisual`, `getEnemyFormationLayout`, `isHeroIdleAnimKey`, `isVampireBossEnemy` from `combatAnimations.js` and `enemyFormation.js`, but neither script was wired in `index.html`. Added `<script>` tags for `combatAnimations.js`, `enemyFormation.js`, and `statusEffects.js` so all system modules are loaded before scene code.
+
+---
+
+## Version 3.5.0 – 2026-03-23
+
+### Added
+- **Tavern scene:** New art-first tavern with `tavern-bg.png` background (1536x1024 stretched to 800x600). Eight invisible hotspots covering the barkeeper, five tables, notice board, and exit staircase. Barkeeper offers rest (same pricing as Town inn) and contextual gameplay rumors. Tables and notice board are wired as quest NPC placeholders with Coming Soon tooltips. Exit returns to Town. (`TavernScene.js`, `BootScene.js`, `main.js`, `index.html`)
+- **Contextual barkeeper rumors:** The barkeeper now surfaces hints based on actual game state instead of static flavor text. Twelve rumor categories with 2-3 text variants each, covering: witch's dungeon timing, reaper warnings, elemental set crafting, mine nudges, alchemy hints, blacksmith crafting, boss progression, and act 2 teases. Clicking the barkeeper always rests (if affordable) AND shows a rumor. Tooltip preview included on hover. (`TavernScene.js`)
+
+### Technical
+- New `assets/overworld/tavern-hotspots-800x600.json` manifest with 7 hotspots validated against the 800x600 canvas.
+- Approval proofs generated at `assets/overworld/tavern-hotspots-approval.svg` (full) and `tavern-hotspots-approval-minimal.svg` (minimal) with 5px grid.
+- `GamePreloadScene` loads `tavern-ui-background` and `tavern-hotspots` JSON.
+- `TavernScene` registered in `main.js` scene array and `index.html` script tags.
+- Follows the same `getHotspotManifest()`/`getHotspot()` + invisible rectangle pattern as Blacksmith/Alchemist/Mine.
+- New `assets/ui/tavern-icon.png` (256x256 pixel art beer tankard) added to nav icon preload array and `createTownNavRow` in `SceneUi.js`.
+- `TownScene` updated with "Visit Tavern" fallback button and `handleLandingAction('tavern')` route.
+
+---
+
 ## Version 3.4.1 – 2026-03-22
 
 ### Changed

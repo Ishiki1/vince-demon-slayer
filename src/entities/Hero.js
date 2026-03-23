@@ -36,6 +36,10 @@ function createHero(classId) {
     regenRounds: 0,
     regenPercent: 0,
     doubletapActive: false,
+    weakenedRounds: 0,
+    weakenedFactor: 0,
+    vulnerableRounds: 0,
+    vulnerableFactor: 0,
     maxInventory: 20,
     level: 1,
     xp: 0,
@@ -263,6 +267,25 @@ function createHero(classId) {
     },
     getDefense() {
       return Math.floor(this.getEffectiveDefense());
+    },
+
+    resetBattleState() {
+      this.battleDefenseBonus = 0;
+      this.battleEvasionChance = 0;
+      this.flameAuraRounds = 0;
+      this.blockReflectRounds = 0;
+      this.invulnerableRounds = 0;
+      this.poisonRounds = 0;
+      this.poisonDamage = 0;
+      this.regenRounds = 0;
+      this.regenPercent = 0;
+      this.doubletapActive = false;
+      this.weakenedRounds = 0;
+      this.weakenedFactor = 0;
+      this.vulnerableRounds = 0;
+      this.vulnerableFactor = 0;
+      this.reaperFrightened = false;
+      this.reaperSuppressEquipmentEvasion = false;
     },
 
     refillCombatStats() {

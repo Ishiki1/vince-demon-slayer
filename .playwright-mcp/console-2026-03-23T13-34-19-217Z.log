@@ -1,0 +1,13 @@
+[   11369ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/assets/goons/witch_idle_512x512_sheet.png:0
+[   11711ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/assets/goons/witch_attack_512x512_sheet.png:0
+[   23138ms] ReferenceError: getEnemyFormationLayout is not defined
+    at CombatScene.getEnemyFormationLayout (http://localhost:3000/src/scenes/CombatScene.js:21:5)
+    at CombatScene.create (http://localhost:3000/src/scenes/CombatScene.js:394:35)
+    at initialize.create (https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js:1:936216)
+    at initialize.bootScene (https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js:1:935501)
+    at initialize.start (https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js:1:939349)
+    at initialize.processQueue (https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js:1:934187)
+    at initialize.update (https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js:1:935716)
+    at initialize.step (https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js:1:75942)
+    at initialize.step (https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js:1:80126)
+    at e (https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js:1:140700)

@@ -83,14 +83,15 @@ class TownScene extends Phaser.Scene {
     }, { size: 42, tooltipX: bottomLeftX + bottomLeftSpacing * 2, tooltipY: bottomUtilityY - 34 });
 
     if (!hasArt) {
-      createButton(this, w / 2, h / 2 - 20, 220, 48, `Rest (Full HP & Mana) - ${this.restPrice}g`, { bgColor: 0x4ade80, fontSize: 15 }, () => {
+      createButton(this, w / 2, h / 2 - 50, 220, 48, `Rest (Full HP & Mana) - ${this.restPrice}g`, { bgColor: 0x4ade80, fontSize: 15 }, () => {
         this.handleLandingAction('rest');
       });
-      createButton(this, w / 2, h / 2 + 70, 200, 48, 'Visit Shop', { bgColor: 0x8b5cf6 }, () => this.handleLandingAction('shop'));
-      createButton(this, w / 2, h / 2 + 130, 200, 48, 'Visit Blacksmith', { bgColor: 0x78716c }, () => this.handleLandingAction('blacksmith'));
-      createButton(this, w / 2, h / 2 + 190, 200, 48, 'Visit Mine', { bgColor: 0x64748b }, () => this.handleLandingAction('mine'));
-      createButton(this, w / 2, h / 2 + 250, 200, 48, 'Visit Alchemist', { bgColor: 0x0f766e }, () => this.handleLandingAction('alchemist'));
-      createButton(this, w / 2, h - 80, 180, 48, 'Back to Overworld', () => this.handleLandingAction('overworld'));
+      createButton(this, w / 2, h / 2 + 20, 200, 48, 'Visit Tavern', { bgColor: 0xb45309 }, () => this.handleLandingAction('tavern'));
+      createButton(this, w / 2, h / 2 + 80, 200, 48, 'Visit Shop', { bgColor: 0x8b5cf6 }, () => this.handleLandingAction('shop'));
+      createButton(this, w / 2, h / 2 + 140, 200, 48, 'Visit Blacksmith', { bgColor: 0x78716c }, () => this.handleLandingAction('blacksmith'));
+      createButton(this, w / 2, h / 2 + 200, 200, 48, 'Visit Mine', { bgColor: 0x64748b }, () => this.handleLandingAction('mine'));
+      createButton(this, w / 2, h / 2 + 260, 200, 48, 'Visit Alchemist', { bgColor: 0x0f766e }, () => this.handleLandingAction('alchemist'));
+      createButton(this, w / 2, h - 60, 180, 48, 'Back to Overworld', () => this.handleLandingAction('overworld'));
     }
   }
 
@@ -151,6 +152,10 @@ class TownScene extends Phaser.Scene {
     }
     if (action === 'alchemist') {
       this.scene.start('Alchemist');
+      return;
+    }
+    if (action === 'tavern') {
+      this.scene.start('Tavern');
       return;
     }
     this.scene.start('Overworld');

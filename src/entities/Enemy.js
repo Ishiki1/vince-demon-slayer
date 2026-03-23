@@ -13,7 +13,8 @@ function createEnemy(levelIndex, isBoss) {
     damage: stats.damage,
     isBoss: !!isBoss,
     goonType: stats.goonType || null,
+    dodgeChance: stats.dodgeChance || 0,
     turnsTaken: 0,
-    skills: [],
+    skills: Array.isArray(stats.skills) ? stats.skills.map(s => ({ ...s })) : [],
   };
 }

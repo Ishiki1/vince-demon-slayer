@@ -346,6 +346,12 @@ function createTownNavRow(scene, options) {
   };
   const buttons = [
     {
+      textureKey: 'tavern-icon',
+      tooltip: 'Tavern',
+      onClick: () => scene.scene.start('Tavern'),
+      disabled: currentSection === 'tavern',
+    },
+    {
       textureKey: 'inn-icon',
       tooltip: onInnAction ? 'Rest at the Inn' : 'Town / Inn',
       onClick: onInnAction || (() => scene.scene.start('Town')),

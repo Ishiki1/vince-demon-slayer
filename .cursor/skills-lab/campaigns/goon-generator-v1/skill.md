@@ -28,7 +28,7 @@ These were learned the hard way during the Plague Toad POC:
 - **VERIFY facing direction after EVERY generation.** Before processing any sprite sheet, visually inspect the generated image and confirm ALL frames face left. Attack sheets are especially prone to flipping -- the lunge/strike must go toward the LEFT edge. If any frame faces right, regenerate the sheet immediately. Do not process a sheet with wrong-facing frames.
 - **NO divider lines in sprite sheets.** Image generators love adding black grid separators. Explicitly forbid them.
 - **Green flood fill preserves interior green.** The cleanup script only removes border-connected green, so creatures with green markings keep their coloring.
-- **Idle = 20fps loop, Attack = 24fps one-shot.** This is universal across all goons. Idle: 8 frames at 20fps = 0.4s loop. Attack: 8 frames at 24fps = 0.33s one-shot -- enough for wind-up, peak, and recovery to read clearly.
+- **Idle = 20fps loop, Attack = 24fps one-shot.** This is universal across all goons. Idle: 12 frames at 20fps = 0.6s loop. Attack: 12 frames at 24fps = 0.5s one-shot -- enough for wind-up, peak, and recovery to read clearly with smooth motion.
 - **Both getEnemyAnimationSet AND the sprite creation chain need branches.** Forgetting either means the goon either renders as a rectangle or does not animate on attack.
 - **Phaser auto-detects frame count.** `ensureGeneratedAnimation` reads frame count from the loaded texture. Do not hardcode frame numbers.
 
@@ -121,17 +121,19 @@ Inspect the cleaned image before proceeding. The creature must be centered, faci
 
 ## Frame Count Guidance
 
-Both idle and attack use 8 frames in a 4x2 grid. This is the sweet spot for image-generator quality vs animation smoothness:
+Both idle and attack use 12 frames in a 4x3 grid. This gives smooth, fluid animation while staying within image-generator consistency limits:
 
 | Animation | Frames | Grid | FPS | Duration | Notes |
 |-----------|--------|------|-----|----------|-------|
-| Idle | 8 | 4x2 | 20 | 0.4s loop | Subtle motion -- breathing, swaying. 0.4s is long enough for a natural breathing cycle. |
-| Attack | 8 | 4x2 | 24 | 0.33s one-shot | Must cover wind-up → peak → recovery. 0.33s reads clearly for most attack speeds. |
+| Idle | 12 | 4x3 | 20 | 0.6s loop | Must form a perfect loop: frame 12 transitions seamlessly back to frame 1. Describe a full motion cycle (rest → peak → return → rest). |
+| Attack | 12 | 4x3 | 24 | 0.5s one-shot | Covers wind-up → peak → follow-through → recovery. 0.5s gives enough time for the full motion to read clearly. |
+
+**Idle loop rule:** The idle animation MUST form a perfect seamless loop. Frame 1 is the resting pose. The motion should rise through the middle frames and return so that frame 12 looks nearly identical to frame 1. This prevents a visible "pop" when the animation restarts.
 
 **Trade-offs:**
-- **Fewer frames (4-6):** Easier for the image generator to keep consistent between frames, but animation looks choppy. Only use if 8-frame sheets consistently fail quality checks.
-- **More frames (10-12):** Smoother animation, but image generators struggle to maintain character consistency across that many frames in one sheet. Quality drops significantly past 8 frames.
-- **Heavy/massive creatures** (golems, giants): 8 attack frames at 24fps may feel slightly fast for conveying weight. The slower recovery in frames 7-8 helps. If the attack still looks too fast in-game, consider reducing the attack `frameRate` to 20fps (0.4s) in the ENEMY_ANIMATIONS entry -- this is cheaper than regenerating with more frames.
+- **Fewer frames (8):** Acceptable fallback if 12-frame sheets have consistency issues. Use a 4x2 grid instead. Animation will be slightly choppier but functional.
+- **More frames (16+):** Not recommended. Image generators lose character consistency and frame quality degrades.
+- **Heavy/massive creatures** (golems, giants): 12 attack frames at 24fps = 0.5s which reads well for heavy attacks. If it still feels too fast, reduce the attack `frameRate` to 20fps (0.6s) in the ENEMY_ANIMATIONS entry.
 
 ## Phase 4: Generate Idle Sprite Sheet
 
@@ -140,17 +142,18 @@ Generate a single image containing all idle animation frames in a grid.
 Prompt rules:
 
 - Reference the cleaned goon image via `reference_image_paths`.
-- Request a specific grid: "exactly 2 rows of 4 frames each (4 columns, 2 rows)".
+- Request a specific grid: "exactly 3 rows of 4 frames each (4 columns, 3 rows)".
 - Say "NO divider lines or borders between frames".
 - Say "bright solid green (#00FF00) background".
 - All frames face left.
 - Describe subtle idle motion: breathing, pulsing, throat-sac inflating, body swaying.
+- **Perfect loop:** Frame 12 must transition seamlessly back to frame 1. Describe a full motion cycle that starts and ends in the same resting pose.
 
 Idle prompt template:
 
 ```
-A pixel art sprite sheet showing exactly [N] frames of an idle breathing animation,
-arranged in exactly [ROWS] rows of [COLS] frames each ([COLS] columns, [ROWS] rows grid).
+A pixel art sprite sheet showing exactly 12 frames of an idle breathing animation,
+arranged in exactly 3 rows of 4 frames each (4 columns, 3 rows grid).
 NO divider lines or borders between frames. Each frame shows the same dark-fantasy
 [CREATURE NAME] creature FACING LEFT (looking toward the left side of the image).
 The viewer sees the creature from a side-profile view showing its LEFT flank --
@@ -158,20 +161,30 @@ the creature's head points left and its tail/back faces right.
 Bright solid green (#00FF00) background with NO grid lines, NO borders, NO separators
 between frames. Pixel art style with visible pixels, thick black outlines.
 
+This is a LOOPING animation. Frame 1 and Frame 12 must look nearly identical (both
+the neutral resting pose) so the loop is seamless with no visible pop or jump.
+
 Row 1 (left to right):
 Frame 1 - [creature] in normal resting pose facing left, LEFT flank visible to viewer.
-Frame 2 - [creature] facing left, body slightly [describe subtle motion, e.g. swelling].
-Frame 3 - [creature] facing left, [peak of motion, e.g. maximum inhale].
-Frame 4 - [creature] facing left, [beginning to return, e.g. deflating].
+Frame 2 - [creature] facing left, body beginning to [describe early subtle motion, e.g. inhale].
+Frame 3 - [creature] facing left, motion continuing, [describe mid-rise, e.g. chest lifting].
+Frame 4 - [creature] facing left, [approaching peak of motion, e.g. body swelling].
 
 Row 2 (left to right):
-Frame 5 - [creature] facing left, [continuing return].
-Frame 6 - [creature] facing left, [slightly compressed or alternate subtle pose].
-Frame 7 - [creature] facing left, [transitioning back].
-Frame 8 - [creature] facing left, back to normal resting pose.
+Frame 5 - [creature] facing left, [at peak of motion, e.g. maximum inhale/swell].
+Frame 6 - [creature] facing left, [just past peak, beginning to settle, e.g. exhale starting].
+Frame 7 - [creature] facing left, [continuing to return, e.g. body deflating].
+Frame 8 - [creature] facing left, [past midpoint of return, e.g. settling lower].
+
+Row 3 (left to right):
+Frame 9 - [creature] facing left, [nearly returned to rest, e.g. slight residual sway].
+Frame 10 - [creature] facing left, [subtle secondary motion, e.g. micro leg shift or tail twitch].
+Frame 11 - [creature] facing left, [final transition, easing into rest].
+Frame 12 - [creature] facing left, back to normal resting pose (identical to Frame 1 for seamless loop).
 
 All frames must maintain the same [describe key visual traits -- colors, markings, eyes,
-outline style]. Every single frame the [creature] faces LEFT.
+outline style]. Every single frame the [creature] faces LEFT. Frame 12 must match
+Frame 1 so the animation loops without a visible jump.
 ```
 
 **Before processing -- facing direction gate (max 3 attempts):**
@@ -190,7 +203,7 @@ Generate a single image containing all attack animation frames in a grid.
 Prompt rules:
 
 - Reference the cleaned goon image via `reference_image_paths`.
-- Request a 4x2 grid (8 frames). At 24fps this gives ~0.33s of animation -- enough time for the attack to read clearly with wind-up, peak, and recovery.
+- Request a 4x3 grid (12 frames). At 24fps this gives ~0.5s of animation -- enough time for a full wind-up, peak, follow-through, and recovery to read clearly.
 - Say "NO divider lines or borders between frames".
 - Say "bright solid green (#00FF00) background".
 - **Every frame** must face left -- repeat "facing left" in each frame description.
@@ -202,8 +215,8 @@ Prompt rules:
 Attack prompt template:
 
 ```
-A pixel art sprite sheet showing exactly 8 frames of a [ATTACK TYPE] attack animation,
-arranged in exactly 2 rows of 4 frames each (4 columns, 2 rows grid).
+A pixel art sprite sheet showing exactly 12 frames of a [ATTACK TYPE] attack animation,
+arranged in exactly 3 rows of 4 frames each (4 columns, 3 rows grid).
 NO divider lines or borders between frames. Each frame shows the same dark-fantasy
 [CREATURE NAME] creature FACING LEFT. The viewer sees the creature from a side-profile
 view showing its LEFT flank -- head points left, back/tail faces right.
@@ -217,16 +230,22 @@ or flip any frame.
 
 Row 1 (left to right):
 Frame 1 - [creature] in ready stance facing left, tensing, preparing to attack.
-Frame 2 - [creature] facing left, [early wind-up, e.g. pulling back, coiling, raising weapon].
-Frame 3 - [creature] facing left, [full wind-up, e.g. body at maximum tension, weapon raised high].
-Frame 4 - [creature] facing left, [peak of attack, e.g. lunging, striking, releasing],
-body/attack fully committed toward the left. Attack goes LEFT, not right.
+Frame 2 - [creature] facing left, [early wind-up, e.g. shifting weight, coiling].
+Frame 3 - [creature] facing left, [mid wind-up, e.g. pulling back, raising weapon].
+Frame 4 - [creature] facing left, [full wind-up, e.g. body at maximum tension, weapon raised high].
 
 Row 2 (left to right):
-Frame 5 - [creature] facing left, [impact/release moment, e.g. projectile just launched, fist connecting].
-Frame 6 - [creature] facing left, [follow-through, e.g. recoiling, weapon swinging past].
-Frame 7 - [creature] facing left, [recovering, pulling back toward neutral].
-Frame 8 - [creature] facing left, returning to ready stance.
+Frame 5 - [creature] facing left, [peak of attack, e.g. lunging, striking, releasing],
+body/attack fully committed toward the left. Attack goes LEFT, not right.
+Frame 6 - [creature] facing left, [impact/release moment, e.g. projectile just launched, fist connecting].
+Frame 7 - [creature] facing left, [early follow-through, e.g. recoiling from impact].
+Frame 8 - [creature] facing left, [late follow-through, e.g. weapon swinging past, body rotating back].
+
+Row 3 (left to right):
+Frame 9 - [creature] facing left, [early recovery, pulling back from extended position].
+Frame 10 - [creature] facing left, [mid recovery, body settling, re-centering weight].
+Frame 11 - [creature] facing left, [nearly back to neutral, final settling].
+Frame 12 - [creature] facing left, returning to ready stance.
 
 All frames must maintain the same [describe key visual traits]. Every single frame
 the [creature] faces LEFT. No frame may face right.
@@ -235,26 +254,26 @@ the [creature] faces LEFT. No frame may face right.
 **Attack-type motion arc examples** -- use the one closest to your creature's attack, then customize:
 
 *Melee lunge (biting, clawing, pouncing):*
-- F1: ready stance, body low. F2: legs coiling, body compressing toward left. F3: muscles tensed, jaws/claws drawn back. F4: explosive lunge toward LEFT, body stretched, jaws/claws at full extension. F5: impact moment, jaws clamping / claws raking. F6: recoil from hit, body bouncing back slightly. F7: pulling back, body curling. F8: settling to ready stance.
+- F1: ready stance, body low. F2: shifting weight forward. F3: legs coiling, body compressing toward left. F4: muscles at maximum tension, jaws/claws drawn back. F5: explosive lunge toward LEFT, body stretched, jaws/claws at full extension. F6: impact moment, jaws clamping / claws raking. F7: recoil from hit, body bouncing back. F8: pulling back, momentum fading. F9: body curling inward. F10: re-centering weight. F11: legs settling. F12: back to ready stance.
 
 *Vertical slam (fist pound, ground strike, stomp):*
-- F1: standing ready, facing left. F2: both arms/fists raising overhead. F3: arms at apex, body leaning forward-left. F4: slamming DOWN and toward LEFT, arms descending. F5: impact -- fists hitting ground, debris/shockwave spreading. F6: ground crack visible, body still low from slam. F7: slowly pushing back up, arms withdrawing. F8: returning to standing ready.
+- F1: standing ready, facing left. F2: shoulders tensing, weight shifting. F3: both arms/fists rising. F4: arms at apex overhead, body leaning forward-left. F5: slamming DOWN and toward LEFT, arms descending fast. F6: impact -- fists hitting ground, debris/shockwave spreading. F7: ground crack visible, body still low. F8: aftershock, small debris bouncing. F9: slowly pushing back up. F10: arms withdrawing, torso rising. F11: re-centering to upright. F12: returning to standing ready.
 
 *Ranged spell/projectile (bolts, spit, thrown objects):*
-- F1: caster in ready stance, staff/arm resting. F2: raising staff/arm, energy beginning to gather. F3: energy at peak, glowing bright at staff tip / hand / mouth. F4: release -- projectile launching TOWARD THE LEFT from the staff/hand/mouth. F5: projectile in flight toward LEFT edge, caster recoiling slightly. F6: follow-through, caster off-balance from release. F7: caster steadying, energy dissipating. F8: returning to ready stance.
+- F1: caster in ready stance, staff/arm resting. F2: beginning to raise staff/arm. F3: energy beginning to gather at focal point. F4: energy building, glowing brighter. F5: energy at peak, staff tip / hand / mouth flaring. F6: release -- projectile launching TOWARD THE LEFT. F7: projectile in flight toward LEFT edge, caster recoiling. F8: follow-through, caster off-balance from release. F9: projectile fading into distance. F10: caster steadying. F11: energy dissipating. F12: returning to ready stance.
 
 **Before processing -- facing direction gate (max 3 attempts):**
 
 This is the most common failure point -- attack animations frequently flip direction. Inspect EVERY frame for:
 1. The creature's head/face/eyes point toward the **left** edge.
 2. The attack action (lunge, projectile, slam) goes toward the **left** edge.
-3. Peak frames (4-5) are NOT mirrored compared to wind-up frames (1-3).
+3. Peak frames (5-7) are NOT mirrored compared to wind-up frames (1-4).
 4. No frame shows the creature facing or attacking toward the right.
 
 **Attack direction anti-patterns to reject immediately:**
 - The creature's body or head turned to face the right edge
 - A projectile, bolt, or lunge going toward the right side of the frame
-- Frames 4-5 (peak/follow-through) mirrored compared to frames 1-3
+- Frames 5-7 (peak/follow-through) mirrored compared to frames 1-4
 - The creature "winding up" by leaning right (the wind-up should compress the body, not change facing)
 
 If ANY frame fails, regenerate the entire attack sheet. After 3 failed attempts, modify the prompt: emphasize facing direction even more heavily by adding "IMPORTANT: This creature attacks toward the LEFT margin. Every frame faces LEFT." and consider simplifying the attack motion description.
@@ -532,14 +551,17 @@ Animation keys: `<goon>_idle` (20fps, repeat -1), `<goon>_attack` (24fps, repeat
 
 - [ ] Read project docs (cursor.md, GAME_DESIGN.md, spritework.md, config.js)
 - [ ] Defined goonType, display name, combat profile, skill, spawn weight
+- [ ] Identified creature-specific adaptations (green skin, thin limbs, dark coloring, held items, massive proportions, attack type)
 - [ ] Generated reference image FACING LEFT on bright green background
 - [ ] Cleaned reference image (no green halo, centered in 512x512)
-- [ ] Generated idle sprite sheet (grid layout, no divider lines, all frames face left)
-- [ ] **Verified idle sheet facing direction** -- all frames face left before processing
-- [ ] Generated attack sprite sheet (grid layout, no divider lines, all frames face left)
-- [ ] **Verified attack sheet facing direction** -- lunge/strike goes toward LEFT edge, no mirrored frames
+- [ ] Generated idle sprite sheet (12 frames, 4x3 grid, no divider lines, all frames face left, perfect loop)
+- [ ] **Verified idle sheet facing direction (max 3 attempts)** -- all frames face left before processing
+- [ ] Generated attack sprite sheet (12 frames, 4x3 grid, no divider lines, all frames face left, negative prompts included)
+- [ ] **Verified attack sheet facing direction (max 3 attempts)** -- lunge/strike goes toward LEFT edge, checked anti-patterns, no mirrored frames
 - [ ] Processed both sheets through process-spritesheet.mjs
 - [ ] Verified frame counts and opaque pixels per frame
+- [ ] **Ran green residue check** -- 0 bright-green pixels (or visual inspection for green-skinned creatures)
+- [ ] **Ran outline integrity check** -- black outline visible, thin features preserved
 - [ ] Added load.spritesheet() calls to BootScene GamePreloadScene.preload
 - [ ] Added entries to ENEMY_ANIMATIONS array
 - [ ] Added branch to getEnemyAnimationSet()

@@ -87,6 +87,9 @@ class LootScene extends Phaser.Scene {
 
     if (hasDedicatedLootBackground) {
       this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.18).setDepth(-25);
+    } else if (GAME_STATE.returnToDungeon && typeof addSceneBackground === 'function' && this.textures.exists('witch-dungeon-ui-background')) {
+      addSceneBackground(this, 'witch-dungeon-ui-background', { width: w, height: h, depth: -30 });
+      this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.32).setDepth(-25);
     } else if (levelBackgroundKey && typeof addSceneBackground === 'function' && this.textures.exists(levelBackgroundKey)) {
       addSceneBackground(this, levelBackgroundKey, { width: w, height: h, depth: -30 });
       this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.32).setDepth(-25);
@@ -120,6 +123,11 @@ class LootScene extends Phaser.Scene {
   finishLoot() {
     GAME_STATE.pendingLootItemId = null;
     GAME_STATE.goldEarned = 0;
+    if (GAME_STATE.returnToDungeon) {
+      GAME_STATE.returnToDungeon = false;
+      this.scene.start('WitchDungeon');
+      return;
+    }
     const level = LEVELS.find(l => l.id === GAME_STATE.currentLevelId);
     if (!level) { this.scene.start('Overworld'); return; }
     const nextIndex = GAME_STATE.currentFightIndex + 1;

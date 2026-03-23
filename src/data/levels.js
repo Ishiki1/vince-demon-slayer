@@ -4,36 +4,77 @@
  * Enemy stats are formula-based from level index and isBoss.
  */
 
-/** Goon types by level: 0 = Skeleton only; 1 = Skeleton or Bat; 2+ = Skeleton, Bat, or Imp. */
+const GOON_PROFILES = {
+  skeleton: { hpMult: 1.2, dmgMult: 0.9, dodgeChance: 0, skills: [{ id: 'skeleton-shield-skill', everyTurns: 4, firstUseTurn: 3 }] },
+  bat:      { hpMult: 0.7, dmgMult: 0.9, dodgeChance: 0.25, skills: [{ id: 'bat-screech-skill', everyTurns: 4, firstUseTurn: 2 }] },
+  imp:      { hpMult: 0.8, dmgMult: 1.3, dodgeChance: 0.1, skills: [{ id: 'imp-hex-skill', everyTurns: 4, firstUseTurn: 2 }] },
+  shade:    { hpMult: 0.35, dmgMult: 0.8, dodgeChance: 0.6, skills: [{ id: 'shade-sap-skill', everyTurns: 3, firstUseTurn: 1 }] },
+};
+
+const GOON_NAMES = { skeleton: 'Skeleton', bat: 'Bat', imp: 'Imp', shade: 'Shade' };
+
 function getGoonTypeForLevel(levelIndex) {
   if (levelIndex === 0) return 'skeleton';
   if (levelIndex === 1) return Math.random() < 0.5 ? 'skeleton' : 'bat';
+  if (levelIndex >= 4) {
+    const roll = Math.random();
+    if (roll < 0.25) return 'skeleton';
+    if (roll < 0.50) return 'bat';
+    if (roll < 0.75) return 'imp';
+    return 'shade';
+  }
   const roll = Math.random();
   if (roll < 1 / 3) return 'skeleton';
   if (roll < 2 / 3) return 'bat';
   return 'imp';
 }
 
-const GOON_NAMES = { skeleton: 'Skeleton', bat: 'Bat', imp: 'Imp' };
-
 function getEnemyStatsForLevel(levelIndex, isBoss) {
   const scale = CONFIG.ENEMY_SCALE_FACTOR;
   const baseHp = CONFIG.ENEMY_BASE_HP * Math.pow(scale, levelIndex);
   const baseDmg = CONFIG.ENEMY_BASE_DAMAGE * Math.pow(scale, levelIndex);
   if (isBoss) {
+    if (levelIndex === 1) {
+      const shadeProfile = GOON_PROFILES.shade;
+      const levelScaleHp = 1 + levelIndex * (CONFIG.ENEMY_BOSS_PER_LEVEL_HP_FACTOR || 0.2);
+      const levelScaleDmg = 1 + levelIndex * (CONFIG.ENEMY_BOSS_PER_LEVEL_DAMAGE_FACTOR || 0.15);
+      const hp = Math.floor(baseHp * 1.5 * levelScaleHp);
+      const damage = Math.max(1, Math.floor(baseDmg * CONFIG.ENEMY_BOSS_DAMAGE_MULTIPLIER * levelScaleDmg));
+      return {
+        hp, damage, name: 'The Shade', goonType: 'shade',
+        dodgeChance: shadeProfile.dodgeChance,
+        skills: shadeProfile.skills.map(s => ({ ...s })),
+      };
+    }
+    if (levelIndex === 2) {
+      const levelScaleHp = 1 + levelIndex * (CONFIG.ENEMY_BOSS_PER_LEVEL_HP_FACTOR || 0.2);
+      const levelScaleDmg = 1 + levelIndex * (CONFIG.ENEMY_BOSS_PER_LEVEL_DAMAGE_FACTOR || 0.15);
+      const hp = Math.floor(baseHp * 3.0 * levelScaleHp);
+      const damage = Math.max(1, Math.floor(baseDmg * 1.0 * levelScaleDmg));
+      return {
+        hp, damage, name: 'The Broodmother', goonType: 'broodmother',
+        dodgeChance: 0,
+        skills: [
+          { id: 'broodmother-venom-skill', everyTurns: 3, firstUseTurn: 2 },
+          { id: 'broodmother-spawn-skill', everyTurns: 4, firstUseTurn: 4 },
+        ],
+      };
+    }
     const levelScaleHp = 1 + levelIndex * (CONFIG.ENEMY_BOSS_PER_LEVEL_HP_FACTOR || 0.2);
     const levelScaleDmg = 1 + levelIndex * (CONFIG.ENEMY_BOSS_PER_LEVEL_DAMAGE_FACTOR || 0.15);
     const hp = Math.floor(baseHp * CONFIG.ENEMY_BOSS_HP_MULTIPLIER * levelScaleHp);
     const damage = Math.max(1, Math.floor(baseDmg * CONFIG.ENEMY_BOSS_DAMAGE_MULTIPLIER * levelScaleDmg));
-    const name = 'Vampire';
-    return { hp, damage, name };
+    return { hp, damage, name: 'Vampire' };
   }
   const goonType = getGoonTypeForLevel(levelIndex);
+  const profile = GOON_PROFILES[goonType] || GOON_PROFILES.skeleton;
   return {
-    hp: Math.floor(baseHp),
-    damage: Math.max(1, Math.floor(baseDmg)),
+    hp: Math.max(1, Math.floor(baseHp * profile.hpMult)),
+    damage: Math.max(1, Math.floor(baseDmg * profile.dmgMult)),
     name: GOON_NAMES[goonType] || 'Enemy',
     goonType,
+    dodgeChance: profile.dodgeChance || 0,
+    skills: profile.skills.map(s => ({ ...s })),
   };
 }
 

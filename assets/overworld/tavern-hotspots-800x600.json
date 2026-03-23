@@ -1,0 +1,91 @@
+{
+  "canvas": { "width": 800, "height": 600 },
+  "background": {
+    "path": "tavern-bg.png",
+    "sourceWidth": 1536,
+    "sourceHeight": 1024,
+    "fit": "stretch-to-runtime"
+  },
+  "hotspots": [
+    {
+      "id": "barkeeper",
+      "x": 72,
+      "y": 30,
+      "width": 226,
+      "height": 140,
+      "centerX": 185,
+      "centerY": 100,
+      "note": "Barkeeper behind the counter. Rest, rumors, hints."
+    },
+    {
+      "id": "center-table",
+      "x": 318,
+      "y": 228,
+      "width": 172,
+      "height": 228,
+      "centerX": 404,
+      "centerY": 342,
+      "note": "Large round center table with adventurers. Main quest NPC table."
+    },
+    {
+      "id": "left-table-upper",
+      "x": 42,
+      "y": 288,
+      "width": 164,
+      "height": 100,
+      "centerX": 124,
+      "centerY": 338,
+      "note": "Upper left rectangular table. Quest NPC seating."
+    },
+    {
+      "id": "left-table-lower",
+      "x": 78,
+      "y": 395,
+      "width": 188,
+      "height": 100,
+      "centerX": 172,
+      "centerY": 445,
+      "note": "Lower left table. Quest NPC seating."
+    },
+    {
+      "id": "upper-right-table",
+      "x": 648,
+      "y": 206,
+      "width": 152,
+      "height": 126,
+      "centerX": 724,
+      "centerY": 269,
+      "note": "Upper right table near fireplace. Quest NPC seating."
+    },
+    {
+      "id": "lower-right-table",
+      "x": 504,
+      "y": 340,
+      "width": 214,
+      "height": 192,
+      "centerX": 611,
+      "centerY": 436,
+      "note": "Lower right table with candles. Quest NPC seating."
+    },
+    {
+      "id": "notice-board",
+      "x": 620,
+      "y": 98,
+      "width": 118,
+      "height": 72,
+      "centerX": 679,
+      "centerY": 134,
+      "note": "WANTED poster board and notices on right wall. Quest hints."
+    },
+    {
+      "id": "exit",
+      "x": 0,
+      "y": 326,
+      "width": 34,
+      "height": 216,
+      "centerX": 17,
+      "centerY": 434,
+      "note": "Staircase exit at bottom-left. Returns to Town."
+    }
+  ]
+}

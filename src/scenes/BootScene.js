@@ -306,6 +306,7 @@ class GamePreloadScene extends Phaser.Scene {
       'blacksmith-icon',
       'mine-icon',
       'alchemist-icon',
+      'tavern-icon',
       'overworld-icon',
     ].forEach((key) => {
       this.load.image(key, `assets/ui/${key}.png`);
@@ -325,6 +326,8 @@ class GamePreloadScene extends Phaser.Scene {
     this.load.json('mine-hotspots', 'assets/overworld/minescene-hotspots-800x600.json');
     this.load.image('alchemist-ui-background', 'assets/overworld/alchemist-bg.png');
     this.load.json('alchemist-hotspots', 'assets/overworld/alchemist-hotspots-800x600.json');
+    this.load.image('tavern-ui-background', 'assets/overworld/tavern-bg.png');
+    this.load.json('tavern-hotspots', 'assets/overworld/tavern-hotspots-800x600.json');
     this.load.image('witch-dungeon-ui-background', 'assets/overworld/witch-bg.png');
     this.load.spritesheet('mushroom_idle_sheet', 'assets/goons/mushroom_idle_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
     this.load.spritesheet('mushroom_attack_sheet', 'assets/goons/mushroom_attack_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });

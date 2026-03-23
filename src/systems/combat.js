@@ -6,30 +6,34 @@
 const CombatSystem = {
   /**
    * Deal skill damage from attacker to target.
-   * @returns actual damage dealt
+   * @returns {{ damage: number, dodged: boolean }}
    */
   dealDamage(attacker, target, skillId) {
     const skill = getSkill(attacker, skillId);
-    if (!skill || skill.damageMultiplier == null) return 0;
+    if (!skill || skill.damageMultiplier == null) return { damage: 0, dodged: false };
+    if (!skill.trueDamage && target.dodgeChance > 0 && Math.random() < target.dodgeChance) {
+      return { damage: 0, dodged: true };
+    }
     const stat = skill.damageStat === 'intelligence' && attacker.getIntelligence ? attacker.getIntelligence() : attacker.getStrength();
     const weaponDamageMult = attacker && attacker.getWeaponDamageMultiplier ? attacker.getWeaponDamageMultiplier() : 1;
     let damage = Math.floor(stat * skill.damageMultiplier * weaponDamageMult);
-    if (target.getDefense) damage = Math.max(1, damage - target.getDefense());
-    else if (target.defense != null) damage = Math.max(1, damage - (target.defense || 0));
+    let targetDef = target.getDefense ? target.getDefense() : (target.defense || 0);
+    targetDef += (target.shieldDefense || 0);
+    damage = Math.max(1, damage - targetDef);
     target.hp = Math.max(0, target.hp - damage);
-    return damage;
+    return { damage, dodged: false };
   },
 
   /**
    * Deal skill damage to all targets (e.g. Whirlwind AoE). Same formula per target.
-   * @returns array of damage dealt per target (results[i] = damage to targets[i], 0 if already dead)
+   * @returns {Array<{ damage: number, dodged: boolean }>}
    */
   dealDamageToAll(attacker, targets, skillId) {
     const skill = getSkill(attacker, skillId);
-    if (!skill) return targets.map(() => 0);
+    if (!skill) return targets.map(() => ({ damage: 0, dodged: false }));
     const results = [];
     for (const target of targets) {
-      if (target.hp <= 0) results.push(0);
+      if (target.hp <= 0) results.push({ damage: 0, dodged: false });
       else results.push(this.dealDamage(attacker, target, skillId));
     }
     return results;

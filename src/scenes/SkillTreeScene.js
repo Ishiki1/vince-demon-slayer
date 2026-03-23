@@ -25,7 +25,7 @@ class SkillTreeScene extends Phaser.Scene {
     this.hero = hero;
     this.choiceGraphics = [];
 
-    if (this.from === 'combat' && typeof playSfx === 'function') playSfx(this, 'level-up');
+    if ((this.from === 'combat' || this.from === 'dungeonGoon' || this.from === 'witchBoss') && typeof playSfx === 'function') playSfx(this, 'level-up');
 
     this.add.text(w / 2, 40, (this.isFreeBrowse ? 'Skill Tree' : 'Level Up') + ' — Level ' + hero.level, { fontSize: 28, color: '#fbbf24' }).setOrigin(0.5);
     this.pointsText = this.add.text(w / 2, 75, 'Skill points: ' + (hero.skillPoints || 0), { fontSize: 18, color: '#e5e7eb' }).setOrigin(0.5);
@@ -35,7 +35,7 @@ class SkillTreeScene extends Phaser.Scene {
 
     createUiArtButton(this, w / 2, h - 60, 'continue-button', () => {
       GAME_STATE.pendingLevelUp = false;
-      if (this.from === 'combat') this.hero.refillCombatStats();
+      if (this.from === 'combat' || this.from === 'dungeonGoon' || this.from === 'witchBoss') this.hero.refillCombatStats();
       this.goNext();
     }, {
       width: 180,
@@ -169,7 +169,11 @@ class SkillTreeScene extends Phaser.Scene {
   }
 
   goNext() {
-    if (this.from === 'combat') {
+    if (this.from === 'dungeonGoon') {
+      this.scene.start('Loot');
+    } else if (this.from === 'witchBoss') {
+      this.scene.start('Overworld');
+    } else if (this.from === 'combat') {
       GAME_STATE.pendingLootItemId = LootSystem.rollLoot(this.isBossFight === true, this.hero.class);
       this.scene.start('Loot');
     } else if (this.from === 'town') {
