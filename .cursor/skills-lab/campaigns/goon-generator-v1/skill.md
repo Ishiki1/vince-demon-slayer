@@ -119,6 +119,20 @@ If green fringe survives, raise `--threshold` to 36 or 40.
 
 Inspect the cleaned image before proceeding. The creature must be centered, facing left, with no green halo.
 
+## Frame Count Guidance
+
+Both idle and attack use 8 frames in a 4x2 grid. This is the sweet spot for image-generator quality vs animation smoothness:
+
+| Animation | Frames | Grid | FPS | Duration | Notes |
+|-----------|--------|------|-----|----------|-------|
+| Idle | 8 | 4x2 | 20 | 0.4s loop | Subtle motion -- breathing, swaying. 0.4s is long enough for a natural breathing cycle. |
+| Attack | 8 | 4x2 | 24 | 0.33s one-shot | Must cover wind-up → peak → recovery. 0.33s reads clearly for most attack speeds. |
+
+**Trade-offs:**
+- **Fewer frames (4-6):** Easier for the image generator to keep consistent between frames, but animation looks choppy. Only use if 8-frame sheets consistently fail quality checks.
+- **More frames (10-12):** Smoother animation, but image generators struggle to maintain character consistency across that many frames in one sheet. Quality drops significantly past 8 frames.
+- **Heavy/massive creatures** (golems, giants): 8 attack frames at 24fps may feel slightly fast for conveying weight. The slower recovery in frames 7-8 helps. If the attack still looks too fast in-game, consider reducing the attack `frameRate` to 20fps (0.4s) in the ENEMY_ANIMATIONS entry -- this is cheaper than regenerating with more frames.
+
 ## Phase 4: Generate Idle Sprite Sheet
 
 Generate a single image containing all idle animation frames in a grid.
