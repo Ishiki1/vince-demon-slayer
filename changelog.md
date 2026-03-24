@@ -4,6 +4,69 @@ All notable changes to Demon Slayer (Vince) are documented here. Versions use th
 
 ---
 
+## Version 3.7.0 – 2026-03-24
+
+### Added
+- **Witch boss sprite art:** Generated Blood Witch idle and attack sprite sheets from a child's concept drawing. Crimson-robed witch with pointy hat, green potion bottle, and red magic. 12 frames each at 512x512 per frame, facing left. Reference art at `assets/goons/witch-reference.png`.
+- **Witch Summon Minion skill:** The Witch summons a random dungeon goon (Mushroom Creature, Thorn Creeper, or Plague Toad) on turn 2. One-time use per fight. New `summonDungeonGoon` effect handler in CombatScene.
+- **Witch Greater Health Potion skill:** The Witch drinks a Greater Health Potion when her HP drops below 50%, restoring 30% of max HP. New `healSelf` effect handler in CombatScene.
+
+### Changed
+- **Witch combat behavior:** Poison now fires on turn 1 (was turn 2). Summon fires on turn 2. Heal is conditional (HP < 50%) and weighted. The Witch is now a more dynamic boss with three distinct abilities.
+
+---
+
+## Version 3.6.2 – 2026-03-23
+
+### Changed
+- **Regenerated Witch Dungeon goon sprites:** Mushroom Creature and Plague Toad idle + attack sprite sheets fully regenerated with improved art through the goon-generator pipeline. All sheets pass frame integrity (30k+ opaque pixels per frame), green residue (0 bright-green pixels), and facing direction checks. 12 frames each at 512x512 per frame.
+
+---
+
+## Version 3.6.1 – 2026-03-23
+
+### Fixed
+- **Sprite cleanup pipeline rewrite:** `process-spritesheet.mjs` upgraded from basic RGB heuristic to three-pass HSV chroma keying with spill suppression and alpha matting. Eliminates green fringe on dark creatures (shade) and preserves green creature coloring (plant via magenta background strategy). Adds content-aware grid detection for uneven AI-generated frame layouts.
+- **Broodmother spiderling bugs:** Fixed formation repositioning to skip dead enemies, preventing y-drift and visual stacking. Spiderling spawn cap now counts only living spiderlings specifically.
+- **Missing goon wiring:** Added `load.spritesheet` and `ENEMY_ANIMATIONS` entries for shade, plant, and toad in BootScene -- they were falling back to red rectangles despite having sprite sheets on disk.
+
+### Changed
+- **Regenerated sprite sheets:** Shade (idle + attack), plant (idle + attack), spider (idle + attack), and broodmother (idle + attack) all re-generated with improved pipeline. Plant uses magenta background to solve green-on-green cleanup. Broodmother attack fixed to face left consistently in all frames.
+- **Goon generator skill v2 training:** Ran skills-lab campaign improving the skill from 42.81 to 75.58 (+32.77 points). Added HSV cleanup flag documentation, magenta background strategy, frame integrity checks, troubleshooting decision tree, animation consistency verification, and creature-specific cleanup parameters.
+
+---
+
+## Version 3.6.0 – 2026-03-23
+
+### Added
+- **Tavern quest system:** Table 1 (`center-table`) in the Tavern now hosts a quest NPC. The first quest, "Medicine for a Friend", asks the player to fetch a Moonpetal from the witch's dungeon. Accepting the quest transports the player to the dungeon; returning with the herb and visiting the tavern allows turn-in.
+- **Sunglasses of True Sight:** New legendary shared accessory rewarded by the herb quest. Grants `True Damage (ignores dodge)` on all hero attacks while equipped, bypassing enemy dodge chance. Stats: +2 Str, +3 HP. New pixel-art icon at `assets/items/sunglasses-of-true-sight.png`.
+- **Quest data layer:** New `src/data/quests.js` with quest definitions, availability checks, completion logic, and herb delivery objectives. Quest state (`activeQuestId`, `completedQuestIds`) persisted in save/load.
+
+### Changed
+- **Witch dungeon trigger reworked:** Removed the forced level-5 gate and the old day-based timer. The dungeon is now accessed voluntarily through tavern quests.
+- **Dungeon exit routes to Town:** Leaving the witch dungeon (via the gate, the Leave button, or defeating the witch boss) sends the player to Town for a chance to heal.
+- **Tavern rumors updated:** Barkeeper rumors now reference dungeon herb quests and active quest status.
+- **True damage from gear:** `combat.js` dodge check now respects `hasEquippedTrueDamage()` on the attacker, so accessories with `grantsTrueDamage` bypass enemy dodge on all skills.
+
+### Technical
+- New `src/data/quests.js` wired in `index.html` before entity scripts.
+- `activeQuestId` and `completedQuestIds` added to `GAME_STATE`, `resetRun()`, and save/load payload. Backward-compatible with older saves.
+- Removed `witchDungeonCleared` flag (superseded by quest completion tracking).
+- Removed day-based `pendingWitchDungeon = true` trigger from `LootScene.finishLoot()`.
+- `Hero.hasEquippedTrueDamage()` checks equipped accessories for `grantsTrueDamage`.
+- `getItemEffectLine()` shows "True Damage (ignores dodge)" for items with `grantsTrueDamage`.
+- `CombatScene`, `SkillTreeScene`, and `WitchDungeonScene` exit paths route to Town.
+
+---
+
+## Version 3.5.2 – 2026-03-23
+
+### Fixed
+- **Broodmother sprite not loading:** Added missing `load.spritesheet` calls for `broodmother_idle_sheet` and `broodmother_attack_sheet` in `GamePreloadScene`, and added the corresponding `ENEMY_ANIMATIONS` entries so idle/attack anims are registered. The Broodmother boss now renders its animated sprite instead of falling back to a red rectangle.
+
+---
+
 ## Version 3.5.1 – 2026-03-23
 
 ### Fixed

@@ -91,6 +91,20 @@ const ENEMY_SKILLS = {
     vulnerableFactor: 0.20,
     useAttackAnimation: true,
   },
+  'witch-summon-skill': {
+    id: 'witch-summon-skill',
+    name: 'Summon Minion',
+    effect: 'summonDungeonGoon',
+    maxSummons: 1,
+    useAttackAnimation: false,
+  },
+  'witch-heal-skill': {
+    id: 'witch-heal-skill',
+    name: 'Greater Health Potion',
+    effect: 'healSelf',
+    healFactor: 0.3,
+    useAttackAnimation: false,
+  },
 };
 
 function getEnemySkill(skillId) {

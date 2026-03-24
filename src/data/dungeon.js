@@ -236,11 +236,9 @@ function createWitch(heroLevel) {
     goonType: null,
     turnsTaken: 0,
     skills: [
-      {
-        id: 'witch-poison-skill',
-        everyTurns: 2,
-        firstUseTurn: 2,
-      },
+      { id: 'witch-poison-skill', everyTurns: 2, firstUseTurn: 1 },
+      { id: 'witch-summon-skill', everyTurns: 999, firstUseTurn: 2 },
+      { id: 'witch-heal-skill', weight: 40, condition: 'hpBelow', threshold: 0.5 },
     ],
   };
 }

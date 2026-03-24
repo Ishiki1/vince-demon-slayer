@@ -187,7 +187,7 @@ class CombatScene extends Phaser.Scene {
       return;
     }
     if (skill.effect === 'summonBroodling') {
-      const livingSummons = this.enemies.filter((e, idx) => idx > 0 && e.hp > 0).length;
+      const livingSummons = this.enemies.filter((e, idx) => idx > 0 && e.hp > 0 && e.name === 'Spiderling').length;
       if (livingSummons >= (skill.maxSummons || 2)) {
         this.logCombat(enemy.name + ' hisses but has no room for more broodlings!');
         callback(0);
@@ -210,12 +210,13 @@ class CombatScene extends Phaser.Scene {
       const heroW = CONFIG.HERO_SPRITE_DISPLAY_WIDTH;
       const spriteY = h / 2 + CONFIG.COMBAT_ROW_Y_OFFSET;
       const heroCenterX = this.heroSprite ? this.heroSprite.x : CONFIG.COMBAT_HERO_X;
-      const { startX, step } = repositionEnemyFormation(
+      const { startX, step, livingCount } = repositionEnemyFormation(
         this.enemies.length, this.enemySprites, this.enemyNameTexts, this.enemyHpTexts,
-        spriteY, enemyW, enemyH, heroW, w, heroCenterX
+        spriteY, enemyW, enemyH, heroW, w, heroCenterX, this.enemies
       );
+      const liveSlot = livingCount;
+      const newX = startX + (liveSlot - 1) * step;
       const newIdx = this.enemies.length - 1;
-      const newX = startX + newIdx * step;
       const displayObj = createEnemyDisplayObject(this, broodling, newX, spriteY, enemyW, enemyH, false);
       const nameText = this.add.text(newX, spriteY - enemyH / 2 - CONFIG.COMBAT_LABEL_OFFSET_NAME, broodling.name, { fontSize: 12, color: '#fff' }).setOrigin(0.5);
       const hpText = this.add.text(newX, spriteY - enemyH / 2 - CONFIG.COMBAT_LABEL_OFFSET_HP, 'HP: ' + hp + '/' + hp, { fontSize: 12, color: '#fff' }).setOrigin(0.5);
@@ -225,6 +226,65 @@ class CombatScene extends Phaser.Scene {
       this.enemyHpTexts.push(hpText);
       this.enemyNameTexts.push(nameText);
       this.logCombat(enemy.name + ' spawns a Spiderling!');
+      callback(0);
+      return;
+    }
+    if (skill.effect === 'summonDungeonGoon') {
+      const livingSummons = this.enemies.filter((e, idx) => idx > 0 && e.hp > 0).length;
+      if (livingSummons >= (skill.maxSummons || 1)) {
+        this.logCombat(enemy.name + ' tries to summon but has no room!');
+        callback(0);
+        return;
+      }
+      const goon = createDungeonGoon(this.hero.level);
+      goon.levelIndex = enemy.levelIndex;
+      this.enemies.push(goon);
+      const w = CONFIG.WIDTH;
+      const h = CONFIG.HEIGHT;
+      const enemyW = CONFIG.ENEMY_SPRITE_WIDTH;
+      const enemyH = CONFIG.ENEMY_SPRITE_HEIGHT;
+      const heroW = CONFIG.HERO_SPRITE_DISPLAY_WIDTH;
+      const spriteY = h / 2 + CONFIG.COMBAT_ROW_Y_OFFSET;
+      const heroCenterX = this.heroSprite ? this.heroSprite.x : CONFIG.COMBAT_HERO_X;
+      const { startX, step, livingCount } = repositionEnemyFormation(
+        this.enemies.length, this.enemySprites, this.enemyNameTexts, this.enemyHpTexts,
+        spriteY, enemyW, enemyH, heroW, w, heroCenterX, this.enemies
+      );
+      const liveSlot = livingCount;
+      const newX = startX + (liveSlot - 1) * step;
+      const newIdx = this.enemies.length - 1;
+      const displayObj = createEnemyDisplayObject(this, goon, newX, spriteY, enemyW, enemyH, false);
+      const nameText = this.add.text(newX, spriteY - enemyH / 2 - CONFIG.COMBAT_LABEL_OFFSET_NAME, goon.name, { fontSize: 12, color: '#fff' }).setOrigin(0.5);
+      const hpText = this.add.text(newX, spriteY - enemyH / 2 - CONFIG.COMBAT_LABEL_OFFSET_HP, 'HP: ' + goon.hp + '/' + goon.maxHp, { fontSize: 12, color: '#fff' }).setOrigin(0.5);
+      displayObj.setInteractive({ useHandCursor: true });
+      displayObj.on('pointerdown', () => this.onEnemyClicked(newIdx));
+      this.enemySprites.push(displayObj);
+      this.enemyHpTexts.push(hpText);
+      this.enemyNameTexts.push(nameText);
+      this.logCombat(enemy.name + ' cackles and summons a ' + goon.name + '!');
+      callback(0);
+      return;
+    }
+    if (skill.effect === 'healSelf') {
+      const healAmount = Math.min(
+        Math.floor(enemy.maxHp * (skill.healFactor || 0.3)),
+        enemy.maxHp - enemy.hp
+      );
+      if (healAmount <= 0) {
+        callback(0);
+        return;
+      }
+      enemy.hp = Math.min(enemy.maxHp, enemy.hp + healAmount);
+      this.logCombat(enemy.name + ' drinks a Greater Health Potion! Restored ' + healAmount + ' HP.');
+      const enemyIdx = this.enemies.indexOf(enemy);
+      if (enemyIdx >= 0 && this.enemySprites[enemyIdx]) {
+        const sprite = this.enemySprites[enemyIdx];
+        const txt = this.add.text(sprite.x, sprite.y - 30, '+' + healAmount + ' HP', { fontSize: 20, color: '#22c55e' }).setOrigin(0.5);
+        this.tweens.add({ targets: txt, y: txt.y - 40, alpha: 0, duration: 600, onComplete: () => txt.destroy() });
+      }
+      if (enemyIdx >= 0 && this.enemyHpTexts[enemyIdx]) {
+        this.enemyHpTexts[enemyIdx].setText('HP: ' + enemy.hp + '/' + enemy.maxHp);
+      }
       callback(0);
       return;
     }
@@ -1190,7 +1250,7 @@ class CombatScene extends Phaser.Scene {
           return;
         }
       }
-      this.scene.start('Overworld');
+      this.scene.start('Town');
       return;
     }
 

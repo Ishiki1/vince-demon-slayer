@@ -67,8 +67,14 @@ Use this file when adding or changing sprites and animations. It documents the c
 | Reaper attack | `assets/goons/reaper_attack_512x512_sheet.png` | `reaper_attack_sheet` |
 | Shade idle | `assets/goons/shade_idle_512x512_sheet.png` | `shade_idle_sheet` |
 | Shade attack | `assets/goons/shade_attack_512x512_sheet.png` | `shade_attack_sheet` |
+| Spider idle | `assets/goons/spider_idle_512x512_sheet.png` | `spider_idle_sheet` |
+| Spider attack | `assets/goons/spider_attack_512x512_sheet.png` | `spider_attack_sheet` |
 | Broodmother idle | `assets/goons/broodmother_idle_512x512_sheet.png` | `broodmother_idle_sheet` |
 | Broodmother attack | `assets/goons/broodmother_attack_512x512_sheet.png` | `broodmother_attack_sheet` |
+| Toad idle | `assets/goons/toad_idle_512x512_sheet.png` | `toad_idle_sheet` |
+| Toad attack | `assets/goons/toad_attack_512x512_sheet.png` | `toad_attack_sheet` |
+| Witch idle | `assets/goons/witch_idle_512x512_sheet.png` | `witch_idle_sheet` |
+| Witch attack | `assets/goons/witch_attack_512x512_sheet.png` | `witch_attack_sheet` |
 
 ### Scene backgrounds
 
@@ -118,7 +124,7 @@ Item icons and hover sheets follow predictable naming conventions. The canonical
 - Hover sheet: `assets/items/<name>-hover-pulse_256x256_sheet.png` -> texture key `<name>-hover-sheet`
 - Potions use `*-hover_256x256_sheet.png` (no `-pulse-` infix) for their hover sheets.
 
-**Coverage:** Common/rare/legendary swords, armor, rings, amulets. All five elemental unique weapon/armor/accessory sets. Potions (health, mana, avoid-death, remedy, regen, doubletap). Herbs (moonpetal, thornroot, ghostcap, witchbloom, nightshade). Crafting materials (fire/wind/ice/lightning/water stone). First Sorceress bespoke batch (pyre-staff, phoenix-robe, cinder-orb).
+**Coverage:** Common/rare/legendary swords, armor, rings, amulets. All five elemental unique weapon/armor/accessory sets. Potions (health, mana, avoid-death, remedy, regen, doubletap). Herbs (moonpetal, thornroot, ghostcap, witchbloom, nightshade). Crafting materials (fire/wind/ice/lightning/water stone). First Sorceress bespoke batch (pyre-staff, phoenix-robe, cinder-orb). Quest reward: sunglasses-of-true-sight (legendary shared accessory).
 
 **Legacy/unwired hover proofs (on disk, not preloaded):**
 - `common-sword-hover_256x256_sheet.png` — original static hover
