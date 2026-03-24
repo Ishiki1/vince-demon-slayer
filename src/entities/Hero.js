@@ -232,6 +232,14 @@ function createHero(classId) {
       return evasion;
     },
 
+    hasEquippedTrueDamage() {
+      return this.getEquippedAccessorySlots().some((slot) => {
+        if (slot.durability <= 0) return false;
+        const item = ITEMS[slot.itemId];
+        return item && item.grantsTrueDamage === true;
+      });
+    },
+
     getUniqueSetBonus() {
       if (typeof getUniqueElement !== 'function' || typeof UNIQUE_SET_BONUSES === 'undefined') return null;
       const wSlot = this.weapon != null ? this.inventory.find(s => s.id === this.weapon) : null;

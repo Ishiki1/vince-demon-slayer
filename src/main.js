@@ -42,6 +42,8 @@ function resetRun() {
   GAME_STATE.freeMineWeekUsed = null;
   GAME_STATE.pendingWitchDungeon = false;
   GAME_STATE.dungeonProgress = null;
+  GAME_STATE.activeQuestId = null;
+  GAME_STATE.completedQuestIds = [];
   GAME_STATE.levelJustCompleted = false;
   if (typeof clearRunUnlockSelection === 'function') clearRunUnlockSelection();
   if (typeof clearPendingRunBootstrap === 'function') clearPendingRunBootstrap();
@@ -76,6 +78,8 @@ const GAME_STATE = {
   freeMineWeekUsed: null,
   pendingWitchDungeon: false,
   dungeonProgress: null,
+  activeQuestId: null,
+  completedQuestIds: [],
   levelJustCompleted: false,
   runUnlocks: [], // set at run start from getRunUnlockSelection(); Multiplier is a future run modifier (stub).
 };

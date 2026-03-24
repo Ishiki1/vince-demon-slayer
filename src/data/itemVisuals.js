@@ -76,6 +76,7 @@ registerVisualList([
   'ice-stone',
   'lightning-stone',
   'water-stone',
+  'sunglasses-of-true-sight',
 ], {});
 
 registerItemVisual('health-potion', {

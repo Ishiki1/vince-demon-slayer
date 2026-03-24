@@ -145,9 +145,6 @@ class LootScene extends Phaser.Scene {
       if (!GAME_STATE.day10ReaperResolved && (GAME_STATE.day || 1) >= 10) {
         GAME_STATE.pendingDay10Reaper = true;
       }
-      if ((GAME_STATE.day || 1) >= 4 && (GAME_STATE.day || 1) % 4 === 0 && !GAME_STATE.dungeonProgress) {
-        GAME_STATE.pendingWitchDungeon = true;
-      }
       GAME_STATE.shopStock = ShopSystem.generateStock(GAME_STATE.hero);
       const levelIndex = LEVELS.findIndex(l => l.id === level.id);
       const nextLevelData = LEVELS[levelIndex + 1];

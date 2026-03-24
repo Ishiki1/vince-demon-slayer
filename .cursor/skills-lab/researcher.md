@@ -225,9 +225,13 @@ When the loop ends (any stopping condition), produce a summary:
    "The trained skill scored X.X (up from Y.Y). Want me to copy it back to <original_path>?"
    ```
 
-3. **Update checkpoint.json** with final status
+3. **Archive superseded campaigns**: If a prior campaign version for the same skill exists (e.g. `goon-generator-v1` when `goon-generator-v2` is completing), move it from `.cursor/skills-lab/campaigns/` to `.cursor/skills-lab/archive/`. The winning campaign stays active.
 
-4. **Commit the summary:**
+4. **Archive the old production skill**: Before overwriting the production skill, copy the current version to the skill's local `archive/` folder (e.g. `.cursor/skills/goon-generator/archive/SKILL-<old-campaign>.md`) so it can be recovered if needed.
+
+5. **Update checkpoint.json** with final status
+
+6. **Commit the summary:**
    ```bash
    git commit -m "skills-lab: <name> complete — <baseline> → <final> (+<delta>)"
    ```

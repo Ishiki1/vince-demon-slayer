@@ -1,0 +1,38 @@
+# Skills Lab Campaign: Goon Generator v2
+# Focus: green cleanup quality, frame integrity, animation consistency, pipeline robustness
+
+# --- Campaign Identity ---
+name: "goon-generator-v2"
+description: "Fix green fringe on dark/green creatures, broken frame extraction, animation inconsistency, and add pipeline fallback paths"
+created: "2026-03-23"
+
+# --- Goal ---
+goal: "Eliminate green fringe artifacts on all creature types, ensure all frames extract intact from AI-generated grids, maintain character consistency across animation frames, and add robust fallback/remediation paths to the pipeline"
+
+# --- Scope ---
+editable_files:
+  - "skill.md"
+
+# --- Iterations ---
+max_iterations: 15
+
+# --- Stall Detection ---
+stall_threshold: 5
+
+# --- Guard ---
+guard_command: ""
+
+# --- Rules ---
+rules:
+  - "Only edit skill.md — never modify eval infrastructure mid-campaign"
+  - "Make one small, focused change per iteration"
+  - "Always state your hypothesis before editing"
+  - "Prefer high-leverage prompt changes over cosmetic rewording"
+  - "Do not remove existing functionality — add or refine"
+  - "Do not change JS code template structure (BootScene, CombatScene wiring patterns)"
+  - "Do not change naming conventions (file paths, texture keys, animation keys)"
+  - "Frame sizes stay at 512x512 — do not change"
+  - "Animation frame rates stay at 20fps idle / 24fps attack"
+  - "The upgraded process-spritesheet.mjs now uses HSV chroma keying, spill suppression, and alpha matting — skill instructions should reference these new capabilities"
+  - "Green cleanup is the #1 priority for this campaign, followed by frame integrity"
+  - "Frame count and grid layout ARE fair game for experimentation"

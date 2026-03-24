@@ -37,14 +37,19 @@ function getEnemyFormationLayout(enemyCount, enemyW, heroW, sceneWidth, heroCent
  * @param {number} sceneWidth - scene width
  * @param {number} [heroCenterX] - hero sprite X, defaults to 150
  */
-function repositionEnemyFormation(enemyCount, enemySprites, enemyNameTexts, enemyHpTexts, spriteY, enemyW, enemyH, heroW, sceneWidth, heroCenterX) {
-  const { startX, step } = getEnemyFormationLayout(enemyCount, enemyW, heroW, sceneWidth, heroCenterX);
+function repositionEnemyFormation(enemyCount, enemySprites, enemyNameTexts, enemyHpTexts, spriteY, enemyW, enemyH, heroW, sceneWidth, heroCenterX, enemies) {
+  const livingCount = enemies ? enemies.filter(e => e.hp > 0).length : enemyCount;
+  const { startX, step } = getEnemyFormationLayout(livingCount, enemyW, heroW, sceneWidth, heroCenterX);
   const limit = Math.min(enemyCount, enemySprites.length);
+  let liveSlot = 0;
   for (let j = 0; j < limit; j++) {
-    const newX = startX + j * step;
+    const isAlive = enemies ? enemies[j] && enemies[j].hp > 0 : true;
+    if (!isAlive) continue;
+    const newX = startX + liveSlot * step;
     if (enemySprites[j]) enemySprites[j].setPosition(newX, spriteY);
     if (enemyNameTexts[j]) enemyNameTexts[j].setPosition(newX, spriteY - enemyH / 2 - CONFIG.COMBAT_LABEL_OFFSET_NAME);
     if (enemyHpTexts[j]) enemyHpTexts[j].setPosition(newX, spriteY - enemyH / 2 - CONFIG.COMBAT_LABEL_OFFSET_HP);
+    liveSlot++;
   }
-  return { startX, step };
+  return { startX, step, livingCount };
 }

@@ -47,6 +47,8 @@ function buildRunStatePayload() {
     freeMineWeekUsed: GAME_STATE.freeMineWeekUsed,
     pendingWitchDungeon: GAME_STATE.pendingWitchDungeon,
     dungeonProgress: GAME_STATE.dungeonProgress,
+    activeQuestId: GAME_STATE.activeQuestId,
+    completedQuestIds: GAME_STATE.completedQuestIds,
     shopStock: GAME_STATE.shopStock,
   };
 }
@@ -87,6 +89,8 @@ function applyRunStatePayload(payload) {
   GAME_STATE.dungeonProgress = payload.dungeonProgress && typeof payload.dungeonProgress === 'object'
     ? payload.dungeonProgress
     : null;
+  GAME_STATE.activeQuestId = typeof payload.activeQuestId === 'string' ? payload.activeQuestId : null;
+  GAME_STATE.completedQuestIds = Array.isArray(payload.completedQuestIds) ? payload.completedQuestIds : [];
   GAME_STATE.shopStock = Array.isArray(payload.shopStock) ? payload.shopStock : null;
 
   GAME_STATE.pendingLevelUpSkill = null;

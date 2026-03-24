@@ -313,9 +313,6 @@ class OverworldScene extends Phaser.Scene {
       this.showDay10ReaperPopup();
       return;
     }
-    if (GAME_STATE.pendingWitchDungeon) {
-      this.showWitchDungeonPopup();
-    }
   }
 
   shutdown() {
@@ -446,37 +443,4 @@ class OverworldScene extends Phaser.Scene {
     });
   }
 
-  showWitchDungeonPopup() {
-    const w = CONFIG.WIDTH;
-    const h = CONFIG.HEIGHT;
-    const overlay = this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.7).setInteractive();
-    const box = this.add.rectangle(w / 2, h / 2, 520, 200, 0x1e293b);
-    const title = this.add.text(w / 2, h / 2 - 64, 'The Witch wants to see you...', {
-      fontSize: 22, color: '#22c55e',
-    }).setOrigin(0.5);
-    const body = this.add.text(w / 2, h / 2 - 18, 'She invites you to visit her dungeon.\nGather herbs, but beware of her creatures.', {
-      fontSize: 15, color: '#e5e7eb', align: 'center',
-    }).setOrigin(0.5).setWordWrapWidth(460);
-    const visitBtn = this.add.rectangle(w / 2 - 110, h / 2 + 52, 180, 44, 0x166534)
-      .setInteractive({ useHandCursor: true });
-    const visitTxt = this.add.text(w / 2 - 110, h / 2 + 52, "Visit the Witch's Dungeon", {
-      fontSize: 13, color: '#fff',
-    }).setOrigin(0.5);
-    const declineBtn = this.add.rectangle(w / 2 + 110, h / 2 + 52, 160, 44, 0x475569)
-      .setInteractive({ useHandCursor: true });
-    const declineTxt = this.add.text(w / 2 + 110, h / 2 + 52, 'Back to Overworld', {
-      fontSize: 13, color: '#fff',
-    }).setOrigin(0.5);
-    const all = [overlay, box, title, body, visitBtn, visitTxt, declineBtn, declineTxt];
-    const close = () => all.forEach(obj => obj.destroy());
-    visitBtn.on('pointerdown', () => {
-      close();
-      this.scene.start('WitchDungeon');
-    });
-    declineBtn.on('pointerdown', () => {
-      GAME_STATE.pendingWitchDungeon = false;
-      close();
-      this.scene.restart();
-    });
-  }
 }

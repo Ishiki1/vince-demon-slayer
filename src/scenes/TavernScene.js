@@ -15,21 +15,21 @@ function heroHasItemType(hero, typeOrIds) {
 
 const TAVERN_CONTEXTUAL_RUMORS = [
   {
-    id: 'witch-approaching',
-    condition: (h, s) => s.day >= 2 && s.day % 4 >= 2 && !s.dungeonProgress && !s.pendingWitchDungeon,
+    id: 'witch-dungeon',
+    condition: (h, s) => !s.dungeonProgress && s.day >= 2,
     texts: [
-      'They say every few nights the old witch stirs. Her cellar opens for those who\'ve been out long enough.',
-      'A traveler warned me — when the moon turns, the witch sends word. Be ready.',
-      'The hag in the woods keeps a schedule, they say. Folks who camp long enough always get her invitation.',
+      'They say the old witch keeps rare herbs in her dungeon. Adventurers at the tavern sometimes need them.',
+      'A traveler warned me — the nightshade down in her dungeon doesn\'t grow anywhere else.',
+      'The hag in the woods trades favors for herbs. Check the tables — someone might have a job for you.',
     ],
   },
   {
-    id: 'witch-ready',
-    condition: (h, s) => s.pendingWitchDungeon === true,
+    id: 'quest-active',
+    condition: (h, s) => s.activeQuestId != null,
     texts: [
-      'Word is the witch\'s dungeon stands open right now. Brave or foolish, the choice is yours.',
-      'Her door\'s unlocked tonight. The nightshade down there doesn\'t grow anywhere else.',
-      'The witch is expecting visitors — I saw smoke from her chimney. Don\'t say I didn\'t warn you.',
+      'I see you\'ve taken on a task. The witch\'s dungeon is dangerous, but the rewards are worth it.',
+      'Still looking for that herb? The dungeon won\'t explore itself.',
+      'Careful in those tunnels. The witch\'s creatures don\'t take kindly to visitors.',
     ],
   },
   {
@@ -291,6 +291,10 @@ class TavernScene extends Phaser.Scene {
     const tables = ['center-table', 'left-table-upper', 'left-table-lower', 'upper-right-table', 'lower-right-table'];
     tables.forEach((tableId, index) => {
       const tableNum = index + 1;
+      if (tableId === 'center-table') {
+        this.wireQuestTable(tableId, tableNum);
+        return;
+      }
       this.createHotspotButton(tableId, [
         'Table ' + tableNum,
         'Quest NPCs gather here.',
@@ -299,6 +303,159 @@ class TavernScene extends Phaser.Scene {
         this.showRumor();
       });
     });
+  }
+
+  wireQuestTable(tableId, tableNum) {
+    const availableQuest = typeof getAvailableQuestForGiver === 'function'
+      ? getAvailableQuestForGiver(GAME_STATE, tableId) : null;
+    const activeQuest = typeof getActiveQuest === 'function'
+      ? getActiveQuest(GAME_STATE) : null;
+    const activeForThisTable = activeQuest && activeQuest.giver === tableId;
+    const hero = GAME_STATE.hero;
+    const completable = activeForThisTable && typeof canCompleteQuest === 'function'
+      && canCompleteQuest(hero, activeQuest);
+
+    let tooltip;
+    if (completable) {
+      tooltip = ['Table ' + tableNum, activeQuest.giverName, '(Ready to turn in!)'];
+    } else if (activeForThisTable) {
+      tooltip = ['Table ' + tableNum, activeQuest.giverName, '(Quest in progress)'];
+    } else if (availableQuest) {
+      tooltip = ['Table ' + tableNum, availableQuest.giverName, '(Quest available!)'];
+    } else {
+      tooltip = ['Table ' + tableNum, 'Quest NPCs gather here.', '(Coming soon)'];
+    }
+
+    this.createHotspotButton(tableId, tooltip, () => {
+      if (completable) {
+        this.showQuestTurnInPopup(activeQuest);
+      } else if (activeForThisTable) {
+        this.showQuestReminderPopup(activeQuest);
+      } else if (availableQuest) {
+        this.showQuestOfferPopup(availableQuest);
+      } else {
+        this.showRumor();
+      }
+    });
+  }
+
+  showQuestOfferPopup(quest) {
+    this.popupActive = true;
+    const w = CONFIG.WIDTH;
+    const h = CONFIG.HEIGHT;
+    const overlay = this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.7).setInteractive().setDepth(50);
+    const panel = this.add.rectangle(w / 2, h / 2, 520, 240, 0x1e293b).setDepth(51);
+    const title = this.add.text(w / 2, h / 2 - 84, quest.name, {
+      fontSize: 22, color: '#fbbf24',
+    }).setOrigin(0.5).setDepth(52);
+    const body = this.add.text(w / 2, h / 2 - 24, quest.acceptText, {
+      fontSize: 15, color: '#e5e7eb', align: 'center',
+    }).setOrigin(0.5).setWordWrapWidth(460).setDepth(52);
+    const acceptBtn = this.add.rectangle(w / 2 - 110, h / 2 + 72, 180, 44, 0x166534)
+      .setInteractive({ useHandCursor: true }).setDepth(52);
+    const acceptTxt = this.add.text(w / 2 - 110, h / 2 + 72, 'Accept Quest', {
+      fontSize: 14, color: '#fff',
+    }).setOrigin(0.5).setDepth(53);
+    const declineBtn = this.add.rectangle(w / 2 + 110, h / 2 + 72, 140, 44, 0x475569)
+      .setInteractive({ useHandCursor: true }).setDepth(52);
+    const declineTxt = this.add.text(w / 2 + 110, h / 2 + 72, 'Not now', {
+      fontSize: 14, color: '#fff',
+    }).setOrigin(0.5).setDepth(53);
+    const parts = [overlay, panel, title, body, acceptBtn, acceptTxt, declineBtn, declineTxt];
+    const close = () => { parts.forEach(o => o.destroy()); this.popupActive = false; };
+    acceptBtn.on('pointerdown', () => {
+      GAME_STATE.activeQuestId = quest.id;
+      close();
+      this.scene.start('WitchDungeon');
+    });
+    declineBtn.on('pointerdown', close);
+  }
+
+  showQuestReminderPopup(quest) {
+    this.popupActive = true;
+    const w = CONFIG.WIDTH;
+    const h = CONFIG.HEIGHT;
+    const overlay = this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.7).setInteractive().setDepth(50);
+    const panel = this.add.rectangle(w / 2, h / 2, 460, 200, 0x1e293b).setDepth(51);
+    const title = this.add.text(w / 2, h / 2 - 64, quest.giverName, {
+      fontSize: 20, color: '#fbbf24',
+    }).setOrigin(0.5).setDepth(52);
+    const body = this.add.text(w / 2, h / 2 - 10, quest.reminderText, {
+      fontSize: 15, color: '#e5e7eb', align: 'center',
+    }).setOrigin(0.5).setWordWrapWidth(400).setDepth(52);
+    const dungeonBtn = this.add.rectangle(w / 2 - 100, h / 2 + 58, 170, 40, 0x166534)
+      .setInteractive({ useHandCursor: true }).setDepth(52);
+    const dungeonTxt = this.add.text(w / 2 - 100, h / 2 + 58, 'Visit Dungeon', {
+      fontSize: 13, color: '#fff',
+    }).setOrigin(0.5).setDepth(53);
+    const okBtn = this.add.rectangle(w / 2 + 100, h / 2 + 58, 100, 40, 0x475569)
+      .setInteractive({ useHandCursor: true }).setDepth(52);
+    const okTxt = this.add.text(w / 2 + 100, h / 2 + 58, 'OK', {
+      fontSize: 13, color: '#fff',
+    }).setOrigin(0.5).setDepth(53);
+    const parts = [overlay, panel, title, body, dungeonBtn, dungeonTxt, okBtn, okTxt];
+    const close = () => { parts.forEach(o => o.destroy()); this.popupActive = false; };
+    dungeonBtn.on('pointerdown', () => {
+      close();
+      this.scene.start('WitchDungeon');
+    });
+    okBtn.on('pointerdown', close);
+  }
+
+  showQuestTurnInPopup(quest) {
+    this.popupActive = true;
+    const w = CONFIG.WIDTH;
+    const h = CONFIG.HEIGHT;
+    const hero = GAME_STATE.hero;
+    const overlay = this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.7).setInteractive().setDepth(50);
+    const panel = this.add.rectangle(w / 2, h / 2, 500, 260, 0x1e293b).setDepth(51);
+    const title = this.add.text(w / 2, h / 2 - 94, quest.giverName, {
+      fontSize: 20, color: '#fbbf24',
+    }).setOrigin(0.5).setDepth(52);
+    const body = this.add.text(w / 2, h / 2 - 36, quest.turnInText, {
+      fontSize: 15, color: '#e5e7eb', align: 'center',
+    }).setOrigin(0.5).setWordWrapWidth(440).setDepth(52);
+    const turnInBtn = this.add.rectangle(w / 2, h / 2 + 48, 200, 44, 0x166534)
+      .setInteractive({ useHandCursor: true }).setDepth(52);
+    const turnInTxt = this.add.text(w / 2, h / 2 + 48, 'Hand over Moonpetal', {
+      fontSize: 14, color: '#fff',
+    }).setOrigin(0.5).setDepth(53);
+    const parts = [overlay, panel, title, body, turnInBtn, turnInTxt];
+    const close = () => { parts.forEach(o => o.destroy()); this.popupActive = false; };
+    turnInBtn.on('pointerdown', () => {
+      if (typeof completeQuest === 'function') completeQuest(hero, quest);
+      close();
+      this.showQuestRewardPopup(quest);
+    });
+  }
+
+  showQuestRewardPopup(quest) {
+    this.popupActive = true;
+    const w = CONFIG.WIDTH;
+    const h = CONFIG.HEIGHT;
+    const overlay = this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.7).setInteractive().setDepth(50);
+    const panel = this.add.rectangle(w / 2, h / 2, 420, 200, 0x1e293b).setDepth(51);
+    const title = this.add.text(w / 2, h / 2 - 60, 'Quest Complete!', {
+      fontSize: 24, color: '#22c55e',
+    }).setOrigin(0.5).setDepth(52);
+    const rewardItem = typeof ITEMS !== 'undefined' ? ITEMS[quest.rewardItemId] : null;
+    let icon = null;
+    if (rewardItem && typeof createItemIconSprite === 'function') {
+      icon = createItemIconSprite(this, rewardItem, w / 2, h / 2 - 6, { width: 64, height: 64, hover: false });
+      if (icon) icon.setDepth(52);
+    }
+    const rewardText = this.add.text(w / 2, h / 2 + 40, quest.rewardText, {
+      fontSize: 16, color: '#fbbf24',
+    }).setOrigin(0.5).setDepth(52);
+    const okBtn = this.add.rectangle(w / 2, h / 2 + 74, 100, 36, 0x475569)
+      .setInteractive({ useHandCursor: true }).setDepth(52);
+    const okTxt = this.add.text(w / 2, h / 2 + 74, 'OK', {
+      fontSize: 14, color: '#fff',
+    }).setOrigin(0.5).setDepth(53);
+    const parts = [overlay, panel, title, rewardText, okBtn, okTxt];
+    if (icon) parts.push(icon);
+    const close = () => { parts.forEach(o => o.destroy()); this.popupActive = false; this.scene.restart(); };
+    okBtn.on('pointerdown', close);
   }
 
   wireNoticeBoard() {

@@ -172,7 +172,7 @@ class SkillTreeScene extends Phaser.Scene {
     if (this.from === 'dungeonGoon') {
       this.scene.start('Loot');
     } else if (this.from === 'witchBoss') {
-      this.scene.start('Overworld');
+      this.scene.start('Town');
     } else if (this.from === 'combat') {
       GAME_STATE.pendingLootItemId = LootSystem.rollLoot(this.isBossFight === true, this.hero.class);
       this.scene.start('Loot');

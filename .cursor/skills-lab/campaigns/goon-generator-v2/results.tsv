@@ -1,0 +1,4 @@
+iteration	score	delta	decision	description
+0	42.81	0.00	baseline	Baseline evaluation: v1 skill strong on facing direction/attack prompts/motion arcs; weak on HSV cleanup flags, green-on-green strategy, content-aware grid detection, troubleshooting decision tree
+1	67.59	+24.78	KEPT	HSV cleanup flags documented, magenta background for green creatures, creature-specific cleanup parameters table, frame integrity check with 30k threshold, troubleshooting decision tree with 9 failure modes, consistency anchor in prompts
+2	75.58	+7.99	KEPT	Animation consistency verification (silhouette/feature-count/facing checks), consistency degradation fallback (re-prompt → 8 frames → 6 frames), creature-specific consistency tips (multi-limbed/wispy/complex-organic/large-boss), combined-trait adaptations (dark+thin, green+thin)

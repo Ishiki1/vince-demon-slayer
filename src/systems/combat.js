@@ -11,7 +11,8 @@ const CombatSystem = {
   dealDamage(attacker, target, skillId) {
     const skill = getSkill(attacker, skillId);
     if (!skill || skill.damageMultiplier == null) return { damage: 0, dodged: false };
-    if (!skill.trueDamage && target.dodgeChance > 0 && Math.random() < target.dodgeChance) {
+    const attackerTrueDmg = attacker.hasEquippedTrueDamage ? attacker.hasEquippedTrueDamage() : false;
+    if (!skill.trueDamage && !attackerTrueDmg && target.dodgeChance > 0 && Math.random() < target.dodgeChance) {
       return { damage: 0, dodged: true };
     }
     const stat = skill.damageStat === 'intelligence' && attacker.getIntelligence ? attacker.getIntelligence() : attacker.getStrength();

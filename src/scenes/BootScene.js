@@ -46,6 +46,14 @@ const ENEMY_ANIMATIONS = [
   { sheetKey: 'spider_attack_sheet', animKey: 'spider_attack', frameRate: 24, repeat: 0 },
   { sheetKey: 'witch_idle_sheet', animKey: 'witch_idle', frameRate: 20, repeat: -1 },
   { sheetKey: 'witch_attack_sheet', animKey: 'witch_attack', frameRate: 24, repeat: 0 },
+  { sheetKey: 'broodmother_idle_sheet', animKey: 'broodmother_idle', frameRate: 20, repeat: -1 },
+  { sheetKey: 'broodmother_attack_sheet', animKey: 'broodmother_attack', frameRate: 24, repeat: 0 },
+  { sheetKey: 'shade_idle_sheet', animKey: 'shade_idle', frameRate: 20, repeat: -1 },
+  { sheetKey: 'shade_attack_sheet', animKey: 'shade_attack', frameRate: 24, repeat: 0 },
+  { sheetKey: 'plant_idle_sheet', animKey: 'plant_idle', frameRate: 20, repeat: -1 },
+  { sheetKey: 'plant_attack_sheet', animKey: 'plant_attack', frameRate: 24, repeat: 0 },
+  { sheetKey: 'toad_idle_sheet', animKey: 'toad_idle', frameRate: 20, repeat: -1 },
+  { sheetKey: 'toad_attack_sheet', animKey: 'toad_attack', frameRate: 24, repeat: 0 },
 ];
 
 function getTextureFrameCount(scene, sheetKey) {
@@ -335,6 +343,14 @@ class GamePreloadScene extends Phaser.Scene {
     this.load.spritesheet('spider_attack_sheet', 'assets/goons/spider_attack_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
     this.load.spritesheet('witch_idle_sheet', 'assets/goons/witch_idle_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
     this.load.spritesheet('witch_attack_sheet', 'assets/goons/witch_attack_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
+    this.load.spritesheet('broodmother_idle_sheet', 'assets/goons/broodmother_idle_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
+    this.load.spritesheet('broodmother_attack_sheet', 'assets/goons/broodmother_attack_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
+    this.load.spritesheet('shade_idle_sheet', 'assets/goons/shade_idle_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
+    this.load.spritesheet('shade_attack_sheet', 'assets/goons/shade_attack_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
+    this.load.spritesheet('plant_idle_sheet', 'assets/goons/plant_idle_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
+    this.load.spritesheet('plant_attack_sheet', 'assets/goons/plant_attack_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
+    this.load.spritesheet('toad_idle_sheet', 'assets/goons/toad_idle_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
+    this.load.spritesheet('toad_attack_sheet', 'assets/goons/toad_attack_512x512_sheet.png', { frameWidth: 512, frameHeight: 512 });
     this.load.image('eventscene-ui-background', 'assets/ui/EventScene-bg.png');
     this.load.image('lootscene-ui-background', 'assets/ui/LootScene-bg.png');
     this.load.json('lootscene-hotspots', 'assets/ui/LootScene-bg-hotspots-800x600.json');

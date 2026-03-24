@@ -1,0 +1,36 @@
+# Skills Lab Campaign: Goon Generator v1
+# Focus: attack animation quality, facing direction enforcement, green cleanup, frame count optimization
+
+# --- Campaign Identity ---
+name: "goon-generator-v1"
+description: "Improve the goon-generator skill's attack animation instructions, facing-direction enforcement, green cleanup verification, and frame count guidance"
+created: "2026-03-23"
+
+# --- Goal ---
+goal: "Dramatically improve attack animation quality (facing direction, motion fluidity, frame count), add green outline verification after cleanup, and experiment with frame counts for smoother animations"
+
+# --- Scope ---
+editable_files:
+  - "skill.md"
+
+# --- Iterations ---
+max_iterations: 15
+
+# --- Stall Detection ---
+stall_threshold: 5
+
+# --- Guard ---
+guard_command: ""
+
+# --- Rules ---
+rules:
+  - "Only edit skill.md — never modify eval infrastructure mid-campaign"
+  - "Make one small, focused change per iteration"
+  - "Always state your hypothesis before editing"
+  - "Prefer high-leverage prompt changes over cosmetic rewording"
+  - "Do not remove existing functionality — add or refine"
+  - "Do not change JS code template structure (BootScene, CombatScene wiring patterns)"
+  - "Do not change naming conventions (file paths, texture keys, animation keys)"
+  - "Frame sizes stay at 512x512 — do not change"
+  - "Frame count and grid layout ARE fair game for experimentation"
+  - "Attack animation is the highest priority — weight changes toward improving it"

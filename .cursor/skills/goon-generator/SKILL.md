@@ -84,19 +84,25 @@ Before generating art, identify which of these edge cases apply to the new creat
 
 | Creature trait | Risk | Mitigation |
 |---|---|---|
-| **Green/teal coloring** (goblins, slimes, plant creatures) | Green skin blends with #00FF00 background during cleanup | Use a lower cleanup threshold (24-28 instead of 32). After processing, use visual inspection for green halo instead of the automated green-pixel check. |
-| **Thin limbs or fine detail** (spiders, insects, skeletal creatures) | Thin legs/antennae get eaten by aggressive flood-fill or threshold | Use a lower cleanup threshold (24-28). After processing, zoom into thin features and confirm they survived. If limbs are lost, lower the threshold further. |
-| **Dark coloring near black** (stone golems, shadow creatures, dark metal) | Dark body blends with the thick black outline, losing silhouette definition | In the prompt, explicitly request "clearly visible thick black outline that contrasts with the dark body." After processing, verify the outline is distinguishable from the body at display size. |
+| **Green/teal coloring** (goblins, slimes, plant creatures) | Green skin blends with #00FF00 background during cleanup | **Use magenta (#FF00FF) background instead of green.** In reference and sprite sheet prompts, replace "green (#00FF00) background" with "bright solid magenta (#FF00FF) background". Process with `--hueLo 270 --hueHi 330` to target magenta. If magenta is not viable, use narrow green hue: `--hueLo 100 --hueHi 140 --satMin 0.5` to target only pure bright green. Visually inspect creature outline for halo after processing. |
+| **Thin limbs or fine detail** (spiders, insects, skeletal creatures) | Thin legs/antennae get eaten by aggressive flood-fill or spill suppression | Use conservative cleanup: `--spillPasses 1 --matteRadius 1`. After processing, zoom into thin features and confirm they survived with black outline intact. If limbs are lost, try `--spillPasses 0 --matteRadius 0` for zero edge erosion. |
+| **Dark coloring near black** (stone golems, shadow creatures, dark metal) | Dark body blends with outline; green fringe is highly visible on dark edges | In the prompt, request "clearly visible thick black outline that contrasts with the dark body." Process with extra spill passes: `--spillPasses 3`. Verify: (1) no green fringe on any dark edge, (2) outline distinguishable from body at display size. |
 | **Held items** (staffs, weapons, shields, orbs) | Items disappear, swap hands, or change position between frames | In every frame description, mention the held item and which hand holds it. Add to the closing line: "The [item] must appear in every frame in the [left/right] hand." |
 | **Massive/unusual proportions** (golems, giants, dragons) | Creature may not read well at 120x150 display size; standard framing may clip extremities | In the reference prompt, emphasize "the creature fits entirely within the frame with no clipping." Consider whether the silhouette is recognizable at small display size. |
 | **Melee/slam attacks** (no projectile) | The attack template assumes horizontal lunge; vertical slams need different motion description | Describe the slam as "leaning forward toward the LEFT while striking downward" so the leftward direction is clear even in a vertical motion. |
 | **Spell/projectile attacks** | Projectile direction is the most common facing failure | In the attack prompt, explicitly describe the projectile's path: "the [spell/bolt] travels from the [creature] toward the LEFT edge of the frame." |
+| **Combined: dark + thin** (dark spiders, shadow insects) | Dark edges need extra spill passes but thin limbs need fewer | Use `--spillPasses 2 --matteRadius 1` as a compromise. If green fringe remains on the body, manually inspect thin limbs after each spill pass increase. Prefer `--spillPasses 2` over `3` to protect limbs. |
+| **Combined: green + thin** (plant tendrils, vine creatures) | Green creature needs magenta bg but thin features need conservative cleanup | Use magenta background + `--hueLo 270 --hueHi 330 --spillPasses 1 --matteRadius 1`. Magenta removal is less aggressive on thin features than green removal. |
 
 ## Phase 3: Generate Static Reference Image
 
 Use the `GenerateImage` tool with `reference_image_paths` if restyling an existing goon.
 
-Prompt template:
+**Background color decision:** Before writing the prompt, decide the background color based on the creature's coloring:
+- **Default (most creatures):** Use bright solid green (#00FF00) background.
+- **Green/teal/olive creatures:** Use bright solid magenta (#FF00FF) background to avoid green-on-green conflicts.
+
+Prompt template (green background -- default):
 
 ```
 Realistic-looking pixel art of a [CREATURE NAME] for a dark-fantasy RPG game.
@@ -109,15 +115,32 @@ no text, no border, no extra objects, pixel art style with visible individual pi
 limited color palette, dark fantasy aesthetic. The creature MUST face left.
 ```
 
+Prompt template (magenta background -- for green creatures):
+
+```
+Realistic-looking pixel art of a [CREATURE NAME] for a dark-fantasy RPG game.
+Single creature only, facing left (looking toward the left side of the image),
+[DESCRIBE CREATURE APPEARANCE -- body shape, coloring, distinguishing features,
+any special markings or effects], thick black outline around the entire silhouette,
+strong readable silhouette that works at small display sizes like 120x150 pixels,
+perfectly centered composition on a bright solid magenta (#FF00FF) background,
+no text, no border, no extra objects, pixel art style with visible individual pixels,
+limited color palette, dark fantasy aesthetic. The creature MUST face left.
+```
+
 Clean the result:
 
 ```bash
+# Green background (default):
+npm run asset:clean -- --input <raw-image> --output assets/goons/<goon>-reference.png --canvas 512 --padding 20 --threshold 32
+
+# Magenta background (green creatures):
 npm run asset:clean -- --input <raw-image> --output assets/goons/<goon>-reference.png --canvas 512 --padding 20 --threshold 32
 ```
 
-If green fringe survives, raise `--threshold` to 36 or 40.
+If green fringe survives on a green-background creature, raise `--threshold` to 36 or 40. For magenta-background creatures, fringe is magenta-tinted and handled by the default cleanup.
 
-Inspect the cleaned image before proceeding. The creature must be centered, facing left, with no green halo.
+Inspect the cleaned image before proceeding. The creature must be centered, facing left, with no background-color halo.
 
 ## Frame Count Guidance
 
@@ -144,10 +167,11 @@ Prompt rules:
 - Reference the cleaned goon image via `reference_image_paths`.
 - Request a specific grid: "exactly 3 rows of 4 frames each (4 columns, 3 rows)".
 - Say "NO divider lines or borders between frames".
-- Say "bright solid green (#00FF00) background".
+- Say "bright solid green (#00FF00) background" (or "bright solid magenta (#FF00FF) background" for green creatures -- must match the background color used for the reference image).
 - All frames face left.
 - Describe subtle idle motion: breathing, pulsing, throat-sac inflating, body swaying.
 - **Perfect loop:** Frame 12 must transition seamlessly back to frame 1. Describe a full motion cycle that starts and ends in the same resting pose.
+- **Consistency anchor:** Add "Maintain EXACT proportions, colors, and features from the reference image in every frame. Do not change the creature's size, shape, or detail level between frames."
 
 Idle prompt template:
 
@@ -155,17 +179,20 @@ Idle prompt template:
 A pixel art sprite sheet showing exactly 12 frames of an idle breathing animation,
 arranged in exactly 3 rows of 4 frames each (4 columns, 3 rows grid).
 NO divider lines or borders between frames. Each frame shows the same dark-fantasy
-[CREATURE NAME] creature FACING LEFT (looking toward the left side of the image).
-The viewer sees the creature from a side-profile view showing its LEFT flank --
-the creature's head points left and its tail/back faces right.
-Bright solid green (#00FF00) background with NO grid lines, NO borders, NO separators
-between frames. Pixel art style with visible pixels, thick black outlines.
+[CREATURE NAME] creature FACING LEFT. The creature's HEAD and FACE point toward
+the LEFT MARGIN of the image (the left edge). The creature's BACK and TAIL face
+toward the RIGHT MARGIN. The creature moves toward the LEFT. Think of the creature
+walking or charging toward a wall that is off-screen to the LEFT.
+Bright solid [green (#00FF00) | magenta (#FF00FF)] background with NO grid lines,
+NO borders, NO separators between frames. Pixel art style with visible pixels,
+thick black outlines. Maintain EXACT proportions and features from the reference
+image in every frame.
 
 This is a LOOPING animation. Frame 1 and Frame 12 must look nearly identical (both
 the neutral resting pose) so the loop is seamless with no visible pop or jump.
 
 Row 1 (left to right):
-Frame 1 - [creature] in normal resting pose facing left, LEFT flank visible to viewer.
+Frame 1 - [creature] in normal resting pose. HEAD points toward LEFT EDGE. Back/tail toward RIGHT EDGE.
 Frame 2 - [creature] facing left, body beginning to [describe early subtle motion, e.g. inhale].
 Frame 3 - [creature] facing left, motion continuing, [describe mid-rise, e.g. chest lifting].
 Frame 4 - [creature] facing left, [approaching peak of motion, e.g. body swelling].
@@ -194,7 +221,29 @@ Inspect the generated idle sheet before processing. Check every frame for these 
 2. Any asymmetric features (held items, dominant limb, mouth opening) are on the **left** side of the body as viewed.
 3. No frame is a mirror image of the others.
 
-If ANY frame faces right, regenerate the entire sheet. Do not process a sheet with even one right-facing frame. After 3 failed generation attempts, adjust the prompt: add "The creature is looking to the LEFT, toward the left margin of the image" as an additional line and try again.
+If ANY frame faces right, regenerate the entire sheet. Do not process a sheet with even one right-facing frame. After 3 failed generation attempts, adjust the prompt: add "The creature is looking to the LEFT, toward the left margin of the image" as an additional line and try again. If a 4th attempt also fails, use the **horizontal flip fallback** below rather than continuing to fight the generator.
+
+**Horizontal flip fallback** (use after 4 failed generation attempts):
+
+This is a deterministic fix. Flip the raw sheet horizontally so every right-facing frame becomes left-facing, then process normally.
+
+```bash
+node -e "
+const {PNG}=require('pngjs'),fs=require('fs');
+const raw=fs.readFileSync('<raw-sheet-path>');
+const img=PNG.sync.read(raw);
+for(let y=0;y<img.height;y++){
+  for(let x=0;x<Math.floor(img.width/2);x++){
+    const L=(y*img.width+x)*4, R=(y*img.width+(img.width-1-x))*4;
+    for(let c=0;c<4;c++){const t=img.data[L+c];img.data[L+c]=img.data[R+c];img.data[R+c]=t;}
+  }
+}
+fs.writeFileSync('<raw-sheet-path>',PNG.sync.write(img));
+console.log('Flipped horizontally. Verify creature now faces LEFT before processing.');
+"
+```
+
+After flipping, re-inspect every frame to confirm the creature now faces left before running `process-spritesheet.mjs`. Note: held items and asymmetric markings will be mirrored — this is acceptable for enemy goons.
 
 ## Phase 5: Generate Attack Sprite Sheet
 
@@ -205,7 +254,7 @@ Prompt rules:
 - Reference the cleaned goon image via `reference_image_paths`.
 - Request a 4x3 grid (12 frames). At 24fps this gives ~0.5s of animation -- enough time for a full wind-up, peak, follow-through, and recovery to read clearly.
 - Say "NO divider lines or borders between frames".
-- Say "bright solid green (#00FF00) background".
+- Say "bright solid green (#00FF00) background" (or "bright solid magenta (#FF00FF) background" for green creatures -- must match the reference image background).
 - **Every frame** must face left -- repeat "facing left" in each frame description.
 - Describe the attack sequence frame by frame: wind-up, action peak, recovery.
 - Explicitly state the attack/lunge direction goes toward the LEFT edge.
@@ -218,8 +267,9 @@ Attack prompt template:
 A pixel art sprite sheet showing exactly 12 frames of a [ATTACK TYPE] attack animation,
 arranged in exactly 3 rows of 4 frames each (4 columns, 3 rows grid).
 NO divider lines or borders between frames. Each frame shows the same dark-fantasy
-[CREATURE NAME] creature FACING LEFT. The viewer sees the creature from a side-profile
-view showing its LEFT flank -- head points left, back/tail faces right.
+[CREATURE NAME] creature FACING LEFT. The creature's HEAD and FACE point toward
+the LEFT MARGIN of the image (the left edge). The creature's BACK and TAIL face
+the RIGHT MARGIN. Every attack, lunge, and projectile goes toward the LEFT EDGE.
 Bright solid green (#00FF00) background with NO grid lines, NO borders, NO separators
 between frames. Pixel art style with visible pixels, thick black outlines.
 
@@ -276,23 +326,69 @@ This is the most common failure point -- attack animations frequently flip direc
 - Frames 5-7 (peak/follow-through) mirrored compared to frames 1-4
 - The creature "winding up" by leaning right (the wind-up should compress the body, not change facing)
 
-If ANY frame fails, regenerate the entire attack sheet. After 3 failed attempts, modify the prompt: emphasize facing direction even more heavily by adding "IMPORTANT: This creature attacks toward the LEFT margin. Every frame faces LEFT." and consider simplifying the attack motion description.
+If ANY frame fails, regenerate the entire attack sheet. After 3 failed attempts, modify the prompt: emphasize facing direction even more heavily by adding "IMPORTANT: This creature attacks toward the LEFT margin. Every frame faces LEFT." and consider simplifying the attack motion description. If a 4th attempt also fails, use the **horizontal flip fallback** (same script as Phase 4) on the raw attack sheet before processing.
 
 ## Phase 6: Process Sprite Sheets
 
-Run the processing script for each raw sheet:
+### Pre-processing: Inspect the raw sheet before running the script
+
+Before running `process-spritesheet.mjs`, visually inspect each raw sheet. This catches grid problems early — fixing them before processing is always easier than debugging a broken output.
+
+Check all four of these:
+
+1. **Frame count**: Count rows and columns. Should be exactly 4 columns × 3 rows = 12 frames. If you see partial frames, extra blank rows, or frames that bleed into each other, the AI generated uneven spacing — use `--noAutoGrid` below.
+
+2. **Uniform frame size**: All frames should look the same width and height. If any frame appears wider, narrower, taller, or shorter than its neighbors, the spacing is non-uniform — use `--noAutoGrid`.
+
+3. **Aspect ratio check**: For a 4×3 grid, the raw sheet width should be roughly 4/3 × the height (e.g., 2048×1536, 1536×1152, 1024×768). Run:
+   ```bash
+   node -e "const {PNG}=require('pngjs'),fs=require('fs'); const d=PNG.sync.read(fs.readFileSync('<raw-sheet-path>')); console.log(d.width+'x'+d.height, 'ratio:', (d.width/d.height).toFixed(2), '(expected ~1.33 for 4x3)');"
+   ```
+   If the ratio is not close to 1.33, the frame spacing is likely non-uniform — use `--noAutoGrid`.
+
+4. **Divider lines**: Despite being told not to, generators sometimes add faint lines between frames. Any visible grid lines will confuse the content-aware detector — use `--noAutoGrid`.
+
+**`--noAutoGrid` decision rule**: If ANY of the above checks raise a concern, add `--noAutoGrid` to the processing command. This forces a perfectly uniform grid, which is more reliable than the content-aware detector when the raw sheet has any irregularity.
 
 ```bash
-node scripts/process-spritesheet.mjs <raw-idle-path> assets/goons/<goon>_idle_512x512_sheet.png <cols> <rows>
-node scripts/process-spritesheet.mjs <raw-attack-path> assets/goons/<goon>_attack_512x512_sheet.png <cols> <rows>
+# Default (use when raw sheet looks clean and evenly spaced):
+node scripts/process-spritesheet.mjs <raw-idle-path> assets/goons/<goon>_idle_512x512_sheet.png 4 3
+
+# Use this when any pre-processing check raised a concern:
+node scripts/process-spritesheet.mjs <raw-idle-path> assets/goons/<goon>_idle_512x512_sheet.png 4 3 --noAutoGrid
+node scripts/process-spritesheet.mjs <raw-attack-path> assets/goons/<goon>_attack_512x512_sheet.png 4 3 --noAutoGrid
 ```
 
-The script:
+The script runs a three-pass cleanup pipeline:
 
-1. Flood-fill removes border-connected green.
-2. Splits into grid cells by cols/rows.
-3. Centers each cell's content in a 512x512 transparent frame.
-4. Composites all frames into a single-row horizontal strip.
+1. **HSV chroma-key flood fill** -- converts pixels to HSV color space and removes border-connected pixels in the green hue range. Much more accurate than the old RGB heuristic, especially for dark creatures.
+2. **Green spill suppression** -- scans edge pixels (adjacent to transparency) and clamps the green channel to neutralize green fringe without destroying intentionally green interior pixels.
+3. **Alpha matting** -- computes soft alpha for pixels near the transparency boundary, creating smooth edges instead of hard jagged boundaries.
+4. **Content-aware grid detection** -- automatically finds frame boundaries by scanning for vertical/horizontal transparent gaps, rather than assuming a perfectly uniform grid. Falls back to uniform grid if auto-detection fails.
+5. Centers each frame's content in a 512x512 transparent frame and composites into a horizontal strip.
+
+### Cleanup flags reference
+
+| Flag | Default | Purpose |
+|------|---------|---------|
+| `--hueLo N` | 60 | HSV hue lower bound for green detection |
+| `--hueHi N` | 170 | HSV hue upper bound for green detection |
+| `--satMin N` | 0.15 | Minimum saturation to count as green |
+| `--valMin N` | 0.10 | Minimum value (brightness) to count as green |
+| `--spillPasses N` | 2 | Number of green spill suppression passes |
+| `--matteRadius N` | 2 | Alpha matting radius in pixels |
+| `--noAutoGrid` | false | Disable content-aware grid detection |
+
+### Creature-specific cleanup parameters
+
+| Creature type | Recommended flags | Why |
+|---------------|-------------------|-----|
+| **Standard** (most creatures) | *(defaults)* | Default HSV range and 2 spill passes work for most cases |
+| **Dark creatures** (shades, wraiths, golems) | `--spillPasses 3` | Extra spill pass catches green fringe that is highly visible on dark edges |
+| **Green creatures** on magenta bg | `--hueLo 270 --hueHi 330` | Targets magenta hue range instead of green |
+| **Green creatures** on green bg (fallback) | `--hueLo 100 --hueHi 140 --satMin 0.5` | Narrow range targets only pure bright green, preserves olive/forest greens |
+| **Thin-limbed creatures** (spiders, insects) | `--spillPasses 1 --matteRadius 1` | Conservative cleanup preserves thin features |
+| **Fragile thin features** (if limbs still lost) | `--spillPasses 0 --matteRadius 0` | Zero edge erosion -- may leave slight fringe but preserves all features |
 
 Verify the output:
 
@@ -345,11 +441,60 @@ for(const anim of ['idle','attack']){
 **Acceptable:** 0 bright-green pixels (or a small count under 50 for creatures with intentional green markings).
 
 **If green residue is found (>50 pixels on a non-green creature):**
-1. Re-run `process-spritesheet.mjs` with the raw sheet that was cleaned at a higher threshold.
-2. Or re-run `npm run asset:clean` on the raw sheet first with `--threshold 40` (or `48` for stubborn fringe), then re-process.
-3. After remediation, re-run this green check to confirm the count is acceptable.
+1. Re-run `process-spritesheet.mjs` with `--spillPasses 3` (or `4` for stubborn fringe).
+2. If fringe persists on dark creatures, try `--spillPasses 4 --matteRadius 3`.
+3. If fringe persists on light creatures, widen the hue range: `--hueLo 50 --hueHi 180`.
+4. After remediation, re-run the green check to confirm the count is acceptable.
 
-**Special case -- green-skinned creatures:** Creatures with intentionally green skin (e.g. goblins) will have high green pixel counts that are correct. For these creatures, visually inspect the processed frames instead: zoom into the creature outline and confirm there is no bright-green (#00FF00) halo between the creature edge and the transparent background. The flood-fill preserves interior green but border-connected green should be gone.
+**Special case -- green-skinned creatures:** If the creature was generated on a magenta background, green pixel counts reflect the creature's real coloring and are correct. If generated on a green background with narrow hue targeting, visually inspect the creature outline for bright-green (#00FF00) halo between the creature edge and transparent background.
+
+### Frame integrity check
+
+After processing, verify every frame extracted intact:
+
+```bash
+node -e "
+const {PNG}=require('pngjs'),fs=require('fs');
+const goon='<GOON_TYPE>';
+for(const anim of ['idle','attack']){
+  const p='assets/goons/'+goon+'_'+anim+'_512x512_sheet.png';
+  if(!fs.existsSync(p)){console.log(anim,'MISSING');continue;}
+  const d=PNG.sync.read(fs.readFileSync(p));
+  const frames=d.width/512;
+  let broken=false;
+  for(let f=0;f<frames;f++){
+    let px=0;
+    for(let y=0;y<512;y++) for(let x=0;x<512;x++)
+      if(d.data[((y*d.width+f*512+x)*4)+3]>0) px++;
+    const ok=px>=30000?'OK':'BROKEN';
+    if(px<30000) broken=true;
+    console.log('  Frame '+f+': '+px+' opaque px ['+ok+']');
+  }
+  if(broken) console.log('  WARNING: broken frames detected -- see troubleshooting');
+}
+"
+```
+
+**Every frame must have at least 30,000 opaque pixels.** Frames below 10,000 are broken (clipped/split by grid detection).
+
+**If any frame is broken, follow this sequence:**
+1. Re-run with `--noAutoGrid` (most common fix — forces uniform grid regardless of raw sheet irregularities).
+2. If still broken after `--noAutoGrid`: go back and check the raw sheet aspect ratio (pre-processing step 3 above). If it's not close to 1.33 for a 4×3 sheet, the AI generated uneven frames — regenerate the sheet.
+3. If the aspect ratio looks right but frames still break: visually count actual frames in the raw sheet and pass the correct `cols rows` to the script (the sheet may have snuck in an extra row, e.g. 4×4 instead of 4×3).
+
+### Troubleshooting decision tree
+
+| Symptom | Likely cause | Fix |
+|---------|-------------|-----|
+| **Green fringe on dark creature** | Default spill passes insufficient for dark edges | Re-run with `--spillPasses 3` or `--spillPasses 4` |
+| **Green fringe on green creature** | Green background matches creature coloring | Regenerate reference and sheets on magenta (#FF00FF) background; process with `--hueLo 270 --hueHi 330` |
+| **Creature body partially erased** | Cleanup hue range too wide for this creature's coloring | Narrow the range: `--hueLo 100 --hueHi 140 --satMin 0.5` |
+| **Thin limbs eaten/missing** | Spill suppression or matting too aggressive | Re-run with `--spillPasses 0 --matteRadius 0` |
+| **Frames are thin vertical/horizontal slices** | AI generator produced uneven frame spacing; grid detection failed | Re-run with `--noAutoGrid` (uniform grid) — run the aspect ratio check first to confirm dimensions are right |
+| **Some frames empty or <10k pixels** | Grid detection misaligned with actual frame layout | First try `--noAutoGrid`; if still broken, count frames visually and pass correct `cols rows` to the script |
+| **Frames face different directions** | AI generator inconsistency | Regenerate the entire sheet; do not process mixed-direction sheets |
+| **Character proportions change across frames** | AI generator lost consistency in later frames | Reduce frame count to 8 (4x2 grid) as fallback; adjust frameRate to compensate |
+| **Black outline merged with dark body** | Outline too thin or body too dark | Regenerate reference with "thick bright-colored outline" or "dark gray outline instead of black" |
 
 ### Outline integrity check
 
@@ -359,6 +504,28 @@ After cleanup, verify the creature's black outline survived processing intact. T
 2. **Thin features** (spider legs, antennae, tails): aggressive cleanup thresholds can eat into thin features. Verify thin extremities still have their black outline visible at the edges.
 
 If the outline is degraded, lower the cleanup `--threshold` (try 24 or 20) and reprocess. The trade-off: lower threshold may leave more green residue, so balance both checks.
+
+### Animation consistency verification
+
+After processing, compare the first and last frames of each sheet for proportion and feature consistency:
+
+1. **Silhouette check:** The creature's overall shape (width, height, limb positions) should be similar in frame 0 and the last frame. If the creature shrinks, grows, or changes shape dramatically, the animation will look broken.
+2. **Feature count check:** For multi-limbed creatures (spiders, insects), count visible limbs in frames 0, 4, and 8. If limb count varies (e.g. 8 legs in frame 0 but 5 in frame 8), the sheet has consistency degradation.
+3. **Facing check (redundant but critical):** Confirm the creature faces left in frames 0, 4, 8, and the last frame. Direction flips mid-animation are the most common consistency failure.
+
+**If consistency degrades across frames:**
+1. First try: regenerate the sheet with stronger reference-locking language: "Maintain EXACT proportions, limb count, and features from the reference image in EVERY frame."
+2. Second try: reduce frame count to 8 (4x2 grid) -- fewer frames means less opportunity for drift. Adjust the `process-spritesheet.mjs` call to `4 2` and update the ENEMY_ANIMATIONS frameRate if needed (8 frames at 20fps = 0.4s idle, 8 frames at 24fps = 0.33s attack).
+3. Third try: reduce to 6 frames (3x2 grid) as a last resort.
+
+**Creature-specific consistency tips:**
+
+| Creature type | Consistency risk | Prompt addition |
+|---------------|-----------------|-----------------|
+| **Multi-limbed** (spiders, insects) | Limb count varies across frames | Add: "The creature has exactly [N] legs visible in EVERY frame. Do not add or remove legs." |
+| **Wispy/ethereal** (wraiths, ghosts) | Tendril shapes change wildly | Add: "The creature's wispy tendrils maintain the same general flow direction and count in every frame. Only subtle movement, not reshaping." |
+| **Complex organic** (vines, plants) | Shape changes between frames | Add: "The creature's overall silhouette shape stays consistent. Only small movements within the existing shape, not structural changes." |
+| **Large boss** (broodmother, dragons) | Direction flips mid-animation | The v1 facing-direction gates already handle this. Additionally: "The creature's egg sac / wings / distinctive features remain on the same side in every frame." |
 
 ## Phase 7: Wire into Codebase
 
@@ -533,8 +700,8 @@ The MCP config lives at `.cursor/mcp.json`. The default workflow (image generati
 
 | Script | Purpose |
 |--------|---------|
-| `scripts/process-spritesheet.mjs` | Green removal, grid split, 512x512 centering, strip compositing |
-| `scripts/finalize-icon.mjs` | Clean single reference images from green background |
+| `scripts/process-spritesheet.mjs` | HSV chroma-key removal, spill suppression, alpha matting, content-aware grid detection, 512x512 centering, strip compositing |
+| `scripts/finalize-icon.mjs` | Clean single reference images from green/magenta background |
 | `scripts/autosprite-poc.mjs` | AutoSprite MCP API client (paid plan only) |
 
 ## Naming Conventions
@@ -558,10 +725,13 @@ Animation keys: `<goon>_idle` (20fps, repeat -1), `<goon>_attack` (24fps, repeat
 - [ ] **Verified idle sheet facing direction (max 3 attempts)** -- all frames face left before processing
 - [ ] Generated attack sprite sheet (12 frames, 4x3 grid, no divider lines, all frames face left, negative prompts included)
 - [ ] **Verified attack sheet facing direction (max 3 attempts)** -- lunge/strike goes toward LEFT edge, checked anti-patterns, no mirrored frames
-- [ ] Processed both sheets through process-spritesheet.mjs
+- [ ] Chose correct background color (green default, magenta for green creatures)
+- [ ] Processed both sheets through process-spritesheet.mjs with creature-appropriate flags
+- [ ] **Ran frame integrity check** -- every frame has >=30,000 opaque pixels, no broken/clipped frames
 - [ ] Verified frame counts and opaque pixels per frame
 - [ ] **Ran green residue check** -- 0 bright-green pixels (or visual inspection for green-skinned creatures)
 - [ ] **Ran outline integrity check** -- black outline visible, thin features preserved
+- [ ] **Ran consistency check** -- compared first and last frames for proportion/feature match
 - [ ] Added load.spritesheet() calls to BootScene GamePreloadScene.preload
 - [ ] Added entries to ENEMY_ANIMATIONS array
 - [ ] Added branch to getEnemyAnimationSet()

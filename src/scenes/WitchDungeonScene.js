@@ -387,7 +387,7 @@ class WitchDungeonScene extends Phaser.Scene {
   leaveDungeon() {
     GAME_STATE.dungeonProgress = null;
     GAME_STATE.pendingWitchDungeon = false;
-    this.scene.start('Overworld');
+    this.scene.start('Town');
   }
 
   saveDungeonProgress() {

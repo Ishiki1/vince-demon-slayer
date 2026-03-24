@@ -68,6 +68,7 @@ const ITEMS = {
   'rare-amulet': defineItem('rare-amulet', { name: 'Jade Amulet', type: 'accessory', rarity: 'rare', strength: 1, health: 4, mana: 3, primaryStat: 'strength', allowedClasses: ['warrior'], lootEligible: true, shopEligible: true }),
   'legendary-amulet': defineItem('legendary-amulet', { name: 'Demon Heart', type: 'accessory', rarity: 'legendary', strength: 4, health: 8, mana: 8, primaryStat: 'strength', allowedClasses: ['warrior'], lootEligible: true, shopEligible: true, merchantEligible: true }),
   'phantom-cloak': defineItem('phantom-cloak', { name: 'Phantom Cloak', type: 'accessory', rarity: 'legendary', evasion: 0.15, health: 3, mana: 3, primaryStat: 'strength', allowedClasses: ['warrior'], lootEligible: true, shopEligible: true }),
+  'sunglasses-of-true-sight': defineItem('sunglasses-of-true-sight', { name: 'Sunglasses of True Sight', type: 'accessory', rarity: 'legendary', strength: 2, health: 3, primaryStat: 'strength', allowedClasses: ['shared'], grantsTrueDamage: true }),
 
   // Sorceress accessories
   'common-orb': defineItem('common-orb', { name: 'Glass Orb', type: 'accessory', rarity: 'common', intelligence: 1, health: 0, mana: 0, primaryStat: 'intelligence', allowedClasses: ['sorceress'], lootEligible: true, shopEligible: true }),
@@ -291,6 +292,7 @@ function getItemEffectLine(item) {
   if (item.maxHealthModifier != null) parts.push(item.maxHealthModifier >= 0 ? '+' + item.maxHealthModifier + ' Max HP' : item.maxHealthModifier + ' Max HP');
   if (item.evasion != null) parts.push('+' + Math.round(item.evasion * 100) + '% Evasion');
   if (item.intelligence) parts.push('+' + item.intelligence + ' Int');
+  if (item.grantsTrueDamage) parts.push('True Damage (ignores dodge)');
   return parts.join(', ') || '';
 }
 
